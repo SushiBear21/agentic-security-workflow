@@ -18,3 +18,7 @@ attempts/
 *.tfvars
 
 .build/
+# Project 4 generated files
+/reports/
+__pycache__/
+*.py[cod]
