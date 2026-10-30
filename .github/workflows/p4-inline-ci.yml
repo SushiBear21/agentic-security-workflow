@@ -1,0 +1,254 @@
+name: Project 4 inline regression checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      PYTHONUNBUFFERED: "1"
+      AWS_EC2_METADATA_DISABLED: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Run lesson unit tests
+        run: |
+          python p4_baseline.py --self-test
+          python p4_orchestration.py --self-test
+          python p4_reliability.py --self-test
+          python p4_context.py --self-test
+          python p4_observability.py --self-test
+          python p4_review.py --self-test
+          python p4_finish.py --drill
+
+      - name: Run reference evaluations
+        run: |
+          python p4_baseline.py
+          python p4_orchestration.py
+          python p4_reliability.py
+          python p4_context.py
+
+      - name: Run observability without model calls
+        run: python p4_observability.py --repeats 1
+
+      - name: Verify the broken response is rejected
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          root = Path("reports/p4-lesson1")
+          before = set(root.glob("*/evaluation.json"))
+
+          result = subprocess.run([
+              sys.executable,
+              "p4_baseline.py",
+              "--broken",
+          ])
+
+          if result.returncode != 1:
+              raise SystemExit(
+                  "Broken control did not exit with code 1"
+              )
+
+          created = set(root.glob("*/evaluation.json")) - before
+
+          if len(created) != 1:
+              raise SystemExit(
+                  "Broken control did not create exactly one report"
+              )
+
+          report = json.loads(
+              created.pop().read_text(encoding="utf-8")
+          )
+
+          failed = {
+              row["case_id"]
+              for row in report["results"]
+              if not row["passed"]
+          }
+
+          if report["passed"] != 2 or report["total"] != 4:
+              raise SystemExit(
+                  "Unexpected broken-control counts"
+              )
+
+          if failed != {"clean-review", "private-asset"}:
+              raise SystemExit(
+                  "Unexpected broken-control failures"
+              )
+
+          print(
+              "PASS: Broken control was rejected "
+              "for the expected cases."
+          )
+          PY
+
+      - name: Verify offline evidence and record its hashes
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import sys
+
+          manifest = {
+              "git_revision": os.environ["GITHUB_SHA"],
+              "python_version": sys.version,
+              "mode": "offline_simulation",
+              "reports": {},
+              "source_sha256": {},
+          }
+
+          for filename in (
+              "p4_baseline.py",
+              "p4_orchestration.py",
+              "p4_reliability.py",
+              "p4_context.py",
+              "p4_observability.py",
+              "p4_review.py",
+              "p4_finish.py",
+          ):
+              manifest["source_sha256"][filename] = (
+                  hashlib.sha256(
+                      Path(filename).read_bytes()
+                  ).hexdigest()
+              )
+
+          for lesson, count in (
+              (1, 4),
+              (2, 7),
+              (3, 8),
+              (4, 10),
+              (5, 24),
+          ):
+              filename = (
+                  "comparison.json"
+                  if lesson == 5
+                  else "evaluation.json"
+              )
+
+              paths = list(
+                  Path(f"reports/p4-lesson{lesson}").glob(
+                      f"*/{filename}"
+                  )
+              )
+
+              expected_reports = 2 if lesson == 1 else 1
+
+              if len(paths) != expected_reports:
+                  raise SystemExit(
+                      f"Unexpected report count for lesson {lesson}"
+                  )
+
+              for path in paths:
+                  report = json.loads(
+                      path.read_text(encoding="utf-8")
+                  )
+
+                  if report["mode"] != "offline_simulation":
+                      raise SystemExit(
+                          f"Non-offline report: {path}"
+                      )
+
+                  if len(report["results"]) != count:
+                      raise SystemExit(
+                          f"Unexpected case count: {path}"
+                      )
+
+                  if lesson == 5:
+                      if (
+                          report["calls_attempted"] != 0
+                          or not report["complete"]
+                      ):
+                          raise SystemExit(
+                              "Comparison must be complete "
+                              "with zero model calls"
+                          )
+
+                      if any(
+                          row["model_called"]
+                          for row in report["results"]
+                      ):
+                          raise SystemExit(
+                              "Unexpected model call"
+                          )
+
+                      if not all(
+                          row["passed"]
+                          for row in report["results"]
+                      ):
+                          raise SystemExit(
+                              "Offline comparison contains failures"
+                          )
+
+                  else:
+                      if report["model_calls"] != 0:
+                          raise SystemExit(
+                              f"Unexpected model call: {path}"
+                          )
+
+                      broken = (
+                          lesson == 1
+                          and report.get("strategy") == "broken"
+                      )
+
+                      expected_passed = 2 if broken else count
+
+                      if report["passed"] != expected_passed:
+                          raise SystemExit(
+                              f"Unexpected pass count: {path}"
+                          )
+
+                  manifest["reports"][path.as_posix()] = (
+                      hashlib.sha256(
+                          path.read_bytes()
+                      ).hexdigest()
+                  )
+
+          Path("reports/p4-ci-manifest.json").write_text(
+              json.dumps(manifest, indent=2),
+              encoding="utf-8",
+          )
+
+          print(
+              "PASS: Expected reports verified; "
+              "all report zero model calls."
+          )
+          PY
+
+      - name: Upload evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: p4-inline-offline-evidence
+          path: |
+            reports/p4-ci-manifest.json
+            reports/p4-session8/
+            reports/p4-lesson1/
+            reports/p4-lesson2/
+            reports/p4-lesson3/
+            reports/p4-lesson4/
+            reports/p4-lesson5/
+          retention-days: 14
+          if-no-files-found: warn
