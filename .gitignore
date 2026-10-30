@@ -22,3 +22,7 @@ attempts/
 /reports/
 __pycache__/
 *.py[cod]
+
+# Project 4 local outputs
+/reports/
+/.local/
