@@ -35,6 +35,7 @@ jobs:
           python p4_reliability.py --self-test
           python p4_context.py --self-test
           python p4_observability.py --self-test
+          python p4_review.py --self-test
 
       - name: Run reference evaluations
         run: |
@@ -124,6 +125,7 @@ jobs:
               "p4_reliability.py",
               "p4_context.py",
               "p4_observability.py",
+              "p4_review.py",
           ):
               manifest["source_sha256"][filename] = (
                   hashlib.sha256(
