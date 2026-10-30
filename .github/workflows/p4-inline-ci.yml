@@ -36,6 +36,7 @@ jobs:
           python p4_context.py --self-test
           python p4_observability.py --self-test
           python p4_review.py --self-test
+          python p4_finish.py --drill
 
       - name: Run reference evaluations
         run: |
@@ -126,6 +127,7 @@ jobs:
               "p4_context.py",
               "p4_observability.py",
               "p4_review.py",
+              "p4_finish.py",
           ):
               manifest["source_sha256"][filename] = (
                   hashlib.sha256(
@@ -242,6 +244,7 @@ jobs:
           name: p4-inline-offline-evidence
           path: |
             reports/p4-ci-manifest.json
+            reports/p4-session8/
             reports/p4-lesson1/
             reports/p4-lesson2/
             reports/p4-lesson3/
