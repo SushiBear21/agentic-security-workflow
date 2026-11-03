@@ -8,6 +8,8 @@ dependency-aware remediation tickets, executive reports, and verifiable evidence
 Run locally with Python or use the optional DynamoDB/S3 storage implementation.
 Cloud deployment and live model validation are pending; the existing blocked AI
 quality decision below is preserved. See the [AWS deployment plan](docs/control-tower-aws.md).
+The [validation record](docs/control-tower-validation.md) distinguishes completed
+local checks from pending cloud and publication steps.
 
 A bounded security-review workflow that turns a frozen synthetic threat-intel
 snapshot into a proposed local ticket, with explicit human approval before
