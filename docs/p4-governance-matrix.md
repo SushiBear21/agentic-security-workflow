@@ -31,7 +31,7 @@ recommendations, not implemented controls in this exercise.
 | GOVERN | Named owner, explicit review rubric, documented boundaries | This matrix; human-review.json | Single-person review; no independent enterprise approval |
 | MAP | Intended use and synthetic failure scenarios defined | Evaluation cases and lesson results | Small development dataset; no representative enterprise traffic |
 | MEASURE | Contract checks, live repetitions, latency, tokens, estimated cost, and human review | comparison.json; session 7 results | Small sample; no statistical superiority or zero-hallucination claim |
-| MANAGE | Invalid outputs rejected; initial schema failures investigated; prompt corrected and reevaluated | Preserved failed smoke report and successful subsequent reports | Operational readiness decision remains for session 8 |
+| MANAGE | Invalid outputs rejected; initial schema failures investigated; prompt corrected and reevaluated | Preserved failed smoke report and successful subsequent reports | Final lab decision: BLOCKED; neither configuration met the human-review gate (see [final results](p4-final-results.md)) |
 
 ## OWASP LLM Top 10 — 2025 edition
 
@@ -82,8 +82,10 @@ or general resistance to prompt injection.
 The dataset is a development regression set used during prompt
 improvement. It is not an independently held-out benchmark.
 
-Final configuration selection and operational readiness remain
-for session 8.
+Session 8 is complete: the [final laboratory decision](p4-final-results.md) is
+**BLOCKED**, with no eligible configuration. Both configurations passed 36/36
+contract checks but only 9/12 human reviews against the required 12/12. These
+retrospective lab criteria and results do not establish operational readiness.
 
 ## Primary references
 
