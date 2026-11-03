@@ -1,5 +1,14 @@
 # Agentic Security Workflow
 
+## New: AI Security Program Control Tower
+
+The [control tower](docs/control-tower.md) adds synthetic finding and vendor-risk intake,
+NIST control mappings, bounded AI drafting, exact-payload human decisions,
+dependency-aware remediation tickets, executive reports, and verifiable evidence exports.
+Run locally with Python or use the optional DynamoDB/S3 storage implementation.
+Cloud deployment and live model validation are pending; the existing blocked AI
+quality decision below is preserved. See the [AWS deployment plan](docs/control-tower-aws.md).
+
 A bounded security-review workflow that turns a frozen synthetic threat-intel
 snapshot into a proposed local ticket, with explicit human approval before
 execution. A separate Project 4 companion evaluates AI drafting quality.
