@@ -6,8 +6,9 @@ The [control tower](docs/control-tower.md) adds synthetic finding and vendor-ris
 NIST control mappings, bounded AI drafting, exact-payload human decisions,
 dependency-aware remediation tickets, executive reports, and verifiable evidence exports.
 Run locally with Python or use the optional DynamoDB/S3 storage implementation.
-Cloud deployment and live model validation are pending; the existing blocked AI
-quality decision below is preserved. See the [AWS deployment plan](docs/control-tower-aws.md).
+Private DynamoDB/S3 storage was deployed and smoke-tested on November 3, 2026;
+live model validation remains pending and the existing blocked AI quality decision
+below is preserved. See the [AWS deployment record](docs/control-tower-aws.md).
 The [validation record](docs/control-tower-validation.md) distinguishes completed
 local checks from pending cloud and publication steps.
 

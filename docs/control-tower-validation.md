@@ -1,5 +1,23 @@
 # Control tower validation — November 3, 2026
 
+## Subsequent verified progress
+
+The feature branch was published after repository-specific approval. GitHub
+security-test and Project 4 regression workflows passed for commit
+`852ec5407ed6b47e74d99823240367e801b21598`. The dashboard was visually checked via
+permitted localhost HTTP preview; that preview server was stopped afterward.
+
+Following SSO refresh and explicit cloud spending approval, the storage stack
+reached CREATE_COMPLETE. Live synthetic intake, duplicate handling, unapproved
+execution denial and private evidence upload/download verification passed. Six
+findings and three pending proposals are stored; no approvals, tickets or model
+calls were created. See [deployment details and limits](control-tower-aws.md).
+
+The sections below preserve the original local-validation record and blockers as
+they stood before those follow-up steps; publication, preview and AWS access are
+no longer blocked. Broader live approval/concurrency/IAM and model validation
+remain outstanding.
+
 Observed locally on Windows / Python 3.13:
 
 - Full repository unittest discovery: **36/36 passed** (16 original security tests,

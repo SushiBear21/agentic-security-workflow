@@ -1,8 +1,49 @@
 # AWS deployment and review plan
 
-Status: implementation prepared; not deployed or live-verified. Initial
-`aws sts get-caller-identity` returned `NoCredentials`; no AWS profiles were listed.
-No paid resources, new credentials, model invocations or IAM grants were created.
+Status: storage deployed and bounded synthetic smoke tests passed on November 3,
+2026, after explicit approval targeting no more than $1/month. The existing
+`portfolio-sandbox` SSO session was refreshed; no persistent credentials or IAM
+grants were created. No model calls or infrastructure remediation were performed.
+
+## Observed deployment
+
+- Account/region: `359769212511`, `us-east-1`.
+- Stack: `portfolio-security-control-tower`, status `CREATE_COMPLETE`.
+- Resources: one on-demand DynamoDB table, one private S3 bucket and its TLS-only
+  bucket policy. The change set contained exactly these three additions.
+- Table: `portfolio-security-control-tower-Program-6DIHL744X3DD`.
+- Bucket: `portfolio-security-control-tower-evidence-dvugfrgx2i1h`.
+- Six synthetic findings ingested; duplicate intake and proposals reused the same
+  records. Three proposals are PENDING, with zero tickets and zero approvals.
+- Attempted execution of a PENDING proposal was denied and audited.
+- Bucket public-access block, nonpublic policy status, AES256 encryption and
+  versioning were verified using AWS read APIs. TLS-only denial was inspected in
+  the bucket policy, not tested by sending an insecure request.
+- One evidence ZIP was uploaded, retrieved by version ID, compared byte-for-byte,
+  and passed manifest/audit-chain verification after download.
+
+This was operated using the existing AdministratorAccess SSO role. Least-privilege
+runtime access, independent approver identity, approved live execution, expiry and
+live concurrency were not validated; those remain separate from offline tests.
+The generated dashboard stays local; no public website was deployed.
+
+## Cost and retention status
+
+The authorized target is no more than $1/month. Illustrative tiny storage-only
+usage is about $0.05/month (100 writes and 200 strong reads at the 300 KB document
+limit, 1 GB S3 storage, 100 uploads). This is an estimate, not observed billing,
+and excludes model calls, downloads, taxes and unrelated account services.
+AWS billing has not yet established project-attributed cost. No background jobs
+or model calls are enabled. The existing account budget is $10/month; a separate
+$1 project alert or hard cap has not been configured. Budget alerts are not caps.
+
+Storage remains live for the demo. Stack deletion retains the table and bucket,
+including evidence versions, so storage billing continues until retained resources
+are explicitly removed. No existing lab resources were changed or cleaned up.
+
+Initial sandbox checks returned NoCredentials; inspection through the user's
+existing profile later found an expired SSO session. Those earlier access blockers
+are resolved. Historical preparation guidance follows.
 
 ## Proposed footprint
 
