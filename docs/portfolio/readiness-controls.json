@@ -1,0 +1,109 @@
+[
+  {
+    "control": "AC-3",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Allowlisted synthetic action/resource",
+    "evidence": [
+      "tower/access_demo.py",
+      "tests/test_access_demo.py"
+    ],
+    "gap": "No authenticated production principal or OS enforcement"
+  },
+  {
+    "control": "AC-5",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Distinct simulated requester and approver",
+    "evidence": [
+      "tower/access_demo.py",
+      "tests/test_access_demo.py"
+    ],
+    "gap": "One OS user can impersonate both personas"
+  },
+  {
+    "control": "AC-6",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Bounded action and resource only",
+    "evidence": [
+      "tower/access_demo.py",
+      "tests/test_access_demo.py"
+    ],
+    "gap": "No real privileged session or deployed IAM validation"
+  },
+  {
+    "control": "AU-2",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Request, decision and execution events",
+    "evidence": [
+      "tower/access_demo.py"
+    ],
+    "gap": "No production event policy or monitoring service"
+  },
+  {
+    "control": "AU-3",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Actor, action, decision, payload references",
+    "evidence": [
+      "tower/access_demo.py"
+    ],
+    "gap": "Actor identities are simulated"
+  },
+  {
+    "control": "AU-9",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Hash-based modification detection",
+    "evidence": [
+      "tower/core.py",
+      "tower/report.py"
+    ],
+    "gap": "Local privileged operator can rewrite evidence and chain"
+  },
+  {
+    "control": "CA-7",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Repeatable checks and evidence refresh",
+    "evidence": [
+      "tests/test_tower.py",
+      "tower/readiness_package.py"
+    ],
+    "gap": "No production monitoring cadence or complete assessment"
+  },
+  {
+    "control": "CM-3",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Versioned code and reviewable change set",
+    "evidence": [
+      "docs/portfolio/ai-program-delivery-case-study.md"
+    ],
+    "gap": "No independent production release authority"
+  },
+  {
+    "control": "RA-5",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Synthetic findings routed and tracked",
+    "evidence": [
+      "tower/core.py",
+      "tower/fixtures.json"
+    ],
+    "gap": "No real scanner coverage or assessment"
+  },
+  {
+    "control": "SI-2",
+    "catalog": "NIST SP 800-53 Rev. 5",
+    "status": "partial_synthetic_demonstration",
+    "statement": "Evidence-gated synthetic closure",
+    "evidence": [
+      "tower/core.py",
+      "tests/test_tower.py"
+    ],
+    "gap": "No actual patches or live validation"
+  }
+]

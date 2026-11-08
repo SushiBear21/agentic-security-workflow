@@ -1,5 +1,16 @@
 # Agentic Security Workflow
 
+## Portfolio extensions (synthetic lab)
+
+- [AI program-delivery case study](docs/portfolio/ai-program-delivery-case-study.md)
+- [Selected-control FedRAMP readiness exercise](docs/portfolio/fedramp-readiness-lab.md)
+- [Privileged-access simulation](docs/privileged-access-demo.md)
+
+These additions preserve the existing blocked AI-quality decision. They do not
+claim FedRAMP authorization or implement production IAM. No new AWS deployment
+is required. Run the offline evidence builder with `python -m tower.readiness_package
+--output /tmp/readiness-evidence-new` (on one line, using a new directory).
+
 ## New: AI Security Program Control Tower
 
 The [control tower](docs/control-tower.md) adds synthetic finding and vendor-risk intake,
