@@ -22,3 +22,7 @@ environment settings, scoped OIDC roles, target ECR/ECS configuration and live
 execution evidence remain required. No new cloud infrastructure or model calls
 were made. Adoption results in the fixture are synthetic. This is not an official
 SSP/POA&M submission or production-readiness certification.
+
+Container remediation: replaced the Debian runtime with a digest-pinned official
+Python 3.13 Alpine runtime and removed pip after dependency installation. The
+HIGH/CRITICAL gate includes unfixed findings; no suppression was added.
