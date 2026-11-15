@@ -133,3 +133,15 @@ See [customer deployment and release rehearsal](docs/portfolio/customer-deployme
 - [Evidence-bound assurance and risk exceptions](docs/portfolio/assurance-workflow.md)
 - [Versioned evaluation and reliability](docs/portfolio/evaluation-extensions.md)
 - [Current validation record](docs/portfolio/validation-2026-11-15.md)
+
+## Remaining-deliverable implementation
+
+- [Synthetic SSP](docs/portfolio/synthetic-ssp.md) and [tracked POA&M](docs/portfolio/poam.json)
+- [Staging build/publish/deploy and rollback](docs/portfolio/deployment-automation.md)
+- [Adoption measurement and handoff](docs/portfolio/adoption-measurement.md)
+- [Read-only AWS collection and evidence freshness](docs/portfolio/continuous-monitoring.md)
+
+Container CI now scans OS and library vulnerabilities and generates image SBOMs.
+AWS publishing/deployment workflows are manual and require configured protected
+environments and existing infrastructure. No live deployment or real adoption
+results are implied; the AI-quality gate remains blocked.

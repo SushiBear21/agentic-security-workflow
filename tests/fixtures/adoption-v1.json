@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "window_start": "2026-11-01T00:00:00Z",
+  "window_end": "2026-11-08T00:00:00Z",
+  "eligible_users": [
+    "lab-a",
+    "lab-b",
+    "lab-c"
+  ],
+  "prior_active_users": [
+    "lab-a",
+    "lab-c"
+  ],
+  "events": [
+    {
+      "id": "e1",
+      "user_id": "lab-a",
+      "at": "2026-11-02T10:00:00Z",
+      "kind": "workflow_completed"
+    },
+    {
+      "id": "e2",
+      "user_id": "lab-b",
+      "at": "2026-11-03T10:00:00Z",
+      "kind": "workflow_completed"
+    },
+    {
+      "id": "e3",
+      "user_id": "lab-c",
+      "at": "2026-11-04T10:00:00Z",
+      "kind": "workflow_failed"
+    },
+    {
+      "id": "e4",
+      "user_id": "lab-a",
+      "at": "2026-11-02T10:01:00Z",
+      "kind": "draft_accepted"
+    },
+    {
+      "id": "e5",
+      "user_id": "lab-b",
+      "at": "2026-11-03T10:01:00Z",
+      "kind": "draft_rejected"
+    }
+  ],
+  "timing_pairs": [
+    {
+      "task_id": "t1",
+      "manual_seconds": 120,
+      "assisted_seconds": 90
+    },
+    {
+      "task_id": "t2",
+      "manual_seconds": 100,
+      "assisted_seconds": 110
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "security-tests",
+    "owner": "Synthetic engineering owner",
+    "max_age_hours": 168,
+    "method": "Full tests and regression artifacts for deployed revision",
+    "action": "Block release on failure; investigate stale evidence"
+  },
+  {
+    "id": "container-scan",
+    "owner": "Synthetic security owner",
+    "max_age_hours": 168,
+    "method": "Trivy OS/library vulnerability JSON and container SBOM for exact digest",
+    "action": "Block deployment on HIGH/CRITICAL; track all findings"
+  },
+  {
+    "id": "aws-boundary",
+    "owner": "Synthetic cloud owner",
+    "max_age_hours": 24,
+    "method": "Read-only S3/DynamoDB configuration evidence for expected account/region",
+    "action": "Investigate drift; do not infer absent evidence is compliant"
+  },
+  {
+    "id": "human-quality",
+    "owner": "Independent reviewer (not assigned)",
+    "max_age_hours": 720,
+    "method": "Held-out live outputs with explicit reviewer judgments",
+    "action": "Keep AI-quality gate blocked until reviewed"
+  },
+  {
+    "id": "adoption",
+    "owner": "Synthetic product owner",
+    "max_age_hours": 168,
+    "method": "Pseudonymous eligible cohort, events and paired timings",
+    "action": "Report null for missing observations; separate synthetic from operational data"
+  }
+]

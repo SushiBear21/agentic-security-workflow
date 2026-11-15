@@ -1,0 +1,78 @@
+name: Build scan and publish staging image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: portfolio-staging-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    environment: portfolio-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
+      REGION: ${{ vars.AWS_REGION }}
+      REPOSITORY: ${{ vars.ECR_REPOSITORY_URI }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - name: Validate registry configuration
+        run: |
+          python - <<'PY'
+          import os,re
+          expected=f"{os.environ['ACCOUNT']}.dkr.ecr.{os.environ['REGION']}.amazonaws.com/"
+          if not re.fullmatch(r"[0-9]{12}",os.environ["ACCOUNT"]) or not os.environ["REPOSITORY"].startswith(expected): raise SystemExit("Configure the expected ECR account and repository")
+          if not re.fullmatch(re.escape(expected)+r"[a-z0-9]+(?:[._/-][a-z0-9]+)*",os.environ["REPOSITORY"]): raise SystemExit("Invalid ECR repository")
+          PY
+      - run: docker build -f Dockerfile.service -t "portfolio-service:$GITHUB_SHA" .
+      - uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: portfolio-service:${{ github.sha }}
+          format: cyclonedx
+          output: staging-sbom.json
+          scanners: vuln
+          exit-code: "0"
+      - uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: portfolio-service:${{ github.sha }}
+          format: json
+          output: staging-scan.json
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: "false"
+          exit-code: "1"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PUBLISH_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - name: Publish only the scanned image
+        run: |
+          registry="${ACCOUNT}.dkr.ecr.${REGION}.amazonaws.com"
+          aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$registry"
+          docker tag "portfolio-service:$GITHUB_SHA" "$REPOSITORY:$GITHUB_SHA"
+          docker push "$REPOSITORY:$GITHUB_SHA"
+          name="${REPOSITORY#*/}"
+          digest=$(aws ecr describe-images --repository-name "$name" --image-ids imageTag="$GITHUB_SHA" --query 'imageDetails[0].imageDigest' --output text)
+          printf '%s@%s\n' "$REPOSITORY" "$digest" > published-image.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-staging-image
+          path: |
+            staging-sbom.json
+            staging-scan.json
+            published-image.txt
+          retention-days: 30
