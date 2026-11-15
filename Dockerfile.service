@@ -1,0 +1,10 @@
+FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+WORKDIR /app
+COPY app app
+COPY tower tower
+RUN useradd --uid 10001 --create-home portfolio
+USER 10001
+ENV PYTHONDONTWRITEBYTECODE=1
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=2)"
+ENTRYPOINT ["python", "-m", "tower.service", "--host", "0.0.0.0"]

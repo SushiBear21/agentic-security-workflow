@@ -20,6 +20,13 @@ FILES = (
     'tests/test_uncertain_outcome.py', 'tests/test_regression_gate.py',
     'docs/portfolio/customer-deployment.md', 'docs/portfolio/assurance-workflow.md',
     'docs/portfolio/evaluation-extensions.md',
+    'Dockerfile.service', 'tower/adoption.py', 'tower/compliance.py',
+    'tower/deploy.py', 'tower/service.py', 'tower/aws_evidence.py',
+    'tests/test_adoption.py', 'tests/test_compliance.py', 'tests/test_deploy.py',
+    'tests/test_aws_evidence.py', 'tests/fixtures/adoption-v1.json',
+    'docs/portfolio/synthetic-ssp.md', 'docs/portfolio/poam.json',
+    'docs/portfolio/monitoring-plan.json', 'docs/portfolio/deployment-automation.md',
+    'docs/portfolio/adoption-measurement.md', 'docs/portfolio/continuous-monitoring.md',
 )
 
 

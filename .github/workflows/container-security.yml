@@ -1,0 +1,98 @@
+name: Container security and portfolio evidence
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 13 * * 1"
+permissions:
+  contents: read
+jobs:
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - file: Dockerfile
+            image: portfolio-rehearsal
+          - file: Dockerfile.service
+            image: portfolio-service
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build exact revision
+        env:
+          DOCKERFILE: ${{ matrix.file }}
+          IMAGE: ${{ matrix.image }}
+        run: docker build -f "$DOCKERFILE" -t "$IMAGE:$GITHUB_SHA" .
+      - name: Generate container OS and library SBOM
+        uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: ${{ matrix.image }}:${{ github.sha }}
+          format: cyclonedx
+          output: container-sbom.json
+          scanners: vuln
+          exit-code: "0"
+      - name: Block high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: ${{ matrix.image }}:${{ github.sha }}
+          format: json
+          output: container-vulnerabilities.json
+          scanners: vuln
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: "false"
+          exit-code: "1"
+      - name: Smoke test read-only service
+        if: matrix.image == 'portfolio-service'
+        run: |
+          docker run -d --name portfolio-smoke --network none --read-only --cap-drop ALL --security-opt no-new-privileges portfolio-service:"$GITHUB_SHA"
+          trap 'docker rm -f portfolio-smoke' EXIT
+          for attempt in $(seq 1 15); do
+            if docker exec portfolio-smoke python -c "import json,urllib.request; r=json.load(urllib.request.urlopen('http://127.0.0.1:8080/health',timeout=2)); assert r['status']=='ok' and r['ai_quality']=='blocked'"; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.image }}-security
+          path: |
+            container-sbom.json
+            container-vulnerabilities.json
+          retention-days: 30
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: python -m tower.adoption tests/fixtures/adoption-v1.json --output adoption-synthetic.json
+      - name: Validate POAM and report missing operational evidence explicitly
+        run: |
+          if python -m tower.compliance --output compliance.json; then
+            echo "Operational evidence current"
+          else
+            code=$?
+            test "$code" -eq 2
+            echo "Operational monitoring evidence missing or failing; see report"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-compliance-adoption
+          path: |
+            compliance.json
+            adoption-synthetic.json
+          retention-days: 30

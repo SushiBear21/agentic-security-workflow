@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "system": "Portfolio AI Security Control Tower",
+  "scope": "Selected-control laboratory exercise; not an official FedRAMP submission",
+  "items": [
+    {
+      "id": "LAB-001",
+      "control": "AC-3",
+      "weakness": "No authenticated production principal or OS enforcement",
+      "owner": "Synthetic IAM owner",
+      "risk": "high",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No authenticated production principal or OS enforcement",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AC-3",
+      "evidence": [
+        "tower/access_demo.py",
+        "tests/test_access_demo.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-002",
+      "control": "AC-5",
+      "weakness": "One OS user can impersonate both personas",
+      "owner": "Synthetic IAM owner",
+      "risk": "high",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: One OS user can impersonate both personas",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AC-5",
+      "evidence": [
+        "tower/access_demo.py",
+        "tests/test_access_demo.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-003",
+      "control": "AC-6",
+      "weakness": "No real privileged session or deployed IAM validation",
+      "owner": "Synthetic IAM owner",
+      "risk": "high",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No real privileged session or deployed IAM validation",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AC-6",
+      "evidence": [
+        "tower/access_demo.py",
+        "tests/test_access_demo.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-004",
+      "control": "AU-2",
+      "weakness": "No production event policy or monitoring service",
+      "owner": "Synthetic security operations owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No production event policy or monitoring service",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AU-2",
+      "evidence": [
+        "tower/access_demo.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-005",
+      "control": "AU-3",
+      "weakness": "Actor identities are simulated",
+      "owner": "Synthetic security operations owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: Actor identities are simulated",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AU-3",
+      "evidence": [
+        "tower/access_demo.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-006",
+      "control": "AU-9",
+      "weakness": "Local privileged operator can rewrite evidence and chain",
+      "owner": "Synthetic security operations owner",
+      "risk": "high",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: Local privileged operator can rewrite evidence and chain",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for AU-9",
+      "evidence": [
+        "tower/core.py",
+        "tower/report.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-007",
+      "control": "CA-7",
+      "weakness": "No production monitoring cadence or complete assessment",
+      "owner": "Synthetic program owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No production monitoring cadence or complete assessment",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for CA-7",
+      "evidence": [
+        "tests/test_tower.py",
+        "tower/readiness_package.py"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-008",
+      "control": "CM-3",
+      "weakness": "No independent production release authority",
+      "owner": "Synthetic program owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No independent production release authority",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for CM-3",
+      "evidence": [
+        "docs/portfolio/ai-program-delivery-case-study.md"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-009",
+      "control": "RA-5",
+      "weakness": "No real scanner coverage or assessment",
+      "owner": "Synthetic program owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No real scanner coverage or assessment",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for RA-5",
+      "evidence": [
+        "tower/core.py",
+        "tower/fixtures.json"
+      ],
+      "closure_evidence": null
+    },
+    {
+      "id": "LAB-010",
+      "control": "SI-2",
+      "weakness": "No actual patches or live validation",
+      "owner": "Synthetic program owner",
+      "risk": "moderate",
+      "identified": "2026-11-15",
+      "due": "2026-12-15",
+      "status": "open",
+      "remediation": "Implement and independently validate the missing capability: No actual patches or live validation",
+      "milestones": [
+        {
+          "description": "Approve scope, accountable owner and validation method",
+          "due": "2026-11-22"
+        },
+        {
+          "description": "Implement in isolated staging and capture test evidence",
+          "due": "2026-12-08"
+        },
+        {
+          "description": "Independent review and documented disposition",
+          "due": "2026-12-15"
+        }
+      ],
+      "validation": "Retain repeatable positive/negative test output, timestamps and independent reviewer decision for SI-2",
+      "evidence": [
+        "tower/core.py",
+        "tests/test_tower.py"
+      ],
+      "closure_evidence": null
+    }
+  ]
+}
