@@ -61,3 +61,9 @@ selected synthetic demonstrations, with documented identity and audit gaps.
 | Privileged access | Existing scoped/expiring grants plus revocation and concurrent single use |
 | Federal readiness | Expanded selected-control evidence pack, SBOM and dependency-scan CI |
 | Customer deployment | Non-root container, acceptance rehearsal and exact-state rollback |
+
+Hosted follow-up: RAG evaluation, detection evaluation, agent security tests,
+Project 4 inline CI and pip-audit passed on the initial pushed commits.
+The first container run detected missing Dockerfile evidence in the image;
+the packaging correction copies it and pins the observed Python image digest.
+See the PR checks for the final run of the corrected container.

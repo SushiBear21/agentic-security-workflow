@@ -64,6 +64,6 @@ Offline latency is local reference timing, not Bedrock latency. Model token and 
 fields are null because no model was called. The existing failed human-quality
 evaluation remains authoritative.
 
-The Python base image tag is a maintenance choice, not an immutable image digest.
-For an actual deployment, pin an approved image digest, scan the OS/image, use
+The Python base image is pinned to the digest observed in the hosted build.
+For an actual deployment, review/update that digest, scan the OS/image, use
 authenticated independent roles and durable protected audit storage.
