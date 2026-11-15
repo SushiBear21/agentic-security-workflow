@@ -1,0 +1,7 @@
+{
+  "Version":"2012-10-17",
+  "Statement":[
+    {"Effect":"Allow","Action":["dynamodb:GetItem","dynamodb:PutItem"],"Resource":"REPLACE_WITH_TABLE_ARN","Condition":{"ForAllValues:StringEquals":{"dynamodb:LeadingKeys":["PROGRAM"]}}},
+    {"Effect":"Allow","Action":["s3:PutObject"],"Resource":"REPLACE_WITH_BUCKET_ARN/evidence/*"}
+  ]
+}

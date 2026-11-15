@@ -1,5 +1,28 @@
 # Agentic Security Workflow
 
+## Portfolio extensions (synthetic lab)
+
+- [AI program-delivery case study](docs/portfolio/ai-program-delivery-case-study.md)
+- [Selected-control FedRAMP readiness exercise](docs/portfolio/fedramp-readiness-lab.md)
+- [Privileged-access simulation](docs/privileged-access-demo.md)
+
+These additions preserve the existing blocked AI-quality decision. They do not
+claim FedRAMP authorization or implement production IAM. No new AWS deployment
+is required. Run the offline evidence builder with `python -m tower.readiness_package
+--output /tmp/readiness-evidence-new` (on one line, using a new directory).
+
+## New: AI Security Program Control Tower
+
+The [control tower](docs/control-tower.md) adds synthetic finding and vendor-risk intake,
+NIST control mappings, bounded AI drafting, exact-payload human decisions,
+dependency-aware remediation tickets, executive reports, and verifiable evidence exports.
+Run locally with Python or use the optional DynamoDB/S3 storage implementation.
+Private DynamoDB/S3 storage was deployed and smoke-tested on November 3, 2026;
+live model validation remains pending and the existing blocked AI quality decision
+below is preserved. See the [AWS deployment record](docs/control-tower-aws.md).
+The [validation record](docs/control-tower-validation.md) distinguishes completed
+local checks from pending cloud and publication steps.
+
 A bounded security-review workflow that turns a frozen synthetic threat-intel
 snapshot into a proposed local ticket, with explicit human approval before
 execution. A separate Project 4 companion evaluates AI drafting quality.
@@ -101,3 +124,12 @@ held-out dataset, a prespecified rubric, and an independent reviewer. Validate
 workflow integration, durable concurrency behavior, and a scoped runtime role
 before considering broader use. Keep the blocked decision until new evidence
 supports a different outcome.
+
+
+## November 2026 portfolio extensions
+
+See [customer deployment and release rehearsal](docs/portfolio/customer-deployment.md) for commands, measured scope and limitations.
+
+- [Evidence-bound assurance and risk exceptions](docs/portfolio/assurance-workflow.md)
+- [Versioned evaluation and reliability](docs/portfolio/evaluation-extensions.md)
+- [Current validation record](docs/portfolio/validation-2026-11-15.md)

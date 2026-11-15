@@ -26,3 +26,7 @@ __pycache__/
 # Project 4 local outputs
 /reports/
 /.local/
+
+# Control tower local state and generated evidence
+/tower-data/
+/tower-output/
