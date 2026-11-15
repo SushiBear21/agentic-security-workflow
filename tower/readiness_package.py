@@ -14,6 +14,12 @@ FILES = (
     'docs/privileged-access-demo.md', 'docs/portfolio/ai-program-delivery-case-study.md',
     'docs/portfolio/fedramp-readiness-lab.md', 'docs/portfolio/readiness-controls.json',
     'docs/portfolio/extension-validation.md',
+    'tower/assurance.py', 'tower/release.py', 'p4_regression.py',
+    'requirements.txt', 'Dockerfile', 'tests/fixtures/p4-regression-v1.json',
+    'tests/test_assurance.py', 'tests/test_release.py', 'tests/test_access_extensions.py',
+    'tests/test_uncertain_outcome.py', 'tests/test_regression_gate.py',
+    'docs/portfolio/customer-deployment.md', 'docs/portfolio/assurance-workflow.md',
+    'docs/portfolio/evaluation-extensions.md',
 )
 
 
@@ -23,7 +29,7 @@ def digest(path):
 
 def safe_relative(name):
     path = Path(name)
-    if path.is_absolute() or '..' in path.parts or '\\' in name or ':' in name:
+    if not isinstance(name, str) or not name or path.root or path.drive or path.is_absolute() or '..' in path.parts or '\\' in name or ':' in name:
         raise ValueError('Unsafe evidence path')
     return path
 

@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+**/__pycache__
+reports
+agent_runs
+review_tickets
+*.sqlite
+*.zip
+.env*
+.aws

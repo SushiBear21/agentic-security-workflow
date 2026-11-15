@@ -53,7 +53,7 @@ class AccessLab:
         if not isinstance(args, dict):
             self._deny("arguments must be a dictionary")
         role = PRINCIPALS.get(actor)
-        required = {"request": "requester", "approve": "approver", "reject": "approver", "execute": "executor"}.get(command)
+        required = {"request": "requester", "approve": "approver", "reject": "approver", "revoke": "approver", "execute": "executor"}.get(command)
         if required is None or role != required:
             self._deny("principal not permitted for command")
         if command == "request":
@@ -84,6 +84,11 @@ class AccessLab:
             self._deny("request not yet valid or expired")
         if (payload["action"], payload["resource"]) not in ALLOWED:
             self._deny("action/resource outside allowlist")
+        if command == "revoke":
+            if record["state"] != "APPROVED":
+                self._deny("only approved unused requests can be revoked")
+            record["state"] = "REVOKED"
+            return "REVOKED"
         if command in {"approve", "reject"}:
             if actor == payload["requester"] or record["state"] != "PENDING":
                 self._deny("independent pending decision required")

@@ -124,3 +124,12 @@ held-out dataset, a prespecified rubric, and an independent reviewer. Validate
 workflow integration, durable concurrency behavior, and a scoped runtime role
 before considering broader use. Keep the blocked decision until new evidence
 supports a different outcome.
+
+
+## November 2026 portfolio extensions
+
+See [customer deployment and release rehearsal](docs/portfolio/customer-deployment.md) for commands, measured scope and limitations.
+
+- [Evidence-bound assurance and risk exceptions](docs/portfolio/assurance-workflow.md)
+- [Versioned evaluation and reliability](docs/portfolio/evaluation-extensions.md)
+- [Current validation record](docs/portfolio/validation-2026-11-15.md)
