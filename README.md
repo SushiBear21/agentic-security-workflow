@@ -1,6 +1,24 @@
 # Agentic Security Workflow
 
-## Portfolio extensions (synthetic lab)
+[Portfolio overview](https://github.com/SushiBear21/agentic-security-workflow/blob/main/PORTFOLIO.md) · [Latest CI runs](https://github.com/SushiBear21/agentic-security-workflow/actions)
+
+**AI security engineering, human approval, evaluation, and program delivery.**
+
+Start with the [portfolio overview](PORTFOLIO.md) for all four repositories or the
+[10-minute walkthrough](docs/portfolio/walkthrough.md) for a guided review.
+
+| Explore | Evidence |
+| --- | --- |
+| Security program delivery | [Control Tower](docs/control-tower.md) and [delivery case study](docs/portfolio/ai-program-delivery-case-study.md) |
+| Deployment engineering | [Container, approval and rollback workflow](docs/portfolio/deployment-automation.md) |
+| Federal control evidence | [Synthetic SSP](docs/portfolio/synthetic-ssp.md), [POA&M](docs/portfolio/poam.json), [monitoring](docs/portfolio/continuous-monitoring.md) |
+| Measured AI quality | [Blocked evaluation decision](docs/p4-final-results.md) |
+| Verification | [Latest implementation validation](docs/portfolio/completion-validation.md) and [CI runs](https://github.com/SushiBear21/agentic-security-workflow/actions) |
+
+**Scope:** personal portfolio using synthetic data. Passing engineering checks does
+not clear the blocked AI-quality decision or establish production readiness.
+
+## Program and governance demonstrations
 
 - [AI program-delivery case study](docs/portfolio/ai-program-delivery-case-study.md)
 - [Selected-control FedRAMP readiness exercise](docs/portfolio/fedramp-readiness-lab.md)
@@ -11,7 +29,7 @@ claim FedRAMP authorization or implement production IAM. No new AWS deployment
 is required. Run the offline evidence builder with `python -m tower.readiness_package
 --output /tmp/readiness-evidence-new` (on one line, using a new directory).
 
-## New: AI Security Program Control Tower
+## AI Security Program Control Tower
 
 The [control tower](docs/control-tower.md) adds synthetic finding and vendor-risk intake,
 NIST control mappings, bounded AI drafting, exact-payload human decisions,
@@ -134,7 +152,7 @@ See [customer deployment and release rehearsal](docs/portfolio/customer-deployme
 - [Versioned evaluation and reliability](docs/portfolio/evaluation-extensions.md)
 - [Current validation record](docs/portfolio/validation-2026-11-15.md)
 
-## Remaining-deliverable implementation
+## Deployment, compliance evidence, and adoption
 
 - [Synthetic SSP](docs/portfolio/synthetic-ssp.md) and [tracked POA&M](docs/portfolio/poam.json)
 - [Staging build/publish/deploy and rollback](docs/portfolio/deployment-automation.md)
