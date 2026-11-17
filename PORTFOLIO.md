@@ -17,6 +17,13 @@ links its implementation, evidence, and limitations.
 
 **Latest result.** The prospective Bedrock holdout passed all six automated checks. All four drafts passed independent human review, and a human approved the exact release manifest after all five gates passed. [Lab release summary](docs/portfolio/customer-deployment.md#approved-bedrock-holdout-lab-release).
 
+## Cloud and AI governance exercises
+
+The [three exercise walkthroughs](docs/portfolio/cloud-and-ai-governance-drills.md)
+cover a multi-account AWS landing zone, selected FedRAMP 20x evidence checks,
+and a model change and incident drill. The repository generates reviewable
+evidence for the guardrail, remediation retest and model rollback.
+
 ## Four delivery capabilities
 
 See [AI operations and assurance evidence](docs/portfolio/ai-capability-evidence.md) for the
