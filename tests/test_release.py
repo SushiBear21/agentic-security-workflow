@@ -2,7 +2,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from tower.release import rehearse, backup
+from subprocess import CompletedProcess
+from unittest.mock import patch
+from tower.release import rehearse, backup, dependency_evidence
 
 class ReleaseTests(unittest.TestCase):
     def test_rehearsal_preserves_blocked_quality_and_restores_state(self):
@@ -16,7 +18,7 @@ class ReleaseTests(unittest.TestCase):
             self.assertTrue(acceptance["rollback_state_equal"])
             self.assertEqual(acceptance["ticket_count"], 1)
             boundary = json.loads((out / "adversarial.json").read_text())
-            self.assertEqual(boundary["passed"], 9)
+            self.assertEqual(boundary["passed"], 10)
             self.assertEqual(boundary["adversarial_boundary_failures"], 0)
             canary = json.loads((out / "canary.json").read_text())
             self.assertTrue(canary["rollback"])
@@ -34,3 +36,22 @@ class ReleaseTests(unittest.TestCase):
             target = Path(tmp) / "existing"; target.write_text("retain")
             with self.assertRaises(ValueError): backup(Path(tmp) / "missing", target)
             self.assertEqual(target.read_text(), "retain")
+
+    def test_dependency_scan_requires_clean_complete_report_and_success_exit(self):
+        components = [{"name": "sample", "version": "1"}]
+        clean = {"name": "sample", "version": "1", "vulns": []}
+        cases = [
+            (0, [clean], "pass"),
+            (1, [clean], "fail"),
+            (0, [], "fail"),
+            (0, [{**clean, "vulns": [{"id": "SYNTHETIC-TEST"}]}], "fail"),
+            (0, None, "fail"),
+        ]
+        for code, dependencies, expected in cases:
+            with self.subTest(code=code, dependencies=dependencies), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                if dependencies is not None:
+                    (root / "dependency-audit.json").write_text(json.dumps({"dependencies": dependencies}))
+                with patch("tower.release.subprocess.run", return_value=CompletedProcess([], code)):
+                    evidence = dependency_evidence(root, components)
+                self.assertEqual(evidence["status"], expected)
