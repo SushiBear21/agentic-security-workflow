@@ -67,3 +67,15 @@ evaluation remains authoritative.
 The Python base image is pinned to the digest observed in the hosted build.
 For an actual deployment, review/update that digest, scan the OS/image, use
 authenticated independent roles and durable protected audit storage.
+
+## Windows Docker Desktop rehearsal results
+
+The offline Docker rehearsal denied unapproved execution and recorded exactly
+one ticket. After an injected candidate health-check failure, it restored the
+baseline SQLite state and verified an exact match.
+
+The rehearsal passed its acceptance checks. The release decision withheld
+production authorization because the dependency-scan and human-quality gates
+were unmet.
+
+[Acceptance results](evidence/acceptance.json) · [Release decision](evidence/decision.json)

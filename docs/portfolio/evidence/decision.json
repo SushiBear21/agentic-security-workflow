@@ -1,0 +1,11 @@
+{
+  "assessment_sha256": "ccdab53aaa49532315f345b10f495370c4d98c165fd0e9ca3eb1e420ec573022",
+  "scope": "synthetic lab only",
+  "status": "blocked",
+  "blocking_gates": [
+    "dependency_scan",
+    "human_quality"
+  ],
+  "exceptions": [],
+  "production_authorized": false
+}

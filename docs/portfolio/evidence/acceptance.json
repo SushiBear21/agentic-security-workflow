@@ -1,0 +1,10 @@
+{
+  "scope": "synthetic local deployment rehearsal",
+  "unapproved_denied": true,
+  "ticket_count": 1,
+  "injected_candidate_health": "failed",
+  "rollback_state_equal": true,
+  "candidate_state_sha256": "091366340541f860dde9c63a7e65d8633c5a91f72fa30670204d0408740f4a56",
+  "restored_state_sha256": "27a3ae5e22c6d0cb62ac2c8445c35a4d41d15202b3780e3041fcee4810a9fcef",
+  "model_calls": 0
+}
