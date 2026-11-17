@@ -3,7 +3,10 @@ import argparse
 import importlib.metadata
 import json
 import sqlite3
+import subprocess
+import sys
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 from app.workflow import digest
 from tower.store import LocalStore
@@ -11,7 +14,14 @@ from tower.report import export, verify_package
 from tower.access_demo import demo, verify_audit
 from tower.readiness_package import build, verify
 from tower.assurance import assess, REQUIRED_GATES
+from tower.adoption import measure
+from tower.core import metrics
+from tower.governance import report as governance_report
+from tower.llmops import canary, evaluate_boundary
 from p4_regression import evaluate
+from p4_finish import assess as assess_model_review
+from p4_review import validate_report, validate_review, verify_sources
+from tower.readiness_package import digest as file_digest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,7 +45,51 @@ def sbom():
             "components": components,
             "metadata": {"properties": [{"name": "scope", "value": "Pinned Python application dependencies only; not OS/container inventory or vulnerability scan"}]}}
 
-def rehearse(destination):
+def dependency_evidence(out, components):
+    raw = out / "dependency-audit.json"
+    result = subprocess.run(
+        [sys.executable, "-m", "pip_audit", "-r", str(ROOT / "requirements.txt"),
+         "--format", "json", "--output", str(raw)],
+        check=False,
+    )
+    expected = {(c["name"].lower().replace("_", "-"), c["version"]) for c in components}
+    try:
+        dependencies = json.loads(raw.read_text(encoding="utf-8"))["dependencies"]
+        observed = [(row["name"].lower().replace("_", "-"), row["version"]) for row in dependencies]
+        clean = (len(observed) == len(expected) and set(observed) == expected
+                 and all(row["vulns"] == [] for row in dependencies))
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        clean = False
+    return {
+        "status": "pass" if result.returncode == 0 and clean else "fail",
+        "exit_code": result.returncode,
+        "requirements_sha256": file_digest(ROOT / "requirements.txt"),
+        "report_sha256": file_digest(raw) if raw.is_file() else None,
+        "scope": "Pinned Python application dependencies",
+    }
+
+
+def review_evidence(comparison):
+    if comparison is None:
+        return {"status": "unmeasured", "reason": "Current live comparison and human review required"}
+    comparison = Path(comparison)
+    review_path = comparison.with_name("human-review.json")
+    report = json.loads(comparison.read_text(encoding="utf-8-sig"))
+    review = json.loads(review_path.read_text(encoding="utf-8-sig"))
+    live = validate_report(report)
+    verify_sources(report)
+    report_sha256 = file_digest(comparison)
+    validate_review(review, report_sha256, live)
+    metrics, selected, cost = assess_model_review(report, review)
+    return {
+        "status": "pass" if selected else "fail", "selected_configuration": selected,
+        "report_sha256": report_sha256, "review_sha256": file_digest(review_path),
+        "metrics": metrics, "estimated_cost_usd": cost,
+        "scope": "Source-linked, self-attested human review of a live synthetic comparison",
+    }
+
+
+def rehearse(destination, *, audit=False, comparison=None):
     out = Path(destination)
     if out.exists(): raise ValueError("Use a new rehearsal directory")
     out.mkdir(parents=True)
@@ -67,14 +121,28 @@ def rehearse(destination):
     if regression["passed"] != regression["total"]: raise ValueError("Regression failed")
     build(out / "readiness")
     verify(out / "readiness")
-    reports = {"regression.json": regression, "access.json": access, "sbom.json": sbom(),
+    security = evaluate_boundary()
+    rollout = canary()
+    adoption_fixture = json.loads((ROOT / "tests/fixtures/adoption-v1.json").read_text())
+    adoption = measure(adoption_fixture)
+    adoption["workflow_rehearsal"] = metrics(store.read())
+    adoption["model_cost_scenario"] = {
+        "scope": "Separate 30-request fixture replay with assumed token counts and rates",
+        "estimated_usd": sum(lane["estimated_cost_usd"] for lane in rollout["lanes"].values()),
+        "live_model_calls": 0,
+    }
+    inventory = sbom()
+    scan = dependency_evidence(out, inventory["components"]) if audit else {"status": "unmeasured"}
+    quality = review_evidence(comparison)
+    reports = {"regression.json": regression, "access.json": access, "sbom.json": inventory,
+               "dependency-gate.json": scan, "human-quality.json": quality,
+               "adversarial.json": security, "canary.json": rollout, "adoption.json": adoption,
                "acceptance.json": {"scope": "synthetic local deployment rehearsal", "unapproved_denied": denied,
                 "ticket_count": len(store.read()["tickets"]), "injected_candidate_health": "failed",
                 "rollback_state_equal": True, "candidate_state_sha256": digest(store.read()),
                 "restored_state_sha256": digest(restored.read()), "model_calls": 0}}
     for name, value in reports.items():
         (out / name).write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-    from tower.readiness_package import digest as file_digest
     package = {"schema_version": 1, "synthetic": True,
                "model_risk": {"intended_use": "advisory synthetic reviews", "failure_impact": "incorrect recommendation",
                               "owner": "lab operator", "boundary": "local SQLite; no cloud remediation or authenticated personas"},
@@ -82,22 +150,42 @@ def rehearse(destination):
                "gates": {g: {"status": "unmeasured", "evidence": ["acceptance.json"]} for g in REQUIRED_GATES},
                "exceptions": []}
     package["gates"]["regression_tests"] = {"status": "pass", "evidence": ["regression.json"]}
-    package["gates"]["rollback"] = {"status": "pass", "evidence": ["acceptance.json"]}
-    # Unit tests and a vulnerability scan are not executed by this command.
-    # Existing failed live human review remains blocked, never inferred from offline checks.
-    package["gates"]["human_quality"] = {"status": "fail", "evidence": ["regression.json"]}
+    package["gates"]["security_tests"] = {
+        "status": "pass" if security["passed"] == security["total"] else "fail",
+        "evidence": ["adversarial.json"],
+    }
+    canary_ok = (rollout["rollback"] and rollout["lanes"]["reference-candidate"]["requests"] == 2
+                 and rollout["lanes"]["reference-stable"]["accepted"] == 28)
+    package["gates"]["rollback"] = {
+        "status": "pass" if canary_ok else "fail", "evidence": ["acceptance.json", "canary.json"],
+    }
+    package["gates"]["human_quality"] = {"status": quality["status"], "evidence": ["human-quality.json"]}
+    audit_files = ["dependency-gate.json"]
+    if scan.get("report_sha256"):
+        package["evidence"]["dependency-audit.json"] = scan["report_sha256"]
+        audit_files.append("dependency-audit.json")
+    package["gates"]["dependency_scan"] = {"status": scan["status"], "evidence": audit_files}
     (out / "assessment.json").write_text(json.dumps(package, indent=2), encoding="utf-8")
     decision = assess(package, out, 106)
     (out / "decision.json").write_text(json.dumps(decision, indent=2), encoding="utf-8")
+    governance = governance_report(out, datetime.now(timezone.utc), regression, rollout, security, decision, package)
+    (out / "governance.json").write_text(json.dumps(governance, indent=2) + "\n", encoding="utf-8")
     return decision
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--audit", action="store_true", help="Run pip-audit and require a clean report")
+    parser.add_argument("--comparison", type=Path, help="Live comparison.json with sibling human-review.json")
     args = parser.parse_args()
-    print(json.dumps(rehearse(args.output), indent=2))
-    # Successful rehearsal is distinct from authorization to deploy.
-    return 0
+    decision = rehearse(args.output, audit=args.audit, comparison=args.comparison)
+    print(json.dumps(decision, indent=2))
+    required = {"security_tests", "regression_tests", "rollback"}
+    if args.audit:
+        required.add("dependency_scan")
+    if args.comparison is not None:
+        required.add("human_quality")
+    return int(bool(required & set(decision["blocking_gates"])))
 
 if __name__ == "__main__":
     raise SystemExit(main())

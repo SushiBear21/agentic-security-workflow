@@ -132,6 +132,15 @@ class AgentSecurityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not permitted"):
             controller.dispatch("approve_ticket", {})
 
+    def test_expired_agent_capability_is_denied_and_attributed(self):
+        clock = Mock(side_effect=[10, 189, 190])
+        controller = ToolController(self.snapshot, clock=clock)
+        controller.dispatch("list_candidates", {})
+        with self.assertRaisesRegex(ValueError, "expired"):
+            controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        self.assertEqual([row["decision"] for row in controller.trace], ["allowed", "denied"])
+        self.assertEqual({row["principal"] for row in controller.trace}, {controller.principal})
+
     def test_pending_run_cannot_execute(self):
         run_id = self.new_run()
 
