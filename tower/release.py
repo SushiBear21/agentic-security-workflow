@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from app.workflow import digest
 from tower.store import LocalStore
+from tower.image_scan import evaluate as evaluate_image_scan
 from tower.report import export, verify_package
 from tower.access_demo import demo, verify_audit
 from tower.readiness_package import build, verify
@@ -69,7 +70,7 @@ def dependency_evidence(out, components):
     }
 
 
-def review_evidence(comparison):
+def review_evidence(comparison, release_id=None):
     if comparison is None:
         return {"status": "unmeasured", "reason": "Current live comparison and human review required"}
     comparison = Path(comparison)
@@ -80,16 +81,19 @@ def review_evidence(comparison):
     verify_sources(report)
     report_sha256 = file_digest(comparison)
     validate_review(review, report_sha256, live)
+    if release_id and review.get("release_id") != release_id:
+        return {"status": "fail", "reason": "Human review is not bound to the scanned image ID"}
     metrics, selected, cost = assess_model_review(report, review)
     return {
         "status": "pass" if selected else "fail", "selected_configuration": selected,
         "report_sha256": report_sha256, "review_sha256": file_digest(review_path),
+        "release_id": review.get("release_id"),
         "metrics": metrics, "estimated_cost_usd": cost,
         "scope": "Source-linked, self-attested human review of a live synthetic comparison",
     }
 
 
-def rehearse(destination, *, audit=False, comparison=None):
+def rehearse(destination, *, audit=False, comparison=None, image_report=None, image_id=None):
     out = Path(destination)
     if out.exists(): raise ValueError("Use a new rehearsal directory")
     out.mkdir(parents=True)
@@ -133,7 +137,13 @@ def rehearse(destination, *, audit=False, comparison=None):
     }
     inventory = sbom()
     scan = dependency_evidence(out, inventory["components"]) if audit else {"status": "unmeasured"}
-    quality = review_evidence(comparison)
+    if image_report is not None:
+        report_bytes = Path(image_report).read_bytes()
+        (out / "container-vulnerabilities.json").write_bytes(report_bytes)
+        scan = evaluate_image_scan(report_bytes, image_id, datetime.now(timezone.utc))
+        scan["scope"] = "Container OS and application libraries"
+        scan["report_sha256"] = file_digest(out / "container-vulnerabilities.json")
+    quality = review_evidence(comparison, image_id)
     reports = {"regression.json": regression, "access.json": access, "sbom.json": inventory,
                "dependency-gate.json": scan, "human-quality.json": quality,
                "adversarial.json": security, "canary.json": rollout, "adoption.json": adoption,
@@ -162,8 +172,9 @@ def rehearse(destination, *, audit=False, comparison=None):
     package["gates"]["human_quality"] = {"status": quality["status"], "evidence": ["human-quality.json"]}
     audit_files = ["dependency-gate.json"]
     if scan.get("report_sha256"):
-        package["evidence"]["dependency-audit.json"] = scan["report_sha256"]
-        audit_files.append("dependency-audit.json")
+        name = "container-vulnerabilities.json" if image_report is not None else "dependency-audit.json"
+        package["evidence"][name] = scan["report_sha256"]
+        audit_files.append(name)
     package["gates"]["dependency_scan"] = {"status": scan["status"], "evidence": audit_files}
     (out / "assessment.json").write_text(json.dumps(package, indent=2), encoding="utf-8")
     decision = assess(package, out, 106)
@@ -177,11 +188,15 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--audit", action="store_true", help="Run pip-audit and require a clean report")
     parser.add_argument("--comparison", type=Path, help="Live comparison.json with sibling human-review.json")
+    parser.add_argument("--image-report", type=Path, help="Trivy JSON from the trusted build job")
+    parser.add_argument("--image-id", help="Image config digest from docker image inspect")
     args = parser.parse_args()
-    decision = rehearse(args.output, audit=args.audit, comparison=args.comparison)
+    if bool(args.image_report) != bool(args.image_id) or (args.image_report and args.audit):
+        parser.error("Supply both image scan arguments, or use --audit for Python-only scanning")
+    decision = rehearse(args.output, audit=args.audit, comparison=args.comparison, image_report=args.image_report, image_id=args.image_id)
     print(json.dumps(decision, indent=2))
     required = {"security_tests", "regression_tests", "rollback"}
-    if args.audit:
+    if args.audit or args.image_report:
         required.add("dependency_scan")
     if args.comparison is not None:
         required.add("human_quality")

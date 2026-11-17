@@ -2,8 +2,10 @@
 import json
 import math
 import re
+from secrets import token_urlsafe
 from copy import deepcopy
 from threading import RLock
+from time import time
 
 from app.workflow import digest
 from tower.core import event
@@ -116,12 +118,39 @@ def verify_audit(snapshot):
     return True
 
 
+class AuthenticatedAccess:
+    """Local lab session boundary. The trusted operator provisions role credentials."""
+
+    def __init__(self, clock=time):
+        self._lab = AccessLab()
+        self._clock = clock
+        self._sessions = {}
+
+    def issue(self, principal):
+        if principal not in PRINCIPALS:
+            raise ValueError("Unknown lab principal")
+        credential = token_urlsafe(32)
+        self._sessions[digest(credential)] = (principal, self._clock() + MAX_TTL)
+        return credential
+
+    def run(self, command, args, credential):
+        now = self._clock()
+        session = self._sessions.get(digest(credential)) if isinstance(credential, str) else None
+        actor = session[0] if session and now < session[1] else "unauthenticated"
+        return self._lab.run(command, args, actor, now)
+
+    def snapshot(self):
+        return self._lab.snapshot()
+
+
 def demo():
-    lab = AccessLab()
-    request = lab.run("request", {"id": "DEMO-001", "action": "read_synthetic_evidence", "resource": "lab://evidence/SEC-001", "ttl_seconds": 60, "reason": "Synthetic evidence review"}, "lab-requester", 100)
-    for command, actor, now in [("execute", "lab-executor", 101), ("approve", "lab-approver", 102), ("execute", "lab-executor", 103), ("execute", "lab-executor", 104)]:
+    ticks = iter([100, 100, 100, 100, 101, 102, 103, 104])
+    lab = AuthenticatedAccess(clock=lambda: next(ticks))
+    credentials = {principal: lab.issue(principal) for principal in PRINCIPALS}
+    request = lab.run("request", {"id": "DEMO-001", "action": "read_synthetic_evidence", "resource": "lab://evidence/SEC-001", "ttl_seconds": 60, "reason": "Synthetic evidence review"}, credentials["lab-requester"])
+    for command, actor in [("execute", "lab-executor"), ("approve", "lab-approver"), ("execute", "lab-executor"), ("execute", "lab-executor")]:
         try:
-            lab.run(command, request, actor, now)
+            lab.run(command, request, credentials[actor])
         except ValueError:
             pass
     return lab.snapshot()

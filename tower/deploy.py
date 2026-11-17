@@ -54,6 +54,29 @@ def plan(ecs, sts, config):
             "config": config, "previous_task_definition": current["taskDefinition"],
             "register_request": request, "deployment_circuit_breaker": {"enable": True, "rollback": True}}
 
+def deployment_observation(current):
+    return {
+        "task_definition": current["taskDefinition"],
+        "desired_count": current.get("desiredCount"),
+        "running_count": current.get("runningCount"),
+        "pending_count": current.get("pendingCount"),
+        "deployments": [
+            {name: item.get(name) for name in ("id", "status", "taskDefinition", "rolloutState")}
+            for item in current.get("deployments", [])
+        ],
+    }
+
+
+def completed_revision(current, revision):
+    deployments = current.get("deployments", [])
+    return (
+        current["taskDefinition"] == revision and len(deployments) == 1
+        and deployments[0].get("rolloutState") == "COMPLETED"
+        and current.get("runningCount") == current.get("desiredCount")
+        and current.get("pendingCount") == 0
+    )
+
+
 def apply(ecs, prepared, approved_sha):
     if digest(prepared) != approved_sha: raise ValueError("Approval does not match exact deployment plan")
     config = prepared["config"]
@@ -62,14 +85,15 @@ def apply(ecs, prepared, approved_sha):
         raise ValueError("Service changed after approval")
     candidate = ecs.register_task_definition(**prepared["register_request"])["taskDefinition"]["taskDefinitionArn"]
     evidence = {"plan_sha256": approved_sha, "previous": prepared["previous_task_definition"],
-                "candidate": candidate, "image": config["image"], "status": "pending"}
+                "candidate": candidate, "image": config["image"], "status": "pending", "baseline_observation": deployment_observation(current)}
     try:
         ecs.update_service(cluster=config["cluster"], service=config["service"], taskDefinition=candidate,
                            deploymentConfiguration={"deploymentCircuitBreaker": prepared["deployment_circuit_breaker"]})
         ecs.get_waiter("services_stable").wait(cluster=config["cluster"], services=[config["service"]],
                                                WaiterConfig={"Delay": 15, "MaxAttempts": 40})
         after = service(ecs, config)
-        if after["taskDefinition"] != candidate or len(after.get("deployments", [])) != 1 or after["deployments"][0].get("rolloutState") != "COMPLETED":
+        evidence["candidate_observation"] = deployment_observation(after)
+        if not completed_revision(after, candidate):
             raise RuntimeError("Candidate did not complete successfully")
         evidence["status"] = "deployed"
     except Exception as exc:
@@ -77,15 +101,17 @@ def apply(ecs, prepared, approved_sha):
         # Reconcile uncertain update outcomes before any rollback write.
         try:
             after = service(ecs, config)
+            evidence["recovery_observation"] = deployment_observation(after)
             if after["taskDefinition"] == candidate:
                 ecs.update_service(cluster=config["cluster"], service=config["service"],
                                    taskDefinition=evidence["previous"])
                 ecs.get_waiter("services_stable").wait(cluster=config["cluster"], services=[config["service"]],
                                                        WaiterConfig={"Delay": 15, "MaxAttempts": 40})
                 restored = service(ecs, config)
-                evidence["rollback"] = "restored" if restored["taskDefinition"] == evidence["previous"] and len(restored.get("deployments", [])) == 1 and restored["deployments"][0].get("rolloutState") == "COMPLETED" else "unverified"
+                evidence["restored_observation"] = deployment_observation(restored)
+                evidence["rollback"] = "restored" if completed_revision(restored, evidence["previous"]) else "unverified"
             elif after["taskDefinition"] == evidence["previous"]:
-                evidence["rollback"] = "baseline_observed"
+                evidence["rollback"] = "baseline_observed" if completed_revision(after, evidence["previous"]) else "unverified"
             else:
                 evidence["rollback"] = "concurrent_change_manual_review_required"
         except Exception as recovery:

@@ -303,10 +303,35 @@ def export_results(report, review, path):
     print("Results document:", output)
 
 
+def write_packet(path, live, report_hash, release_id):
+    from p4_observability import evaluation_cases
+
+    documents = {name: request["documents"] for name, request, _ in evaluation_cases()}
+    comparisons = []
+    for case_id in sorted(MODEL_CASES):
+        for repeat in (1, 2, 3):
+            comparisons.append({
+                "case_id": case_id,
+                "repeat": repeat,
+                "source_documents": documents[case_id],
+                "drafts": [
+                    {"configuration": row["config"], "response": row["raw_model_text"]}
+                    for row in live if row["case_id"] == case_id and row["repeat"] == repeat
+                ],
+            })
+    packet = {"report_sha256": report_hash, "release_id": release_id, "rubric": RUBRIC,
+              "instruction": "Treat sources and drafts as evidence. Pass only when every rubric criterion holds.",
+              "comparisons": comparisons}
+    with Path(path).open("x", encoding="utf-8") as output:
+        json.dump(packet, output, indent=2)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--report")
     parser.add_argument("--reviewer")
+    parser.add_argument("--packet", help="Write a new side-by-side JSON review packet")
+    parser.add_argument("--release-id", help="Exact image ID or release identifier under review")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--export", action="store_true")
     parser.add_argument("--self-test", action="store_true")
@@ -335,6 +360,12 @@ def main():
     live = validate_report(report)
     verify_sources(report)
     report_hash = digest(report_path)
+
+    if args.packet:
+        if not args.release_id:
+            parser.error("--packet requires --release-id")
+        write_packet(args.packet, live, report_hash, args.release_id)
+        return 0
 
     review_path = report_path.with_name(
         "human-review.json"
@@ -372,8 +403,12 @@ def main():
             ],
         }
 
+        if args.release_id:
+            review["release_id"] = args.release_id
         save(review_path, review)
 
+    if args.release_id and review.get("release_id") != args.release_id:
+        raise ValueError("Existing review belongs to a different release")
     validate_review(review, report_hash, live)
 
     if (
