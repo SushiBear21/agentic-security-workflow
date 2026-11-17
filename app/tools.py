@@ -1,3 +1,6 @@
+from time import monotonic
+from uuid import uuid4
+
 from app.workflow import (
     build_ticket,
     candidate_index,
@@ -6,7 +9,9 @@ from app.workflow import (
 
 
 class ToolController:
-    def __init__(self, snapshot, max_calls=8):
+    """Process-local capability held by the host, never serialized to the model."""
+
+    def __init__(self, snapshot, max_calls=8, *, clock=monotonic):
         self.snapshot = snapshot
         self.candidates = candidate_index(snapshot)
         self.target = highest_candidate(snapshot)
@@ -14,8 +19,25 @@ class ToolController:
         self.calls = 0
         self.read_candidates = set()
         self.trace = []
+        self.principal = "review-agent/" + uuid4().hex
+        self.clock = clock
+        self.expires = clock() + 180
 
     def dispatch(self, name, arguments):
+        decision = "denied"
+        known = name if isinstance(name, str) and name in {
+            "list_candidates", "get_candidate", "propose_ticket"
+        } else "unknown"
+        try:
+            result = self._dispatch(known, arguments)
+            decision = "allowed"
+            return result
+        finally:
+            self.trace.append({"principal": self.principal, "tool": known, "decision": decision})
+
+    def _dispatch(self, name, arguments):
+        if self.clock() >= self.expires:
+            raise ValueError("Agent tool capability expired.")
         self.calls += 1
 
         if self.calls > self.max_calls:
@@ -28,20 +50,12 @@ class ToolController:
         }
 
         if name not in allowed:
-            self.trace.append({
-                "tool": "unknown",
-                "decision": "denied",
-            })
             raise ValueError("Tool is not permitted.")
 
         if (
             not isinstance(arguments, dict)
             or set(arguments) != allowed[name]
         ):
-            self.trace.append({
-                "tool": name,
-                "decision": "denied_arguments",
-            })
             raise ValueError("Unexpected tool arguments.")
 
         if name == "list_candidates":
@@ -86,8 +100,4 @@ class ToolController:
                     arguments["justification"],
                 )
 
-        self.trace.append({
-            "tool": name,
-            "decision": "allowed",
-        })
         return result

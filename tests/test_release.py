@@ -15,6 +15,19 @@ class ReleaseTests(unittest.TestCase):
             acceptance = json.loads((out / "acceptance.json").read_text())
             self.assertTrue(acceptance["rollback_state_equal"])
             self.assertEqual(acceptance["ticket_count"], 1)
+            boundary = json.loads((out / "adversarial.json").read_text())
+            self.assertEqual(boundary["passed"], 9)
+            self.assertEqual(boundary["adversarial_boundary_failures"], 0)
+            canary = json.loads((out / "canary.json").read_text())
+            self.assertTrue(canary["rollback"])
+            self.assertEqual([row["request"] for row in canary["requests"]
+                              if row["route"] == "reference-candidate"], [0, 10])
+            governance = json.loads((out / "governance.json").read_text())
+            self.assertTrue(governance["monitoring"]["ready"])
+            self.assertEqual(governance["release_status"], "blocked")
+            adoption = json.loads((out / "adoption.json").read_text())
+            self.assertEqual(adoption["workflow_rehearsal"]["review_count"], 1)
+            self.assertAlmostEqual(adoption["model_cost_scenario"]["estimated_usd"], 0.006)
             with self.assertRaises(ValueError): rehearse(out)
     def test_backup_will_not_overwrite(self):
         with tempfile.TemporaryDirectory() as tmp:

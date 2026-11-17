@@ -80,8 +80,10 @@ TOOL_CONFIG = {
 }
 
 
-def run_agent(snapshot, client):
+def run_agent(snapshot, client, *, audit=None):
     controller = ToolController(snapshot)
+    if audit is not None:
+        audit["tool_trace"] = controller.trace
     messages = [{
         "role": "user",
         "content": [{
@@ -183,7 +185,7 @@ def main():
             ),
         )
 
-        payload, trace = run_agent(snapshot, client)
+        payload, trace = run_agent(snapshot, client, audit=attempt)
         run_id = create_run(snapshot, payload, trace)
 
         attempt["status"] = "proposal_created"

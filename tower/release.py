@@ -4,6 +4,7 @@ import importlib.metadata
 import json
 import sqlite3
 from contextlib import closing
+from datetime import datetime, timezone
 from pathlib import Path
 from app.workflow import digest
 from tower.store import LocalStore
@@ -11,6 +12,10 @@ from tower.report import export, verify_package
 from tower.access_demo import demo, verify_audit
 from tower.readiness_package import build, verify
 from tower.assurance import assess, REQUIRED_GATES
+from tower.adoption import measure
+from tower.core import metrics
+from tower.governance import report as governance_report
+from tower.llmops import canary, evaluate_boundary
 from p4_regression import evaluate
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,7 +72,18 @@ def rehearse(destination):
     if regression["passed"] != regression["total"]: raise ValueError("Regression failed")
     build(out / "readiness")
     verify(out / "readiness")
+    security = evaluate_boundary()
+    rollout = canary()
+    adoption_fixture = json.loads((ROOT / "tests/fixtures/adoption-v1.json").read_text())
+    adoption = measure(adoption_fixture)
+    adoption["workflow_rehearsal"] = metrics(store.read())
+    adoption["model_cost_scenario"] = {
+        "scope": "Separate 30-request fixture replay with assumed token counts and rates",
+        "estimated_usd": sum(lane["estimated_cost_usd"] for lane in rollout["lanes"].values()),
+        "live_model_calls": 0,
+    }
     reports = {"regression.json": regression, "access.json": access, "sbom.json": sbom(),
+               "adversarial.json": security, "canary.json": rollout, "adoption.json": adoption,
                "acceptance.json": {"scope": "synthetic local deployment rehearsal", "unapproved_denied": denied,
                 "ticket_count": len(store.read()["tickets"]), "injected_candidate_health": "failed",
                 "rollback_state_equal": True, "candidate_state_sha256": digest(store.read()),
@@ -82,22 +98,32 @@ def rehearse(destination):
                "gates": {g: {"status": "unmeasured", "evidence": ["acceptance.json"]} for g in REQUIRED_GATES},
                "exceptions": []}
     package["gates"]["regression_tests"] = {"status": "pass", "evidence": ["regression.json"]}
-    package["gates"]["rollback"] = {"status": "pass", "evidence": ["acceptance.json"]}
+    package["gates"]["security_tests"] = {
+        "status": "pass" if security["passed"] == security["total"] else "fail",
+        "evidence": ["adversarial.json"],
+    }
+    canary_ok = (rollout["rollback"] and rollout["lanes"]["reference-candidate"]["requests"] == 2
+                 and rollout["lanes"]["reference-stable"]["accepted"] == 28)
+    package["gates"]["rollback"] = {
+        "status": "pass" if canary_ok else "fail", "evidence": ["acceptance.json", "canary.json"],
+    }
     # Unit tests and a vulnerability scan are not executed by this command.
     # Existing failed live human review remains blocked, never inferred from offline checks.
     package["gates"]["human_quality"] = {"status": "fail", "evidence": ["regression.json"]}
     (out / "assessment.json").write_text(json.dumps(package, indent=2), encoding="utf-8")
     decision = assess(package, out, 106)
     (out / "decision.json").write_text(json.dumps(decision, indent=2), encoding="utf-8")
+    governance = governance_report(out, datetime.now(timezone.utc), regression, rollout, security, decision, package)
+    (out / "governance.json").write_text(json.dumps(governance, indent=2) + "\n", encoding="utf-8")
     return decision
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    print(json.dumps(rehearse(args.output), indent=2))
-    # Successful rehearsal is distinct from authorization to deploy.
-    return 0
+    decision = rehearse(args.output)
+    print(json.dumps(decision, indent=2))
+    return int(bool({"security_tests", "regression_tests", "rollback"} & set(decision["blocking_gates"])))
 
 if __name__ == "__main__":
     raise SystemExit(main())

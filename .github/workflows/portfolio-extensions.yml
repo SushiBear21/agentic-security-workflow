@@ -3,6 +3,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "34 12 * * *"
 permissions:
   contents: read
 jobs:
@@ -22,6 +24,7 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python p4_regression.py --output regression.json
       - run: python -m tower.release --output release-evidence
+      - run: python -m tower.governance release-evidence
       - name: Build container and run isolated rehearsal
         run: |
           docker build -t portfolio-rehearsal .

@@ -17,6 +17,9 @@ links its implementation, evidence, and limitations.
 
 ## Four delivery capabilities
 
+See [AI operations and assurance evidence](docs/portfolio/ai-capability-evidence.md) for the
+versioned release rehearsal, security measurements, governance checks and synthetic delivery metrics.
+
 | Capability | Review first | What the evidence establishes |
 | --- | --- | --- |
 | Deployment engineering | [Deployment automation](docs/portfolio/deployment-automation.md), [validation](docs/portfolio/completion-validation.md) | Container builds, CI, security scans, SBOMs, approval tests and rollback logic; new ECS staging execution remains pending |
