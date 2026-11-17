@@ -54,15 +54,14 @@ a new assessment before counting them as readiness evidence.
 2. Stop the candidate and restore a new isolated instance from the baseline backup.
 3. Verify exact restored state and rerun acceptance checks before switching traffic.
 4. For a real code release, revert a reviewed commit and rebuild a pinned image;
-   this exercise does not implement traffic switching, cloud rollback or schema migration.
+   the local exercise covers SQLite restore. The separate ECS sandbox drill below covers cloud rollback.
 5. Treat a timed-out DynamoDB write as uncertain. Read consistent state before
    retrying; the regression test simulates commit followed by acknowledgement loss.
    Synthetic ticket execution reconciles to one ticket.
 
 Review effort in this drill is synthetic fixture input, not measured human effort.
 Offline latency is local reference timing, not Bedrock latency. Model token and cost
-fields are null because no model was called. The existing failed human-quality
-evaluation remains authoritative.
+fields are null because no model was called. The local fixture rehearsal did not score live model drafts. See the later human review below.
 
 The Python base image is pinned to the digest observed in the hosted build.
 For an actual deployment, review/update that digest, scan the OS/image, use
@@ -104,3 +103,30 @@ whether uncertainty is clear. Keep the resulting `human-review.json` beside
 the comparison. A release run that supplies both the image scan and the
 comparison checks the review's image ID as well as the comparison hash.
 The existing evaluator still determines whether any configuration qualifies.
+
+## Live AWS ECS rollback and human review — November 17, 2026
+
+The read-only service ran on AWS Fargate in a sandbox with public IP assignment
+disabled. ECR interface endpoints and an S3 gateway endpoint supplied the image
+pull path. The drill used the ECS rolling deployment circuit breaker with rollback
+enabled.
+
+| Check | Observed result |
+| --- | --- |
+| Baseline task definition | Revision `:1`, rollout `COMPLETED`, one running task and zero pending |
+| Candidate task definition | Newly registered revision derived from `:1`, with the same immutable ECR image and an injected container health check that exited with code 1 |
+| Candidate failure | ECS recorded the deployment failure |
+| Rollback | ECS returned to revision `:1` and reached `COMPLETED` with one desired, one running and zero pending tasks |
+| Post-drill scale-down | Zero desired, running and pending tasks |
+
+The local evidence file recorded `rollback_verified: true`. This published
+summary omits AWS account and resource identifiers and service event payloads.
+The drill was run from PowerShell against the sandbox ECS service.
+
+In a separate live Bedrock lab evaluation, the portfolio author reviewed **24
+drafts** and recorded **24 passes, zero failures and zero pending**. Both
+configurations also met 36 of 36 automated contract checks. The final lab
+selection chose `temperature-0.5` based on observed median latency
+(615.7 ms compared with 659.6 ms in this run). Eligibility criteria were applied
+retrospectively, and the result supports a lab demonstration. The deployment
+drill used the read-only service.
