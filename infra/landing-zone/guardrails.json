@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ProtectWorkloadAuditConfiguration",
+      "Effect": "Deny",
+      "Action": ["cloudtrail:StopLogging", "cloudtrail:DeleteTrail", "config:StopConfigurationRecorder", "config:DeleteConfigurationRecorder"],
+      "Resource": "*"
+    }
+  ]
+}
