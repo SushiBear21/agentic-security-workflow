@@ -17,7 +17,7 @@ class DeploymentTests(unittest.TestCase):
             task_role_arn="arn:aws:iam::123456789012:role/lab-task",
             execution_role_arn="arn:aws:iam::123456789012:role/lab-execution")
         self.sts.get_caller_identity.return_value = {"Account": "123456789012"}
-        self.current = {"status":"ACTIVE", "deploymentController":{"type":"ECS"}, "desiredCount":1,
+        self.current = {"status":"ACTIVE", "deploymentController":{"type":"ECS"}, "desiredCount":1, "runningCount":1, "pendingCount":0,
                         "taskDefinition":self.config["expected_previous"], "deployments":[{"rolloutState":"COMPLETED"}]}
         self.ecs.describe_services.return_value = {"services":[self.current]}
         self.ecs.describe_task_definition.return_value = {"taskDefinition":{"family":"tower", "containerDefinitions":[{"name":"tower","image":"old","environment":[{"name":"KEEP","value":"yes"}]}],
@@ -55,6 +55,7 @@ class DeploymentTests(unittest.TestCase):
         self.ecs.get_waiter.return_value.wait.side_effect=[TimeoutError("candidate timeout"),None]
         result=apply(self.ecs,p,digest(p))
         self.assertEqual(result["status"],"failed"); self.assertEqual(result["rollback"],"restored")
+        self.assertEqual(result["restored_observation"]["running_count"], 1)
         self.assertEqual(self.ecs.update_service.call_args.kwargs["taskDefinition"],self.config["expected_previous"])
     def test_concurrent_change_not_overwritten(self):
         p=plan(self.ecs,self.sts,self.config)

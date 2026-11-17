@@ -38,6 +38,8 @@ jobs:
           scanners: vuln
           exit-code: "0"
       - name: Block high and critical vulnerabilities
+        env:
+          TRIVY_LIST_ALL_PKGS: "true"
         uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
         with:
           version: v0.76.2
@@ -64,6 +66,22 @@ jobs:
           else:
               print("No vulnerability report: scanner execution must be investigated.")
           PY
+      - name: Bind scan evidence to the rehearsal decision
+        if: ${{ !cancelled() && matrix.image == 'portfolio-rehearsal' }}
+        shell: bash
+        run: |
+          test -s container-vulnerabilities.json
+          image="portfolio-rehearsal:$GITHUB_SHA"
+          image_id=$(docker image inspect --format '{{.Id}}' "$image")
+          container=$(docker create --network none -v "$PWD/container-vulnerabilities.json:/evidence/scan.json:ro" "$image" \
+            --output /tmp/release-evidence --image-report /evidence/scan.json --image-id "$image_id")
+          trap 'docker rm -f "$container"' EXIT
+          status=0
+          docker start -a "$container" || status=$?
+          docker cp "$container:/tmp/release-evidence/decision.json" image-release-decision.json
+          docker cp "$container:/tmp/release-evidence/dependency-gate.json" image-release-scan-gate.json
+          docker cp "$container:/tmp/release-evidence/assessment.json" image-release-assessment.json
+          exit "$status"
       - name: Smoke test read-only service
         if: matrix.image == 'portfolio-service'
         run: |
@@ -81,6 +99,7 @@ jobs:
           path: |
             container-sbom.json
             container-vulnerabilities.json
+            image-release-*.json
           retention-days: 30
   evidence:
     runs-on: ubuntu-latest

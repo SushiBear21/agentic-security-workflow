@@ -79,3 +79,28 @@ production authorization because the dependency-scan and human-quality gates
 were unmet.
 
 [Acceptance results](evidence/acceptance.json) · [Release decision](evidence/decision.json)
+
+## Image scan and human-review evidence
+
+The container CI job records the rehearsal image config digest from Docker,
+checks that the Trivy JSON names that digest, and includes the report hash in
+the assessment. The gate requires OS and library coverage, a report no older
+than 24 hours, and zero HIGH or CRITICAL findings. A local offline rehearsal
+without scan input leaves the gate unmeasured. The Docker config digest is
+distinct from the ECR manifest digest used for staging.
+
+For human review, use a complete live comparison and the exact rehearsal
+image ID. Generate the side-by-side packet, then record judgments in the
+existing interactive review:
+
+```sh
+python p4_review.py --report comparison.json --packet review-packet.json --release-id "$IMAGE_ID"
+python p4_review.py --report comparison.json --reviewer "Reviewer name" --release-id "$IMAGE_ID"
+```
+
+The packet includes source documents, paired model drafts, and the rubric.
+The reviewer records facts and citation support, unsupported claims, and
+whether uncertainty is clear. Keep the resulting `human-review.json` beside
+the comparison. A release run that supplies both the image scan and the
+comparison checks the review's image ID as well as the comparison hash.
+The existing evaluator still determines whether any configuration qualifies.

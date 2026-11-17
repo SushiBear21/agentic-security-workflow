@@ -90,3 +90,29 @@ class AccessLabTests(unittest.TestCase):
 
 
 if __name__ == "__main__": unittest.main()
+
+
+class AuthenticatedAccessTests(unittest.TestCase):
+    def test_verified_credentials_separate_duties_and_deny_execution_replay(self):
+        from tower.access_demo import AuthenticatedAccess
+
+        now = 100
+        lab = AuthenticatedAccess(clock=lambda: now)
+        requester = lab.issue("lab-requester")
+        approver = lab.issue("lab-approver")
+        executor = lab.issue("lab-executor")
+        request = lab.run("request", {
+            "id": "auth-test", "action": "read_synthetic_evidence",
+            "resource": "lab://evidence/SEC-001", "ttl_seconds": 60, "reason": "Review",
+        }, requester)
+        for credential in ("lab-approver", requester):
+            with self.assertRaises(ValueError):
+                lab.run("approve", request, credential)
+        lab.run("approve", request, approver)
+        lab.run("execute", request, executor)
+        with self.assertRaises(ValueError):
+            lab.run("execute", request, executor)
+        now += 300
+        with self.assertRaises(ValueError):
+            lab.run("execute", request, executor)
+        self.assertEqual(lab.snapshot()["events"][-1]["actor"], "unauthenticated")

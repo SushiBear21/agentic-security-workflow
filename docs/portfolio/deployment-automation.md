@@ -73,3 +73,14 @@ health checks, role policies and retention for the existing staging environment.
 
 References: [ECS deployment circuit breaker](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-circuit-breaker.html),
 [Trivy container scans](https://trivy.dev/docs/latest/target/container_image/).
+
+## Evidence to retain for a staging run
+
+Download the deployment artifact after the approved run. Inspect the image,
+plan hash, baseline revision, and candidate observation in
+`deployment-result.json`. A completed observation requires one completed
+deployment, running tasks equal to desired tasks, and zero pending tasks.
+For a failed candidate, use the recovery or restored observation to verify
+the previous revision reached that same state. Retain the failure result and
+the scan alongside the plan. A separately approved staging failure rehearsal
+is needed to collect live rollback evidence.

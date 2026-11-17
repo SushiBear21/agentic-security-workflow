@@ -61,3 +61,9 @@ Illustrative NIST SP 800-53 Rev. 5 associations: AC-3 (access enforcement), AC-5
 (separation of duties), AC-6 (least privilege), AU-3 (audit content), AU-9 (audit
 protection gaps). These are limited lab mappings, not FedRAMP control satisfaction
 or an authorization claim.
+
+The release rehearsal uses the credential-backed lab entry point. A trusted
+operator issues separate short-lived opaque credentials for the requester,
+approver, and executor. The entry point derives the principal and timestamp
+before applying the existing role, digest, expiry, and replay checks.
+Credentials and audit state exist only in the local process.
