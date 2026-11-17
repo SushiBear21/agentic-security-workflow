@@ -113,10 +113,10 @@ enabled.
 
 | Check | Observed result |
 | --- | --- |
-| Baseline task definition | Revision `:1`, rollout `COMPLETED`, one running task and zero pending |
-| Candidate task definition | Newly registered revision derived from `:1`, with the same immutable ECR image and an injected container health check that exited with code 1 |
+| Baseline task definition | `portfolio-rollback-drill:1`, rollout `COMPLETED`, one running task and zero pending |
+| Candidate task definition | `portfolio-rollback-drill:2`, derived from `portfolio-rollback-drill:1`, with the same immutable ECR image and an injected container health check that exited with code 1 |
 | Candidate failure | ECS recorded the deployment failure |
-| Rollback | ECS returned to revision `:1` and reached `COMPLETED` with one desired, one running and zero pending tasks |
+| Rollback | ECS returned to `portfolio-rollback-drill:1` and reached `COMPLETED` with one desired, one running and zero pending tasks |
 | Post-drill scale-down | Zero desired, running and pending tasks |
 
 The local evidence file recorded `rollback_verified: true`. This published

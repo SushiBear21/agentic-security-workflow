@@ -1,9 +1,14 @@
 # Staging delivery automation and rollback
 
-The source-to-image and image-to-service workflows are implemented. **They have
-not deployed AWS resources.** They require an existing private ECS service, ECR
-repository and approved OIDC roles. The workload is a read-only synthetic metrics
-service, not a production AI application. The AI-quality decision stays blocked.
+On November 17, 2026, the live AWS sandbox rollback drill ran from PowerShell.
+ECS rejected `portfolio-rollback-drill:2` after an injected health-check failure
+and restored `portfolio-rollback-drill:1` to `COMPLETED`, with one running task
+and zero pending. [Verified drill results](customer-deployment.md#live-aws-ecs-rollback-and-human-review--november-17-2026).
+
+The GitHub Actions publish and ECS deploy workflows below still await their
+first live AWS run. They require an existing private ECS service, an ECR
+repository, and approved OIDC roles. The staging workload is a read-only
+synthetic metrics service.
 
 ## Pipeline
 
