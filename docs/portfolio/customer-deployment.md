@@ -132,3 +132,18 @@ retrospectively, and the result supports a lab demonstration. The deployment
 drill used the read-only service.
 
 For the next run, see the [prospective holdout and lab release protocol](prospective-evaluation.md).
+
+## Approved Bedrock holdout lab release
+
+A prospective holdout tested two configurations across three synthetic cases
+each. All six automated checks passed. Four live Bedrock drafts passed
+independent, source-based human review. The restricted case made zero model
+calls in either configuration.
+
+The final record passed all five gates: exact-image Trivy scan, holdout
+contract, independent review, latency, and cost. A human approved the
+SHA-256-bound evidence manifest. The recorded outcome was
+`eligible_for_lab_release` with `production_authorized: false`.
+
+[Evaluation protocol](prospective-evaluation.md) ·
+[Container scan run](https://github.com/SushiBear21/agentic-security-workflow/actions/runs/44171202837)
