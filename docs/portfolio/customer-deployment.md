@@ -130,3 +130,5 @@ selection chose `temperature-0.5` based on observed median latency
 (615.7 ms compared with 659.6 ms in this run). Eligibility criteria were applied
 retrospectively, and the result supports a lab demonstration. The deployment
 drill used the read-only service.
+
+For the next run, see the [prospective holdout and lab release protocol](prospective-evaluation.md).

@@ -386,8 +386,10 @@ def write_summary(report, folder):
     )
 
 
-def run_comparison(configs, repeats, client, budget, folder):
-    suite = evaluation_cases()
+def run_comparison(configs, repeats, client, budget, folder, *, holdout=False, release_id=None):
+    from p4_holdout import PROTOCOL, cases as holdout_cases
+
+    suite = list(holdout_cases()) if holdout else evaluation_cases()
 
     report = {
         "mode": "live" if client else "offline_simulation",
@@ -408,6 +410,10 @@ def run_comparison(configs, repeats, client, budget, folder):
         "results": [],
     }
 
+    if holdout:
+        report["protocol_sha256"] = hashlib.sha256(PROTOCOL.read_bytes()).hexdigest()
+        report["suite"] = "prospective-holdout-v1"
+        report["release_id"] = release_id
     folder.mkdir(parents=True)
     path = folder / "comparison.json"
 
@@ -608,6 +614,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--live", action="store_true")
+    parser.add_argument("--holdout", action="store_true")
+    parser.add_argument("--release-id", help="Image ID for the prospective holdout")
     parser.add_argument(
         "--model", default="amazon.nova-lite-v1:0"
     )
@@ -637,6 +645,13 @@ def main():
     ):
         parser.error("Soft budget must be positive")
 
+    if args.holdout and args.repeats != 1:
+        parser.error("The preregistered holdout uses one repeat")
+    if args.holdout and args.live:
+        from tower.image_scan import DIGEST
+
+        if not args.release_id or not DIGEST.fullmatch(args.release_id):
+            parser.error("A live holdout requires --release-id sha256:<64 hex digits>")
     client = None
 
     if args.live:
@@ -705,7 +720,7 @@ def main():
     ]
 
     folder = (
-        ROOT / "reports" / "p4-lesson5"
+        ROOT / "reports" / ("p4-holdout" if args.holdout else "p4-lesson5")
         / uuid.uuid4().hex
     )
 
@@ -715,6 +730,7 @@ def main():
         client,
         args.soft_budget_usd,
         folder,
+        holdout=args.holdout, release_id=args.release_id,
     )
 
 
