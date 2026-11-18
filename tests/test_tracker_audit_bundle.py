@@ -49,6 +49,12 @@ class AuditBundleTests(unittest.TestCase):
             bundle.writestr("tracker-release.json", json.dumps(receipt))
         self.source["artifact_sha256"] = "sha256:" + sha(self.artifact.read_bytes())
 
+    def test_retained_github_evidence_reproduces_committed_observation(self):
+        evidence = Path(__file__).resolve().parents[1] / "docs/portfolio/audit-evidence"
+        source = json.loads((evidence / "tracker-ci-source.json").read_bytes())
+        expected = json.loads((evidence / "tracker-ci-observation.json").read_bytes())
+        self.assertEqual(verify_bundle(evidence / "tracker-ci-original.zip", source), expected)
+
     def test_original_reperforms_and_modified_artifact_is_rejected(self):
         self.package()
         result = verify_bundle(self.artifact, self.source)
