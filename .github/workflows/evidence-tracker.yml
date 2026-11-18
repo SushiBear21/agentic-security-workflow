@@ -23,8 +23,14 @@ jobs:
       - name: Run tracker controls
         run: |
           python -m unittest discover -s tests -p test_tracker.py -v
+          python -m unittest discover -s tests -p test_tracker_audit_bundle.py -v
           node --check tracker/tracker.js
           mkdir -p evidence
+      - name: Reperform archived audit evidence
+        run: |
+          python -m tracker.audit_bundle --artifact docs/portfolio/audit-evidence/tracker-ci-original.zip \
+            --source docs/portfolio/audit-evidence/tracker-ci-source.json --output evidence/historical-audit-retest.json
+          cmp evidence/historical-audit-retest.json docs/portfolio/audit-evidence/tracker-ci-observation.json
       - name: Prepare Chromium acceptance checks
         run: |
           npm install --prefix "$RUNNER_TEMP/tracker-browser" --no-save playwright@1.62.1

@@ -29,6 +29,8 @@ evidence for the guardrail, remediation retest and model rollback.
 - [SaaS evidence tracker and product backlog](docs/portfolio/evidence-tracker-product.md)
 - [Local demo, DevSecOps ownership and CI/CD rehearsal](docs/portfolio/evidence-tracker-release.md)
 - [Selected CMMC Level 2 assessment exercise](docs/portfolio/cmmc-tracker-assessment.md)
+- [SOC 2 readiness workpapers](docs/portfolio/soc2-tracker-readiness.md)
+- [ISO IEC 27001 internal audit and retest](docs/portfolio/iso27001-tracker-internal-audit.md)
 
 ## Four delivery capabilities
 

@@ -1,0 +1,53 @@
+{
+  "scope": "Historical CI release rehearsal using synthetic data",
+  "source": {
+    "repository": "SushiBear21/agentic-security-workflow",
+    "pull_request": 13,
+    "head_sha": "9eeacafdf39bad4c72b4a486062a146f95d74126",
+    "checkout_sha": "169514827e1320f6418d9a16b360e7eef2ad84d5",
+    "run_id": 44249673451,
+    "artifact_id": 14403252146,
+    "artifact_created_at": "2026-11-18T06:14:08Z",
+    "artifact_expires_at": "2026-12-18T06:14:07Z",
+    "artifact_sha256": "sha256:766158c8d0b740190c3db1b172c8a70ec90e70ecdab212f8cae723e8ac9c9adf"
+  },
+  "image_id": "sha256:b2f9798dff45b01737b4fe1f91d6c829f934aedda993d7b2622c346ecfbcd80a",
+  "input_digests_verified": [
+    "baseline",
+    "browser",
+    "candidate",
+    "recovery",
+    "sbom",
+    "scan"
+  ],
+  "browser_workflows_verified": [
+    "submit",
+    "review",
+    "download"
+  ],
+  "baseline_checks_reported": [
+    "health",
+    "authentication",
+    "submit",
+    "idempotent replay",
+    "role isolation",
+    "digest binding",
+    "review",
+    "one decision",
+    "audit export"
+  ],
+  "phase_outcomes": {
+    "baseline": "eligible_for_review",
+    "candidate": "blocked",
+    "recovery": "eligible_for_review"
+  },
+  "recovery_preserved_baseline_reported": true,
+  "historical_scan": {
+    "status": "pass",
+    "image_id": "sha256:b2f9798dff45b01737b4fe1f91d6c829f934aedda993d7b2622c346ecfbcd80a",
+    "scanned_at": "2026-11-18T06:13:55.812098+00:00",
+    "blocking_findings": 0
+  },
+  "promotion_authorized": false,
+  "independent_review": "pending"
+}
