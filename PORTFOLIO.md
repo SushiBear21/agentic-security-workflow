@@ -24,6 +24,12 @@ cover a multi-account AWS landing zone, selected FedRAMP 20x evidence checks,
 and a model change and incident drill. The repository generates reviewable
 evidence for the guardrail, remediation retest and model rollback.
 
+## Evidence tracker and release assurance
+
+- [SaaS evidence tracker and product backlog](docs/portfolio/evidence-tracker-product.md)
+- [Local demo, DevSecOps ownership and CI/CD rehearsal](docs/portfolio/evidence-tracker-release.md)
+- [Selected CMMC Level 2 assessment exercise](docs/portfolio/cmmc-tracker-assessment.md)
+
 ## Four delivery capabilities
 
 See [AI operations and assurance evidence](docs/portfolio/ai-capability-evidence.md) for the
