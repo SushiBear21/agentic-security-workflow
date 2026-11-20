@@ -19,9 +19,10 @@ that a self-attested passing observation establishes control effectiveness.
 The optional AWS collector makes read-only STS, DynamoDB DescribeTable and
 S3 configuration calls. It verifies account/table region and sends
 ExpectedBucketOwner on S3 reads. It never reads objects or table records.
-Missing access/configuration is unverified, not compliant. The recorded bucket
-location must be reviewed against the intended boundary. Store outputs privately;
-do not commit live resource identifiers or operational evidence publicly.
+An account, table or bucket location mismatch stops collection. A configuration
+read that fails after the boundary checks is recorded as unverified. Store
+outputs privately and keep live resource identifiers out of public commits.
+For the offline exercise, see [Synthetic AWS continuous monitoring](aws-conmon-synthetic.md).
 
 GitHub's container-security workflow runs on pushes/PRs, manually, and Mondays
 at 13:23 UTC. It refreshes CI/container evidence and retains artifacts 30 days.

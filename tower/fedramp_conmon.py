@@ -1,8 +1,7 @@
 """Offline AWS-only FedRAMP-inspired ConMon exercise; never an authorization decision.
 
-This generator reads checked-in synthetic fixtures and source files. Optional AWS
-configuration snapshot must have been collected separately with the existing
-read-only tower.aws_evidence tool; raw snapshots are not copied into output.
+This generator reads local synthetic fixtures and source files. It never invokes
+the separate read-only AWS collector or consumes its live snapshots.
 """
 import argparse
 import hashlib
@@ -12,6 +11,7 @@ from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
 
+from tower.aws_evidence import OBSERVATION_NAMES
 from tower.readiness_package import ROOT, digest, safe_relative
 
 FIXTURE = ROOT / "tests/fixtures/conmon-aws-v1.json"
@@ -20,7 +20,7 @@ STATUSES = ("open", "in_progress", "closed")
 # Educational local policy, NOT FedRAMP-mandated remediation limits.
 DEMO_SLA_DAYS = {"critical": 2, "high": 7, "moderate": 30, "low": 90}
 OUTPUTS = ("monthly-report.json", "poam.json", "control-mappings.json",
-           "evidence-index.json", "dashboard.html")
+           "evidence-index.json", "ssp.json", "dashboard.html")
 DISCLAIMER = (
     "SYNTHETIC PORTFOLIO EXERCISE ONLY; no FedRAMP authorization, "
     "certification, 3PAO assessment, live scan, continuous monitoring "
@@ -56,36 +56,26 @@ def source_inventory(root, mapping):
     return dict(sorted(inventory.items()))
 
 
-def summarize_snapshot(path, expected_region):
-    """Return redacted configuration evidence metadata, never raw account data."""
-    if path is None:
-        return {"status": "not_provided", "assurance": "no_live_aws_assessment"}
-    snapshot = json.loads(Path(path).read_text(encoding="utf-8"))
-    if snapshot.get("mode") != "live_read_only" or snapshot.get("schema_version") != 1:
-        raise ValueError("Only a read-only AWS snapshot is accepted")
-    if snapshot.get("region") != expected_region:
-        raise ValueError("AWS snapshot region outside declared boundary")
-    if snapshot.get("assessment") != "Configuration observations only; no compliance conclusion":
-        raise ValueError("Unexpected snapshot assessment")
-    obs = snapshot.get("observations")
-    if not isinstance(obs, dict) or not obs:
-        raise ValueError("Empty AWS observation set")
-    if any(not isinstance(v, dict) or v.get("status") not in ("collected", "unverified") for v in obs.values()):
-        raise ValueError("Invalid AWS observation status")
+def summarize_observations(fixture):
+    observations = fixture.get("aws_observations")
+    if not isinstance(observations, dict) or set(observations) != OBSERVATION_NAMES:
+        raise ValueError("Expected the complete synthetic AWS observation set")
+    if any(status not in ("collected", "unverified") for status in observations.values()):
+        raise ValueError("Invalid synthetic AWS observation status")
     return {
-        "status": "read_only_snapshot_metadata",
-        "sha256": digest(Path(path)),
-        "observation_counts": dict(sorted(Counter(v["status"] for v in obs.values()).items())),
-        "assurance": "config_only_not_verified_compliance",
-        "raw_snapshot_included": False,
+        "synthetic": True,
+        "mode": "fixture_only",
+        "region": fixture["aws_region"],
+        "observations": observations,
+        "counts": dict(sorted(Counter(observations.values()).items())),
     }
 
 
-def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
-    """Evaluate only fixture facts, source presence, and explicit educational SLAs."""
+def analyze(fixture, as_of, root=ROOT):
+    """Evaluate fixture facts, source presence and educational SLAs."""
     if fixture.get("schema_version") != 1 or fixture.get("synthetic") is not True:
         raise ValueError("Explicit versioned synthetic fixture required")
-    if fixture.get("cloud_provider") != "AWS" or "azure" in json.dumps(fixture).lower():
+    if fixture.get("cloud_provider") != "AWS":
         raise ValueError("AWS-only scope: Azure deferred")
     period = fixture.get("period")
     if not isinstance(period, str) or len(period) != 7 or period != as_of.strftime("%Y-%m"):
@@ -98,6 +88,7 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
     if not isinstance(boundary, dict) or boundary.get("environment") != "synthetic":
         raise ValueError("Synthetic boundary required")
 
+    aws = summarize_observations(fixture)
     mapping = fixture["control_mappings"]
     ids = [r["id"] for r in mapping]
     if not ids or len(ids) != len(set(ids)):
@@ -105,17 +96,22 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
     for row in mapping:
         if not row.get("limitation") or not row.get("evidence") or not row.get("owner"):
             raise ValueError("Control mapping must preserve gaps and ownership")
+        if not row.get("title") or not set(row["observations"]).issubset(OBSERVATION_NAMES):
+            raise ValueError("Invalid control description or AWS observation references")
         if row.get("status") != "partial_lab_mapping":
             raise ValueError("No control may be labeled compliant")
 
     source = source_inventory(root, mapping)
     controls = [{
-        "control": row["id"], "owner": row["owner"],
+        "control": row["id"], "title": row["title"], "owner": row["owner"],
         "scope": "selected_only_not_full_baseline",
         "status": "source_available_unassessed"
         if all(source[e]["status"] == "source_present" for e in row["evidence"])
         else "missing_source_evidence",
         "references": row["evidence"],
+        "synthetic_aws_observations": {
+            name: aws["observations"][name] for name in row["observations"]
+        },
         "gap": row["limitation"]
     } for row in mapping]
 
@@ -135,7 +131,7 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
             days = (as_of - observed).days
             if days < 0:
                 raise ValueError("Future observation is not accepted")
-            coverage["current_fixture_observation" if days <= 30
+            coverage["current_fixture_observation" if days <= fixture["scan_freshness_days"]
                      else "stale_fixture_observation"] += 1
 
     findings = fixture["findings"]
@@ -144,6 +140,7 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
         raise ValueError("Duplicate finding ID")
     rows = []
     stats = Counter()
+    period_start = as_of.replace(day=1)
     for f in findings:
         if f.get("asset_id") not in asset_ids:
             raise ValueError("Unknown affected asset")
@@ -172,6 +169,8 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
             closed_at = None
         overdue = state != "closed" and as_of > due
         resolution_late = bool(closed_at and closed_at > due)
+        stats["new_this_month"] += discovered >= period_start
+        stats["closed_this_month"] += closed_at is not None and closed_at >= period_start
         stats[state] += 1
         stats[severity] += 1
         if overdue:
@@ -185,27 +184,28 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
             "due": due.isoformat(), "age_days": (as_of - discovered).days,
             "overdue": overdue,
             "overdue_days": max(0, (as_of - due).days) if overdue else 0,
+            "days_to_close": (closed_at - discovered).days if closed_at else None,
             "closed_at": closed_at.isoformat() if closed_at else None,
             "late_closure": resolution_late,
             "remediation": f["remediation"],
             "closure_reference": f.get("closure_reference"),
-            "exception": f.get("exception"),
             "evidence_status": "synthetic_fixture_not_independently_verified",
             "no_official_fedramp_deadline_claim": True,
         })
     rows.sort(key=lambda f: (f["status"] == "closed", SEVERITIES.index(f["severity"]), f["id"]))
 
-    aws = summarize_snapshot(aws_snapshot, fixture["aws_region"])
     metrics = {
         "findings_total": len(rows), "open": stats["open"] + stats["in_progress"],
         "closed_fixture": stats["closed"], "overdue_open": stats["overdue"],
         "late_closure": stats["late_closure"],
+        "new_this_month": stats["new_this_month"],
+        "closed_this_month": stats["closed_this_month"],
         "by_severity": {s: stats[s] for s in SEVERITIES},
         "assets_total": len(assets),
         "assets_with_current_fixture_observation": coverage["current_fixture_observation"],
         "assets_with_stale_fixture_observation": coverage["stale_fixture_observation"],
         "assets_without_fixture_observation": coverage["not_observed"],
-        "control_source_files_present": sum(x["status"] == "source_available_unassessed" for x in controls),
+        "control_mappings_with_all_sources": sum(x["status"] == "source_available_unassessed" for x in controls),
         "control_mappings_total": len(controls),
     }
     report = {
@@ -218,13 +218,13 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
             "source": "educational_fixture_only_not_a_fedramp_requirement"},
         "scan_policy": {"freshness_days": 30, "source": "educational_fixture_only"},
         "metrics": metrics,
-        "monitoring": {"aws_read_only_snapshot": aws,
+        "monitoring": {"synthetic_aws_observations": aws,
                        "service_level_monitoring": "not_implemented",
                        "finding_sources": "synthetic fixtures; no scanner execution",
                        "trends": "not_established_one_month_only"},
         "review": {
             "recommendation": "HUMAN_REVIEW_REQUIRED_NOT_AUTHORIZATION",
-            "reason": "Synthetic evidence, unknown real-world scan coverage and overdue mock findings",
+            "reason": "Review synthetic evidence coverage and open mock remediation items",
             "approver": None,
             "actual_ao_decision": None,
         },
@@ -235,24 +235,57 @@ def analyze(fixture, as_of, root=ROOT, aws_snapshot=None):
     }
     poam = {
         "schema_version": 1, "synthetic": True, "scope": "fixture_only_not_official_poam",
+        "statement": DISCLAIMER, "period": period,
         "as_of": as_of.isoformat(), "items": rows, "approval_status": "not_reviewed",
     }
-    return report, poam, {"synthetic": True, "status": "partial_mappings_only",
-                           "controls": controls}, {"synthetic": True, "files": source}
+    return report, poam, {
+        "synthetic": True, "standard": "NIST SP 800-53 Rev. 5",
+        "statement": DISCLAIMER, "status": "partial_mappings_only", "controls": controls,
+    }, {"synthetic": True, "statement": DISCLAIMER, "files": source}
+
+
+def system_security_plan(fixture, report, mapping):
+    return {
+        "schema_version": 1,
+        "synthetic": True,
+        "title": "Synthetic AWS System Security Plan",
+        "statement": DISCLAIMER,
+        "period": report["period"],
+        "as_of": report["as_of"],
+        "boundary": report["boundary"],
+        "aws_region": fixture["aws_region"],
+        "assets": fixture["assets"],
+        "control_mappings": "control-mappings.json",
+        "mapped_controls": [control["control"] for control in mapping["controls"]],
+        "monitoring_report": "monthly-report.json",
+        "remediation_register": "poam.json",
+        "data_flow": "Local synthetic fixture to offline analysis to local evidence bundle",
+        "responsibility": "Synthetic asset and control owners review results and track mock remediation",
+        "unresolved": ["System categorization and baseline selection", "Deployed identity, storage and logging verification",
+                       "Operational monitoring coverage and independent review"],
+    }
 
 
 def dashboard(report, poam):
     """Static, escaped, dependency-free dashboard; no secret or account detail."""
     m = report["metrics"]
     cards = [
-        ("Total synthetic findings", m["findings_total"]),
+        ("New this month", m["new_this_month"]),
+        ("Closed this month", m["closed_this_month"]),
         ("Open or in progress", m["open"]),
         ("Overdue mock findings", m["overdue_open"]),
+        ("Late mock closures", m["late_closure"]),
         ("Current fixture observations", f'{m["assets_with_current_fixture_observation"]}/{m["assets_total"]}'),
     ]
     card_html = "".join(
         f'<div class="card"><strong>{html.escape(str(value))}</strong>'
         f'<span>{html.escape(label)}</span></div>' for label, value in cards)
+    coverage = (
+        f'{m["assets_with_stale_fixture_observation"]} stale and '
+        f'{m["assets_without_fixture_observation"]} missing asset observations. '
+        f'{m["control_mappings_with_all_sources"]}/{m["control_mappings_total"]} '
+        'selected control mappings have their referenced source files.'
+    )
     row_html = "".join(
         "<tr>" + "".join(f"<td>{html.escape(str(item.get(key) if item.get(key) is not None else '—'))}</td>"
                           for key in ("id", "severity", "status", "owner", "due", "overdue")) + "</tr>"
@@ -271,6 +304,7 @@ th{{background:#e8edf1}}.scroll{{overflow-x:auto}}
 <p class="banner"><strong>NOT AUTHORIZED / SYNTHETIC:</strong> {html.escape(DISCLAIMER)}</p>
 <p>Reporting month: {html.escape(report["period"])} · As-of: {html.escape(report["as_of"])} · Cloud: AWS only.</p>
 <section class="cards" aria-label="Summary metrics">{card_html}</section>
+<p>{html.escape(coverage)}</p>
 <h2>Illustrative remediation register</h2><div class="scroll"><table><thead><tr>
 <th>ID</th><th>Severity</th><th>Status</th><th>Owner</th><th>Demo due date</th><th>Overdue</th>
 </tr></thead><tbody>{row_html}</tbody></table></div>
@@ -281,29 +315,35 @@ This dashboard does not establish control effectiveness or scan completeness.</p
 """
 
 
-def build(destination, as_of, fixture_path=FIXTURE, root=ROOT, aws_snapshot=None):
+def build(destination, as_of, fixture_path=FIXTURE, root=ROOT):
     destination = Path(destination)
     if destination.exists():
         raise ValueError("Choose a new output directory; overwrite is disabled")
     fixture_path = Path(fixture_path)
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    report, poam, mapping, evidence = analyze(fixture, checked_date(as_of), root, aws_snapshot)
-    evidence["fixture_sha256"] = digest(fixture_path)
-    evidence["aws_snapshot_summary"] = report["monitoring"]["aws_read_only_snapshot"]
-    destination.mkdir(parents=True)
+    fixture_bytes = fixture_path.read_bytes()
+    fixture = json.loads(fixture_bytes)
+    report, poam, mapping, evidence = analyze(fixture, checked_date(as_of), root)
+    evidence["fixture_sha256"] = hashlib.sha256(fixture_bytes).hexdigest()
+    evidence["aws_observation_summary"] = report["monitoring"]["synthetic_aws_observations"]
     outputs = {
         "monthly-report.json": canonical(report), "poam.json": canonical(poam),
         "control-mappings.json": canonical(mapping),
         "evidence-index.json": canonical(evidence),
+        "ssp.json": canonical(system_security_plan(fixture, report, mapping)),
         "dashboard.html": dashboard(report, poam),
     }
-    for name, data in outputs.items():
-        (destination / name).write_text(data, encoding="utf-8")
+    payloads = {name: data.encode("utf-8") for name, data in outputs.items()}
     manifest = {
         "schema_version": 1, "synthetic": True,
-        "assertion": DISCLAIMER, "files": {name: digest(destination / name) for name in OUTPUTS},
+        "assertion": DISCLAIMER,
+        "files": {name: hashlib.sha256(payload).hexdigest() for name, payload in payloads.items()},
     }
-    (destination / "manifest.json").write_text(canonical(manifest), encoding="utf-8")
+    # Exclusive directory creation prevents concurrent builds from overwriting each other.
+    # The manifest is written last so an interrupted build cannot verify.
+    destination.mkdir(parents=True)
+    for name, payload in payloads.items():
+        (destination / name).write_bytes(payload)
+    (destination / "manifest.json").write_bytes(canonical(manifest).encode("utf-8"))
     verify(destination)
     return manifest
 
@@ -340,12 +380,11 @@ def main():
     parser.add_argument("--as-of", default="2026-11-20",
                         help="ISO date for deterministic simulation")
     parser.add_argument("--fixture", default=str(FIXTURE))
-    parser.add_argument("--aws-snapshot", help="Optional private output of tower.aws_evidence")
     args = parser.parse_args()
     if args.verify:
         verify(args.verify)
     else:
-        build(args.output, args.as_of, args.fixture, aws_snapshot=args.aws_snapshot)
+        build(args.output, args.as_of, args.fixture)
     print("PASS: synthetic AWS-only evidence hashes; NOT an assessment or authorization")
     return 0
 
