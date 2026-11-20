@@ -1,4 +1,4 @@
-# ISO IEC 27001 internal audit exercise for the evidence tracker
+# ISO/IEC 27001:2022 internal-audit exercise for the evidence tracker
 
 ## ISMS scope and responsibilities
 
@@ -50,8 +50,8 @@ Map each test to the applicable control or risk. This is a limited exercise,
 with the independent reviewer to be assigned by the lab owner.
 
 **Sample and method.** Examine the tracker source and release workflow, inspect
-one GitHub rehearsal from the [defined evidence period](soc2-tracker-readiness.md#system-and-evidence-period),
-and reperform release evidence verification. Include a negative test using a
+three GitHub rehearsals from the [defined evidence period](soc2-tracker-readiness.md#system-and-evidence-period),
+and reperform release evidence verification. Follow the [evidence requests and sample trace](tracker-audit-review-packet.md). Include a negative test using a
 deliberately altered copy. Keep management approval and reviewer sign-off open
 until they are supplied.
 
@@ -60,15 +60,15 @@ until they are supplied.
 | ISO-01 · Scope and treatment | Compare boundary and role owners to the tracker and release workflows. Trace each risk to a selected control and treatment. | Scope and control map documented. Risk acceptance pending owner confirmation. |
 | ISO-02 · Access and change | Inspect role tests and reconcile the CI receipt to the PR, issues, scan and recovery phases. | Selected technical gates observed. Independent change approval and promotion remain unverified. |
 | ISO-03 · Records protection | Examine original controls for offline verification of historical evidence. Test the new procedure with the retained ZIP and with an altered copy. | Baseline gap found. The original ZIP reperformed and the altered copy was rejected. See ISO-F01. |
-| ISO-04 · Monitoring | Verify that the rehearsal blocked the unhealthy candidate and observed a healthy recovery. | CI monitoring confirmed for the run. Continuous monitoring and alert response remain outside the observed sample. |
+| ISO-04 · Monitoring | Verify that the rehearsal blocked the unhealthy candidate and observed a healthy recovery. | CI monitoring confirmed for all three runs. Continuous monitoring and alert response remain outside the observed sample. |
 
-## ISO F01 release evidence verification gap
+## ISO-F01 release evidence verification gap
 
 - **Condition and evidence.** The baseline [tracker release workflow](https://github.com/SushiBear21/agentic-security-workflow/blob/9eeacafdf39bad4c72b4a486062a146f95d74126/.github/workflows/evidence-tracker.yml) records input hashes in its receipt. Its [runbook](https://github.com/SushiBear21/agentic-security-workflow/blob/9eeacafdf39bad4c72b4a486062a146f95d74126/docs/portfolio/evidence-tracker-release.md) explains artifact generation but supplies no procedure or tool to check an archived copy against artifact metadata and reperform the decision. The source artifact also has an expiry date.
 - **Root cause.** The initial change process specified how to generate and upload evidence. It omitted a post-download verification and retention step for reviewers. This is the preparer's inference from the baseline source and runbook.
-- **Corrective action.** The release coordinator now has a documented procedure, one byte-identical [retained artifact](audit-evidence/tracker-ci-original.zip) and a [verifier](../../tracker/audit_bundle.py) that checks the ZIP digest, embedded receipt inputs, source revision, and historical decision.
-- **Retest.** The original retained archive matched the captured GitHub artifact digest and reproduced all three decisions. An altered archive was rejected before any receipt was relied on. The [recorded observation](audit-evidence/tracker-ci-observation.json) preserves the successful historical result.
-- **Disposition.** Technical retest passed for the selected sample. Independent finding closure, periodic retention responsibility and operating evidence remain pending.
+- **Corrective action.** The release coordinator now has a documented procedure, three byte-identical [retained artifacts](tracker-audit-review-packet.md#sample-trace) and a [verifier](../../tracker/audit_bundle.py) that checks the ZIP digest, embedded receipt inputs, source revision, and historical decision.
+- **Retest.** All three retained archives matched the corresponding captured GitHub digest and reproduced the baseline, blocked candidate, and recovery decisions for each run. A modified copy of the original archive was rejected before any receipt was relied on. See the [retest procedure and review record](tracker-audit-review-packet.md#reviewer-disposition).
+- **Disposition.** Technical retest passed for the three selected rehearsals. Independent finding closure, periodic retention responsibility and operating evidence remain pending.
 
 Reproduce using the [SOC 2 workpaper commands](soc2-tracker-readiness.md#evidence-and-reproduction).
 Run `python -m unittest discover -s tests -p test_tracker_audit_bundle.py -v`
