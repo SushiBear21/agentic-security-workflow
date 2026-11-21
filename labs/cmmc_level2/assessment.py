@@ -18,7 +18,7 @@ def validate_requirements(requirements):
     total = 0
     for requirement in requirements:
         rid = requirement["id"]
-        if not re.fullmatch(r"3\\.\\d{1,2}\\.\\d{1,2}", rid):
+        if not re.fullmatch(r"3\.\d{1,2}\.\d{1,2}", rid):
             raise ValueError(f"Malformed requirement ID: {rid!r}")
         objectives = requirement["assessment_objectives"]
         if not objectives:
@@ -29,7 +29,7 @@ def validate_requirements(requirements):
                 raise ValueError(f"Objective sequence/uniqueness error: {rid}: {objective.get('id')!r}; expected {expected!r}")
             criterion = objective.get("criterion", "")
             if (not isinstance(criterion, str) or len(criterion.strip()) < 10
-                    or re.match(r"^(?:ermine if|1\\[[a-z]\\])\\b", criterion, re.I)
+                    or re.match(r"^(?:ermine if\s|1\[[a-z]\]\s)", criterion, re.I)
                     or criterion.startswith(("Determine if", "[D]", "[.]"))):
                 raise ValueError(f"Malformed/clipped objective criterion: {expected}")
         total += len(objectives)
