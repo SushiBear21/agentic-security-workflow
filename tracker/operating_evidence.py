@@ -10,8 +10,8 @@ import json
 import os
 from pathlib import Path
 from queue import Queue
-import re
 from secrets import token_hex
+from subprocess import check_output
 from tempfile import TemporaryDirectory
 from threading import Thread
 
@@ -72,7 +72,6 @@ def promotion_allowed(candidate, approval):
 
 
 def run_lab(directory, revision):
-    require(re.fullmatch(r"[a-f0-9]{40}", revision) is not None, "Expected a full checkout SHA")
     db = directory / "tracker.db"
     credentials = directory / "credentials.json"
     contributor = {"workspace": "Trackerauditlab", "name": "LabContributor",
@@ -188,11 +187,16 @@ def run_lab(directory, revision):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--revision", required=True)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    revision = check_output(["git", "rev-parse", "--verify", "HEAD"], cwd=root, text=True).strip()
+    ci_revision = os.getenv("GITHUB_SHA")
+    require(not ci_revision or revision == ci_revision, "Git HEAD differs from the CI checkout SHA")
+    changes = check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=root, text=True)
+    require(not changes, "Tracked worktree changes would make the evidence revision ambiguous")
     with TemporaryDirectory(prefix="tracker-operating-evidence-") as directory:
-        report = run_lab(Path(directory), args.revision)
+        report = run_lab(Path(directory), revision)
     payload = (json.dumps(report, indent=2) + "\n").encode()
     with args.output.open("xb") as stream:
         stream.write(payload)

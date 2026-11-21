@@ -53,9 +53,9 @@ explains how the original test checked the baseline record during CI recovery.
 
 | Finding | Impact and cause | Assigned function and corrective action | Test and disposition |
 | --- | --- | --- | --- |
-| E-01 · Access lifecycle | Revocation omissions could leave access active. The preparer identified demo credentials and no observed lifecycle records. | Access owner. Document and evidence issuance, revocation and periodic review. | Test approved access, a denied revoked identity and a dated review. Pending. |
-| E-02 · Change authorization | Technical eligibility alone cannot establish authorization to promote. The workflow stops at technical review. | Release coordinator. Retain formal approval and a lab promotion receipt tied to the reviewed revision. | Reconcile approval, revision and promotion when evidence exists. Pending. |
-| E-03 · Monitoring response | A service failure outside CI may go unnoticed. The observed workflow covers startup and smoke checks. | Service operator. Capture a lab alert route, acknowledgement and resolution. | Trace timestamped alert through response and verify closure. Pending. |
+| E-01 · Access lifecycle | Revocation omissions could leave access active. The preparer identified demo credentials and no observed lifecycle records. | Access owner. Document and evidence issuance, revocation and periodic review. | LC-01 passed for the lab sample. Independent disposition pending. |
+| E-02 · Change authorization | Technical eligibility alone cannot establish authorization to promote. The workflow stops at technical review. | Release coordinator. Retain formal approval and a lab promotion receipt tied to the reviewed revision. | PRM-01 passed with a fixture approval in the lab. The release rehearsal does not enforce an approval gate. Independent disposition pending. |
+| E-03 · Monitoring response | A service failure outside CI may go unnoticed. The observed workflow covers startup and smoke checks. | Service operator. Capture a lab alert route, acknowledgement and resolution. | INC-01 passed for the injected lab incident. Independent disposition pending. |
 | ISO-F01 · Evidence records | An altered or unreproducible archive could be relied on. The original release procedure omitted post-download verification. | Release coordinator, held by the lab owner. Preserve and digest-check the originals, snapshot GitHub metadata before each artifact expiry, and rerun the packet monthly. | Three original ZIPs reproduced their decisions and the modified copy was rejected (run 44343910025). Digests reconcile to the GitHub API snapshot. Technical retest passed. Periodic retention evidence and independent closure pending. |
 
 ## Supplemental tracker operating retest
@@ -74,10 +74,10 @@ a temporary SQLite database and random lab credentials.
 Run from the exact clean checkout with Python 3.13:
 
 ```sh
-python -m tracker.operating_evidence --revision "$(git rev-parse HEAD)" --output tracker-operating-evidence.json
+python -m tracker.operating_evidence --output tracker-operating-evidence.json
 ```
 
-The security workflow records its actual checkout SHA and publishes the
+The lab reads Git HEAD, checks it against the Actions checkout SHA in CI, and requires a clean tracked worktree. The security workflow records the verified checkout SHA and publishes the
 `tracker-operating-evidence` JSON artifact, including UTC times, access results,
 promotion receipt and incident journal. The independent reviewer should reconcile
 that artifact with the run and reperform the checks before recording a disposition.
