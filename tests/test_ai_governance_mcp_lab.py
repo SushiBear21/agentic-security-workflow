@@ -107,6 +107,18 @@ class MCPIdentityTests(unittest.TestCase):
         self.assertEqual(len(self.s.tickets()),1)
 
 
+    def test_malformed_names_and_resource_values_fail_closed(self):
+        with self.assertRaises(AccessError):
+            self.s.call_tool({"bad":"tool"},{},self.writer,now=101)
+        with self.assertRaises(AccessError):
+            self.s.call_tool("evidence.read",{"evidence_id":{"bad":"id"}},self.reader,now=101)
+        with self.assertRaises(AccessError):
+            self.s.call_tool("ticket.create",dict(self.args,finding_id=["SEC-001"]),self.writer,now=101)
+        audit=json.dumps(self.s.audit())
+        self.assertNotIn(self.writer,audit)
+        self.assertIn("UNKNOWN_TOOL",audit)
+
+
 class GovernanceEvidenceTests(unittest.TestCase):
     def test_all_rmf_functions_and_fictional_owners(self):
         self.assertEqual({row["function"] for row in MAPPING},{"GOVERN","MAP","MEASURE","MANAGE"})
