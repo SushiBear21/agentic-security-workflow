@@ -58,6 +58,32 @@ explains how the original test checked the baseline record during CI recovery.
 | E-03 · Monitoring response | A service failure outside CI may go unnoticed. The observed workflow covers startup and smoke checks. | Service operator. Capture a lab alert route, acknowledgement and resolution. | Trace timestamped alert through response and verify closure. Pending. |
 | ISO-F01 · Evidence records | An altered or unreproducible archive could be relied on. The original release procedure omitted post-download verification. | Release coordinator, held by the lab owner. Preserve and digest-check the originals, snapshot GitHub metadata before each artifact expiry, and rerun the packet monthly. | Three original ZIPs reproduced their decisions and the modified copy was rejected (run 44343910025). Digests reconcile to the GitHub API snapshot. Technical retest passed. Periodic retention evidence and independent closure pending. |
 
+## Supplemental tracker operating retest
+
+The historical request register and three CI samples above retain their original
+observation period. A later CI run collects one new sample for each open tracker
+finding. It runs the actual tracker HTTP handler on ephemeral loopback ports with
+a temporary SQLite database and random lab credentials.
+
+| Historical request and finding | Supplemental lab sample and pass criteria | Scope remaining for review |
+| --- | --- | --- |
+| ER-02 / E-01 | LC-01. The fictitious contributor receives a recorded grant. HTTP session checks return 401 before issuance, 200 with the expected role after issuance, and 401 after removal and service restart. The existing reviewer returns 200 and a dated inventory review reconciles both active roles. | One lifecycle and one review of file-backed demo credentials. |
+| ER-03 / E-02 | PRM-01. Stage the checkout with the same lab database and active credential set. Block missing approval, wrong-revision approval and same-actor approval. A matching fixture approval binds the checkout, runtime source hashes, staged smoke receipt and local target. Start the approved local slot and verify its smoke check, audit export and preserved staged record. | One localhost promotion with a simulated approver. Existing container rehearsals remain technical gates with promotion unauthorized. |
+| ER-05 / E-03 | INC-01. Stop the promoted listener. An external-to-server HTTP health probe detects the refused connection, routes a local notification and records simulated acknowledgement. Restart on the same endpoint, verify HTTP 200 and preserve the promoted evidence record before recording resolution. | One injected outage. Alert routing uses an in-process test queue and acknowledgement is simulated. |
+
+Run from the exact clean checkout with Python 3.13:
+
+```sh
+python -m tracker.operating_evidence --revision "$(git rev-parse HEAD)" --output tracker-operating-evidence.json
+```
+
+The security workflow records its actual checkout SHA and publishes the
+`tracker-operating-evidence` JSON artifact, including UTC times, access results,
+promotion receipt and incident journal. The independent reviewer should reconcile
+that artifact with the run and reperform the checks before recording a disposition.
+See [PR #24](https://github.com/SushiBear21/agentic-security-workflow/pull/24)
+for the exact run and artifact. All closure decisions remain pending.
+
 ## Retention procedure (ISO-F01)
 
 1. Before expiry, preserve the artifact and run metadata and verify the retained

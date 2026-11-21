@@ -36,6 +36,9 @@ jobs:
       - name: Run security tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
+      - name: Exercise tracker operating controls
+        run: python -m tracker.operating_evidence --revision "$GITHUB_SHA" --output tracker-operating-evidence.json
+
       - name: Reperform tracker audit evidence
         run: python -m tracker.audit_workpapers --output tracker-audit-packet.json
 
@@ -57,3 +60,11 @@ jobs:
           path: saas-audit-packet.json
           if-no-files-found: error
           retention-days: 14
+
+      - name: Retain tracker operating evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracker-operating-evidence
+          path: tracker-operating-evidence.json
+          if-no-files-found: error
+          retention-days: 90
