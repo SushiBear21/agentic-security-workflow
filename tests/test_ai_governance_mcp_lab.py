@@ -71,6 +71,8 @@ class MCPIdentityTests(unittest.TestCase):
         with self.assertRaises(AccessError):
             self.s.call_tool("ticket.create",dict(self.args,role="admin"),self.writer,now=101)
         self.s.call_tool("evidence.read",{"evidence_id":"SEC-001"},self.reader,now=101)
+        with self.assertRaises(AccessError):
+            self.s.call_tool("ticket.create",self.args,self.writer,approval_id=self.reader,now=101)
         audit=json.dumps(self.s.audit())
         for secret in (self.writer,self.reader,self.approver):
             self.assertNotIn(secret,audit)
