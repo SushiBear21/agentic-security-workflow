@@ -94,23 +94,28 @@ def monitoring():
       "thresholds":EVALUATION_CRITERIA["monitoring"],"alerts":alerts,
       "source":"AUTHORED FIXTURE, not operational telemetry"}
 
-def decision(gates,risk_register,alerts,approval=None):
+def decision(gates,risk_register,alerts,approval=None,evidence_sha256=None):
     required=("offline_tests","model_holdout","independent_review","security_scan","monitoring_fresh","identity_audit")
     verified={k:gates.get(k) is True for k in required}
     high=sorted(r["id"] for r in risk_register if r.get("severity")=="high" and r.get("status")!="accepted")
     open_alerts=sorted(a["id"] for a in alerts if a.get("open"))
-    manifest_hash=digest({"gates":verified,"open_high":high,"alerts":open_alerts})
-    valid=bool(approval and approval.get("decision")=="approve" and
+    evidence_bound = (isinstance(evidence_sha256,str) and len(evidence_sha256)==64 and
+      all(x in "0123456789abcdef" for x in evidence_sha256))
+    snapshot = evidence_sha256 if evidence_bound else None
+    manifest_hash=digest({"gates":verified,"open_high":high,"alerts":open_alerts,
+      "evidence_snapshot_sha256":snapshot})
+    valid=bool(evidence_bound and approval and approval.get("decision")=="approve" and
       approval.get("manifest_sha256")==manifest_hash and approval.get("approver") and
       approval.get("approver")!=approval.get("evaluation_owner") and
       approval.get("independent_identity_verified") is True)
     failed=[k for k,v in verified.items() if not v]
     if high:failed.append("unaccepted_high_risk")
     if open_alerts:failed.append("open_monitoring_alert")
+    if not evidence_bound:failed.append("unbound_evidence_snapshot")
     if not valid:failed.append("independent_exact_manifest_approval")
     return {"synthetic":True,"release_status":"NO_GO" if failed else "LAB_GO",
       "failed_gates":failed,"gates":verified,"open_high_risks":high,"alerts":open_alerts,
-      "approval_valid":valid,"manifest_sha256":manifest_hash,"production_authorized":False,
+      "approval_valid":valid,"manifest_sha256":manifest_hash,"evidence_snapshot_sha256":snapshot,"production_authorized":False,
       "certification_or_commercial_claim":False}
 
 def sha256_file(path):
@@ -125,7 +130,10 @@ def build(output):
     passed=evaluation["passed"]==evaluation["total"]
     gates={"offline_tests":passed,"model_holdout":False,"independent_review":False,
       "security_scan":False,"monitoring_fresh":False,"identity_audit":passed}
-    release=decision(gates,RISK_REGISTER,monitor["alerts"])
+    snapshot_hash=digest({"system_card":SYSTEM_CARD,"risk_register":RISK_REGISTER,
+      "evaluation_criteria":EVALUATION_CRITERIA,"evaluation_results":evaluation,
+      "mcp_identity_audit":mcp,"monitoring":monitor,"security_scan_verified":False})
+    release=decision(gates,RISK_REGISTER,monitor["alerts"],evidence_sha256=snapshot_hash)
     docs={
       "system_card.json":SYSTEM_CARD,"risk_register.json":RISK_REGISTER,
       "rmf_mapping.json":MAPPING,"evaluation_criteria.json":EVALUATION_CRITERIA,
@@ -143,7 +151,8 @@ def build(output):
         (out/name).write_text(json.dumps(data,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     files=[{"file":name,"sha256":sha256_file(out/name),"synthetic":True} for name in sorted(docs)]
     (out/"evidence_manifest.json").write_text(json.dumps({"synthetic":True,"artifact_count":len(files),
-      "artifacts":files,"framework":FRAMEWORK,"reference_date":AS_OF,"scope":LAB},indent=2)+"\n")
+      "artifacts":files,"framework":FRAMEWORK,"reference_date":AS_OF,"scope":LAB,
+      "evidence_snapshot_sha256":snapshot_hash},indent=2)+"\n")
     report=f"""# Synthetic AI Governance Go/No-Go Report
 
 **{LAB}**
