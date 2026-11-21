@@ -29,6 +29,21 @@ TOOL_PERMISSIONS = {
     "ticket.create": {"roles": {"executor"}, "scope": "ticket:create", "approval": True},
 }
 FIXTURES = {"SEC-001": {"title": "Synthetic endpoint alert", "risk": "low", "synthetic": True}}
+LIFECYCLE_TOOLS = {"credential.lifecycle", "approval.lifecycle"}
+AUDIT_DECISIONS = {"ALLOW", "DENY", "APPROVED_OUT_OF_BAND", "CREDENTIAL_ISSUED",
+                   "CREDENTIAL_REVOKED", "APPROVAL_REVOKED", "APPROVAL_CONSUMED"}
+AUDIT_RESULTS = {
+    "SUCCESS", "recorded", "ISSUED", "REVOKED", "CONSUMED", "UNSPECIFIED",
+    "missing or malformed credential", "credential signature invalid",
+    "credential expired or invalid audience/claims", "invalid credential",
+    "credential expired", "credential revoked",
+    "independent approver identity required", "approval may cover only permitted high-impact tool",
+    "approval expiry invalid", "approval revocation not permitted",
+    "tool arguments must be an object", "evidence access outside allowlist",
+    "exact ticket schema required", "ticket content outside fixture policy",
+    "tool not in server policy", "server-side tool permission denied",
+    "valid unused exact-request human approval required", "request id already executed",
+}
 
 
 def canonical(value):
@@ -44,7 +59,13 @@ def unb64(text):
 
 
 class AccessError(Exception):
-    """Expected denial; errors never echo secrets."""
+    """Expected denial with optional, verified synthetic identity attribution."""
+
+    def __init__(self, message, actor="unauthenticated", credential_ref=None):
+        super().__init__(message)
+        self.actor = actor if actor in PRINCIPALS else "unauthenticated"
+        self.credential_ref = (credential_ref if isinstance(credential_ref, str)
+            and re.fullmatch(r"CRD-[a-f0-9]{12}", credential_ref) else None)
 
 
 class MCPIdentityLab:
@@ -60,6 +81,7 @@ class MCPIdentityLab:
             raise ValueError("Strong local signing secret required")
         self._lock = RLock()
         self._approvals = {}
+        self._revoked_credentials = set()  # Store only opaque reference digests, never tokens.
         self._tickets = {}
         self._audit = []
         self._sequence = 0
@@ -79,7 +101,16 @@ class MCPIdentityLab:
                   "jti": secrets.token_hex(8), "synthetic": True}
         body = b64(canonical(claims).encode("utf-8"))
         mac = b64(hmac.new(self._secret, body.encode("ascii"), hashlib.sha256).digest())
-        return body + "." + mac
+        token = body + "." + mac
+        with self._lock:
+            self._log(actor, "credential.lifecycle", "CREDENTIAL_ISSUED", result="ISSUED",
+                      credential_ref=self._credential_ref(claims["jti"]), at=now)
+        return token
+
+    @staticmethod
+    def _credential_ref(jti):
+        """Opaque correlation reference from a random fixture identifier, not the token."""
+        return "CRD-" + hashlib.sha256(jti.encode("ascii")).hexdigest()[:12]
 
     def _identity(self, credential, now):
         if not isinstance(credential, str) or len(credential) > 2048:
@@ -91,24 +122,67 @@ class MCPIdentityLab:
                 raise AccessError("credential signature invalid")
             claims = json.loads(unb64(payload))
             actor = claims["sub"]
-            if (claims.get("aud") != AUDIENCE or claims.get("synthetic") is not True or
-                actor not in PRINCIPALS or type(claims.get("iat")) not in (int, float) or
-                type(claims.get("exp")) not in (int, float) or claims["iat"] > now or
-                claims["exp"] <= now or claims["exp"] - claims["iat"] > MAX_TTL or
-                not isinstance(claims.get("scope"), list) or
-                any(s not in {"evidence:read", "ticket:create", "approval:grant"} for s in claims["scope"])):
+            jti = claims["jti"]
+            valid_claims = (claims.get("aud") == AUDIENCE and claims.get("synthetic") is True
+                and actor in PRINCIPALS and isinstance(jti, str) and re.fullmatch(r"[a-f0-9]{16}", jti)
+                and type(claims.get("iat")) in (int, float) and math.isfinite(claims["iat"])
+                and type(claims.get("exp")) in (int, float) and math.isfinite(claims["exp"])
+                and claims["iat"] <= now and 0 < claims["exp"] - claims["iat"] <= min(MAX_TTL, 300)
+                and isinstance(claims.get("scope"), list)
+                and all(s in {"evidence:read", "ticket:create", "approval:grant"} for s in claims["scope"]))
+            if not valid_claims:
                 raise AccessError("credential expired or invalid audience/claims")
-            return actor, set(claims["scope"])
-        except (TypeError, ValueError, KeyError, UnicodeError, OverflowError, binascii.Error) as exc:
+            ref = self._credential_ref(jti)
+            if claims["exp"] <= now:
+                raise AccessError("credential expired", actor=actor, credential_ref=ref)
+            if ref in self._revoked_credentials:
+                raise AccessError("credential revoked", actor=actor, credential_ref=ref)
+            return actor, set(claims["scope"]), ref
+        except (TypeError, ValueError, KeyError, UnicodeError, OverflowError, binascii.Error):
             raise AccessError("invalid credential") from None
 
-    def _log(self, actor, tool, decision, approval_id=None, result=None, request_hash=None, at=None):
+    def _log(self, actor, tool, decision, approval_id=None, result=None,
+             request_hash=None, at=None, credential_ref=None):
+        """Emit only allowlisted synthetic metadata. Never render caller-supplied values."""
         self._sequence += 1
-        safe_approval = approval_id if isinstance(approval_id,str) and re.fullmatch(r"APP-[a-f0-9]{12}", approval_id) else None
-        safe_tool = tool if isinstance(tool,str) and tool in TOOL_PERMISSIONS else "UNKNOWN_TOOL"
-        self._audit.append({"seq": self._sequence, "synthetic": True, "actor": actor, "tool": safe_tool,
-                            "authorization_decision": decision, "approval_id": safe_approval,
-                            "request_sha256": request_hash, "result": result, "at": at})
+        safe_actor = actor if actor in PRINCIPALS else "unauthenticated"
+        safe_tool = tool if isinstance(tool, str) and (
+            tool in TOOL_PERMISSIONS or tool in LIFECYCLE_TOOLS) else "UNKNOWN_TOOL"
+        safe_approval = (approval_id if isinstance(approval_id, str)
+            and re.fullmatch(r"APP-[a-f0-9]{12}", approval_id) else None)
+        safe_ref = (credential_ref if isinstance(credential_ref, str)
+            and re.fullmatch(r"CRD-[a-f0-9]{12}", credential_ref) else None)
+        safe_hash = (request_hash if isinstance(request_hash, str)
+            and re.fullmatch(r"[a-f0-9]{64}", request_hash) else None)
+        self._audit.append({"seq": self._sequence, "synthetic": True, "actor": safe_actor,
+                            "tool": safe_tool, "authorization_decision": decision if decision in AUDIT_DECISIONS else "DENY",
+                            "approval_id": safe_approval, "credential_ref": safe_ref,
+                            "request_sha256": safe_hash, "result": result if result in AUDIT_RESULTS else "UNSPECIFIED",
+                            "at": at if type(at) in (int, float) and math.isfinite(at) else None})
+
+    def revoke_credential(self, credential, now=None):
+        """Trusted fixture runner invalidates one signed token without persisting its value."""
+        now = time.time() if now is None else now
+        with self._lock:
+            actor, _, ref = self._identity(credential, now)
+            self._revoked_credentials.add(ref)
+            self._log(actor, "credential.lifecycle", "CREDENTIAL_REVOKED",
+                      result="REVOKED", credential_ref=ref, at=now)
+            return ref
+
+    def revoke_approval(self, approver_credential, approval_id, now=None):
+        """Separate approval-record revocation; never revokes the executor credential."""
+        now = time.time() if now is None else now
+        with self._lock:
+            who, scopes, ref = self._identity(approver_credential, now)
+            record = self._approvals.get(approval_id) if isinstance(approval_id, str) else None
+            if (PRINCIPALS[who] != "approver" or "approval:grant" not in scopes or
+                not record or record["approver"] != who or record["used"] or record["revoked"]):
+                raise AccessError("approval revocation not permitted")
+            record["revoked"] = True
+            self._log(who, "approval.lifecycle", "APPROVAL_REVOKED",
+                      approval_id=approval_id, result="REVOKED",
+                      request_hash=record["request_sha256"], credential_ref=ref, at=now)
 
     @staticmethod
     def _validate(tool, args):
@@ -137,7 +211,7 @@ class MCPIdentityLab:
         """Offline human-simulator action. Strict maker-checker; not MCP-exposed."""
         now = time.time() if now is None else now
         with self._lock:
-            who, scopes = self._identity(approver_credential, now)
+            who, scopes, ref = self._identity(approver_credential, now)
             if PRINCIPALS[who] != "approver" or who == actor or "approval:grant" not in scopes:
                 raise AccessError("independent approver identity required")
             if tool != "ticket.create" or actor not in PRINCIPALS or PRINCIPALS[actor] != "executor":
@@ -147,8 +221,9 @@ class MCPIdentityLab:
                 raise AccessError("approval expiry invalid")
             ident = "APP-" + secrets.token_hex(6)
             self._approvals[ident] = {"actor": actor, "approver": who, "tool": tool,
-                                      "request_sha256": h, "expires": now + ttl_seconds, "used": False}
-            self._log(who, tool, "APPROVED_OUT_OF_BAND", ident, "recorded", h, at=now)
+                                      "request_sha256": h, "expires": now + ttl_seconds, "used": False, "revoked": False}
+            self._log(who, tool, "APPROVED_OUT_OF_BAND", ident, "recorded", h,
+                      at=now, credential_ref=ref)
             return ident
 
     def call_tool(self, tool, args, credential, approval_id=None, now=None):
@@ -156,8 +231,9 @@ class MCPIdentityLab:
         with self._lock:
             actor = "unauthenticated"
             h = None
+            credential_ref = None
             try:
-                actor, scopes = self._identity(credential, now)
+                actor, scopes, credential_ref = self._identity(credential, now)
                 policy = TOOL_PERMISSIONS.get(tool) if isinstance(tool,str) else None
                 if policy is None or PRINCIPALS[actor] not in policy["roles"] or policy["scope"] not in scopes:
                     raise AccessError("server-side tool permission denied")
@@ -166,9 +242,12 @@ class MCPIdentityLab:
                 if policy["approval"]:
                     approval = self._approvals.get(approval_id) if isinstance(approval_id, str) else None
                     if (not approval or approval["actor"] != actor or approval["tool"] != tool or
-                        approval["request_sha256"] != h or approval["expires"] <= now or approval["used"]):
+                        approval["request_sha256"] != h or approval["expires"] <= now or
+                        approval["used"] or approval["revoked"]):
                         raise AccessError("valid unused exact-request human approval required")
                     approval["used"] = True  # consumed before side effect under lock
+                    self._log(actor, "approval.lifecycle", "APPROVAL_CONSUMED", approval_id,
+                              "CONSUMED", h, at=now, credential_ref=credential_ref)
                     rid = args["request_id"]
                     if rid in self._tickets:
                         raise AccessError("request id already executed")
@@ -177,11 +256,13 @@ class MCPIdentityLab:
                     result = deepcopy(self._tickets[rid])
                 else:
                     result = deepcopy(FIXTURES[args["evidence_id"]])
-                self._log(actor, tool, "ALLOW", approval_id if policy["approval"] else None, "SUCCESS", h, at=now)
+                self._log(actor, tool, "ALLOW", approval_id if policy["approval"] else None,
+                          "SUCCESS", h, at=now, credential_ref=credential_ref)
                 return result
             except AccessError as exc:
-                self._log(actor, str(tool)[:80], "DENY", approval_id if isinstance(approval_id,str) else None,
-                          str(exc), h, at=now)
+                self._log(exc.actor if actor == "unauthenticated" else actor,
+                          tool, "DENY", approval_id, str(exc), h, at=now,
+                          credential_ref=credential_ref or exc.credential_ref)
                 raise
 
     def audit(self):
@@ -244,10 +325,17 @@ def demonstration():
     outcome("allowed_read", lambda:lab.call_tool("evidence.read", {"evidence_id":"SEC-001"}, analyst, now=101))
     outcome("denied_wrong_role", lambda:lab.call_tool("ticket.create", args, analyst, now=102))
     outcome("expired_credential", lambda:lab.call_tool("ticket.create", args, executor, now=161))
+    revoked = lab.issue_credential("lab-executor", ["ticket:create"], now=100)
+    lab.revoke_credential(revoked, now=102)
+    outcome("revoked_credential", lambda:lab.call_tool("ticket.create", args, revoked, now=103))
     outcome("unapproved", lambda:lab.call_tool("ticket.create", args, executor, now=103))
     approval_id = lab.approve(approver, "lab-executor", "ticket.create", args, now=104)
     outcome("approved", lambda:lab.call_tool("ticket.create", args, executor, approval_id, now=105))
     outcome("replayed_approval", lambda:lab.call_tool("ticket.create", args, executor, approval_id, now=106))
+    revocation_args = dict(args, request_id="REQ-002")
+    to_revoke = lab.approve(approver, "lab-executor", "ticket.create", revocation_args, now=107)
+    lab.revoke_approval(approver, to_revoke, now=108)
+    outcome("revoked_approval", lambda:lab.call_tool("ticket.create", revocation_args, executor, to_revoke, now=109))
     return {"synthetic": True, "transport": "local stdio JSON-RPC / MCP tools", "observations": observations,
             "audit": lab.audit(), "tickets": lab.tickets(),
             "limitations": "Fixture identities and self-attested human approval; not OAuth, real IdP or production authorization"}
