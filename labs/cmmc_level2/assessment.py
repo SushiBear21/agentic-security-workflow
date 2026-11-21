@@ -2,20 +2,48 @@
 from __future__ import annotations
 import csv
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "generated"
 DISCLAIMER = "SYNTHETIC TRAINING LAB — NOT A CMMC ASSESSMENT, CERTIFICATION, OR COMPLIANCE ATTESTATION"
 
+def validate_requirements(requirements):
+    """Reject corrupt objective IDs and clipped transcription, not assess controls."""
+    if len(requirements) != 110 or len({r["id"] for r in requirements}) != 110:
+        raise ValueError("CMMC Level 2 catalog must have 110 unique requirements")
+    if len({r["family"] for r in requirements}) != 14:
+        raise ValueError("CMMC Level 2 catalog must contain 14 families")
+    total = 0
+    for requirement in requirements:
+        rid = requirement["id"]
+        if not re.fullmatch(r"3\\.\\d{1,2}\\.\\d{1,2}", rid):
+            raise ValueError(f"Malformed requirement ID: {rid!r}")
+        objectives = requirement["assessment_objectives"]
+        if not objectives:
+            raise ValueError(f"Missing assessment objectives for {rid}")
+        for index, objective in enumerate(objectives):
+            expected = f"{rid}[{chr(97 + index)}]"
+            if objective.get("id") != expected:
+                raise ValueError(f"Objective sequence/uniqueness error: {rid}: {objective.get('id')!r}; expected {expected!r}")
+            criterion = objective.get("criterion", "")
+            if (not isinstance(criterion, str) or len(criterion.strip()) < 10
+                    or re.match(r"^(?:ermine if|1\\[[a-z]\\])\\b", criterion, re.I)
+                    or criterion.startswith(("Determine if", "[D]", "[.]"))):
+                raise ValueError(f"Malformed/clipped objective criterion: {expected}")
+        total += len(objectives)
+    if total != 320:
+        raise ValueError(f"Expected 320 objective entries in pinned training catalog, found {total}")
+    return total
+
 def load():
     framework = json.loads((ROOT / "requirements.json").read_text())
     scenario = json.loads((ROOT / "scenario.json").read_text())
     requirements = framework["requirements"]
-    assert len(requirements) == 110
-    assert len({r["id"] for r in requirements}) == 110
-    assert len({r["family"] for r in requirements}) == 14
-    assert scenario["synthetic"] is True
+    validate_requirements(requirements)
+    if scenario.get("synthetic") is not True:
+        raise ValueError("Synthetic-only boundary required")
     return requirements, scenario
 
 def build():
@@ -45,6 +73,12 @@ def build():
     write_csv("evidence_tracker.csv",rows)
     write_csv("poam.csv",poam)
     write_csv("asset_inventory.csv",scenario["assets"])
+    trace = json.loads((ROOT / "scoped_case_trace.json").read_text())
+    if trace.get("objective_id") != "3.4.3[c]" or trace.get("finding_id") != "F-001":
+        raise ValueError("Out-of-scope or unpinned source case")
+    if trace.get("assessment_outcome") != "NOT_EVALUATED":
+        raise ValueError("Synthetic control cannot be assessed by historical lab case")
+    write_csv("scoped_case_trace.csv", [trace])
     write_csv("assessment_interviews.csv",[{"requirement_id":r["requirement_id"],"family":r["family"],"prompt":r["interview_prompt"],"objectives":r["objective_count"]} for r in rows])
     evaluated = [r for r in rows if r["simulation_status"] != "NOT_EVALUATED"]
     counts = {s:sum(r["simulation_status"]==s for r in rows) for s in ("MET","NOT_MET","N/A","NOT_EVALUATED")}
