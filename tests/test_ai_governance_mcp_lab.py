@@ -106,18 +106,21 @@ class GovernanceEvidenceTests(unittest.TestCase):
     def test_fail_closed_and_hypothetical_lab_only_go(self):
         gates={x:True for x in ("offline_tests","model_holdout","independent_review",
                                  "security_scan","monitoring_fresh","identity_audit")}
-        pending=decision(gates,[],[])
+        evidence_hash="a"*64
+        pending=decision(gates,[],[],evidence_sha256=evidence_hash)
         self.assertEqual(pending["release_status"],"NO_GO")
         approval={"decision":"approve","manifest_sha256":pending["manifest_sha256"],
                   "approver":"Fictional separate approver","evaluation_owner":"Fictional evaluation owner",
                   "independent_identity_verified":True}
-        go=decision(gates,[],[],approval)
+        go=decision(gates,[],[],approval,evidence_sha256=evidence_hash)
         self.assertEqual(go["release_status"],"LAB_GO")
         self.assertFalse(go["production_authorized"])
-        self.assertEqual(decision(dict(gates,security_scan=False),[],[],approval)["release_status"],"NO_GO")
-        self.assertEqual(decision(gates,RISK_REGISTER,[],approval)["release_status"],"NO_GO")
-        self.assertEqual(decision(gates,[],monitoring()["alerts"],approval)["release_status"],"NO_GO")
-        self.assertEqual(decision(gates,[],[],dict(approval,manifest_sha256="tampered"))["release_status"],"NO_GO")
+        self.assertEqual(decision(gates,[],[],approval)["release_status"],"NO_GO")
+        self.assertEqual(decision(gates,[],[],approval,evidence_sha256="b"*64)["release_status"],"NO_GO")
+        self.assertEqual(decision(dict(gates,security_scan=False),[],[],approval,evidence_sha256=evidence_hash)["release_status"],"NO_GO")
+        self.assertEqual(decision(gates,RISK_REGISTER,[],approval,evidence_sha256=evidence_hash)["release_status"],"NO_GO")
+        self.assertEqual(decision(gates,[],monitoring()["alerts"],approval,evidence_sha256=evidence_hash)["release_status"],"NO_GO")
+        self.assertEqual(decision(gates,[],[],dict(approval,manifest_sha256="tampered"),evidence_sha256=evidence_hash)["release_status"],"NO_GO")
 
     def test_generated_manifest_and_unknown_scans(self):
         with tempfile.TemporaryDirectory() as temp:
