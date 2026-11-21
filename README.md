@@ -4,7 +4,7 @@
 
 **AI security engineering, human approval, evaluation, and program delivery.**
 
-Start with the [portfolio overview](PORTFOLIO.md) for all four repositories or the
+Start with the [portfolio overview](PORTFOLIO.md) for all five projects or the
 [10-minute walkthrough](docs/portfolio/walkthrough.md) for a guided review.
 
 | Explore | Evidence |
