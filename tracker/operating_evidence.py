@@ -75,9 +75,9 @@ def run_lab(directory, revision):
     require(re.fullmatch(r"[a-f0-9]{40}", revision) is not None, "Expected a full checkout SHA")
     db = directory / "tracker.db"
     credentials = directory / "credentials.json"
-    contributor = {"workspace": "tracker-audit-lab", "name": "Lab Contributor",
+    contributor = {"workspace": "Trackerauditlab", "name": "LabContributor",
                    "role": "contributor", "token": token_hex(32)}
-    reviewer = {"workspace": "tracker-audit-lab", "name": "Lab Evidence Reviewer",
+    reviewer = {"workspace": "tracker-audit-lab", "name": "LabEvidenceReviewer",
                 "role": "reviewer", "token": token_hex(32)}
     access = {"request": "ER-02", "finding": "E-01", "sample_population": 1,
               "grant": {"actor": "Simulated Access Owner", "at": utc_now(),
@@ -100,7 +100,7 @@ def run_lab(directory, revision):
 
     access["revocation"] = {"actor": "Simulated Access Owner", "at": utc_now(),
                             "principal": contributor["name"], "action": "remove and restart"}
-    replacement = {**contributor, "name": "Lab Replacement", "token": token_hex(32)}
+    replacement = {**contributor, "name": "LabReplacement", "token": token_hex(32)}
     credentials.write_text(json.dumps([reviewer, replacement]), encoding="utf-8")
     active = load_principals(credentials)
     with serve(db, active) as port:
