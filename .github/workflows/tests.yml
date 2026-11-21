@@ -75,6 +75,7 @@ jobs:
         with:
           artifact-ids: ${{ steps.operating-evidence.outputs.artifact-id }}
           path: downloaded-operating-evidence
+          merge-multiple: true
 
       - name: Verify downloaded bytes and publish a text copy
         run: |
