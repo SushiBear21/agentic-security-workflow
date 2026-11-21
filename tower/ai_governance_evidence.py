@@ -64,7 +64,7 @@ EXPECTED = {"allowed_read":"ALLOW", "denied_wrong_role":"DENY","expired_credenti
             "unapproved":"DENY","approved":"ALLOW","replayed_approval":"DENY"}
 EVALUATION_CRITERIA = {
   "synthetic":True, "revision":"predeclared-v1", "method":"Local deterministic fixture (zero model calls)",
-  "tests": list(EXPECTED), "pass_threshold":"Six of six expected decisions; credentials absent from audit",
+  "tests": list(EXPECTED), "acceptance_threshold":"All six expected outcomes match and audit omits credential material",
   "live_model_holdout":"UNKNOWN, historical repository 6/6 not independently verified here",
   "human_review":"UNKNOWN, historical repository 4/4 not independently verified here",
   "security_scan":"Requires fresh scan on candidate digest with zero HIGH or CRITICAL",
