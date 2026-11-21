@@ -18,6 +18,18 @@ Start with the [portfolio overview](PORTFOLIO.md) for all four repositories or t
 **Scope:** personal portfolio using synthetic data. Passing engineering checks does
 not clear the blocked AI-quality decision or establish production readiness.
 
+## Objective, success criteria, and evidence
+
+**Objective.** Move synthetic AI-assisted security findings from draft to human-approved action, with measurable quality, traceable decisions, and a repeatable release and handoff.
+
+| Demonstration | Success criterion | Recorded result and evidence |
+| --- | --- | --- |
+| Bounded agent and approval | Reject execution before approval, bind approval to the exact payload, and reuse the ticket on repeat. | All three behaviors were observed in the single-operator local exercise. [Approval run](docs/approval-verification.md) |
+| AI quality and release | Satisfy the review and release gates for the specific evaluation. | The original comparison passed 36/36 structural checks per configuration and 9/12 human reviews per configuration against a 12/12 requirement. That decision remains blocked. A separate prospective holdout passed 6/6 automated checks and 4/4 independent draft reviews, cleared all five gates, and received digest-bound approval for a lab release. [Original decision](docs/p4-final-results.md) · [Holdout release](docs/portfolio/customer-deployment.md#approved-bedrock-holdout-lab-release) |
+| Deployment and recovery | Detect a candidate failure and restore the known-good baseline. | The AWS ECS sandbox recorded the failed candidate and verified restoration to the steady baseline. [Rollback record](docs/portfolio/customer-deployment.md#live-aws-ecs-rollback-and-human-review--november-17-2026) |
+| Governance and evidence | Trace selected controls to evidence and record gaps that require follow-up. | [Synthetic control evidence](docs/portfolio/cloud-and-ai-governance-drills.md) · [Tracked gaps](docs/portfolio/poam.json) · [Engineering validation](docs/portfolio/completion-validation.md) |
+| Customer adoption and operational handoff | Measure pilot activation, repeat use, workflow success, consumption, cost, and customer value, and record the launch decision. | [Existing lab measurement](docs/portfolio/adoption-measurement.md) · [Planned delivery and adoption verification](https://github.com/SushiBear21/agentic-security-workflow/issues/17) · [Planned defensive prototype handoff](https://github.com/SushiBear21/agentic-security-workflow/issues/25) |
+
 ## Program and governance demonstrations
 
 - [AI program-delivery case study](docs/portfolio/ai-program-delivery-case-study.md)
