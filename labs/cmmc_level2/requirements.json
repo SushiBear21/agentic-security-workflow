@@ -1,0 +1,2398 @@
+{
+  "schema_version": 1,
+  "synthetic_lab": true,
+  "framework": "CMMC Level 2 mapped to NIST SP 800-171 Revision 2 (January 2021 update)",
+  "not_a_certification": true,
+  "as_of": "2026-11-21",
+  "citation_urls": [
+    "https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final",
+    "https://dodcio.defense.gov/CMMC/About/",
+    "https://www.law.cornell.edu/cfr/text/32/170.19",
+    "https://www.law.cornell.edu/cfr/text/32/170.21",
+    "https://www.law.cornell.edu/cfr/text/32/170.24",
+    "https://github.com/FATHOM5CORP/oscal/blob/main/content/SP800-171/oscal-content/catalogs/NIST_SP-800-171_rev2_catalog.json"
+  ],
+  "source_note": "Requirement text and assessment-objective prompts adapted from FATHOM5CORP/oscal CC0 representation; official NIST SP 800-171 Rev2 publication and current CMMC regulation govern any actual assessment. These prompts are not a complete C3PAO procedure.",
+  "requirements": [
+    {
+      "id": "3.1.1",
+      "cmmc_id": "AC.L2-3.1.1",
+      "family": "Access Control",
+      "requirement": "Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems).",
+      "assessment_objectives": [
+        {
+          "id": "3.1.1[a]",
+          "criterion": "authorized users are identified."
+        },
+        {
+          "id": "3.1.1[b]",
+          "criterion": "processes acting on behalf of authorized users are identified."
+        },
+        {
+          "id": "3.1.1[c]",
+          "criterion": "devices (and other systems) authorized to connect to the system are identified."
+        },
+        {
+          "id": "3.1.1[d]",
+          "criterion": "system access is limited to authorized users."
+        },
+        {
+          "id": "3.1.1[e]",
+          "criterion": "system access is limited to processes acting on behalf of authorized users."
+        },
+        {
+          "id": "3.1.1[f]",
+          "criterion": "system access is limited to authorized devices (including other systems)."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.2",
+      "cmmc_id": "AC.L2-3.1.2",
+      "family": "Access Control",
+      "requirement": "Limit system access to the types of transactions and functions that authorized users are permitted to execute.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.2[a]",
+          "criterion": "the types of transactions and functions that authorized users are permitted to execute are defined."
+        },
+        {
+          "id": "3.1.2[b]",
+          "criterion": "system access is limited to the defined types of transactions and functions for authorized users."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.3",
+      "cmmc_id": "AC.L2-3.1.3",
+      "family": "Access Control",
+      "requirement": "Control the flow of CUI in accordance with approved authorizations.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.3[a]",
+          "criterion": "information flow control policies are defined."
+        },
+        {
+          "id": "3.1.3[b]",
+          "criterion": "methods and enforcement mechanisms for controlling the flow of CUI are defined."
+        },
+        {
+          "id": "3.1.3[c]",
+          "criterion": "designated sources and destinations (e.g., networks, individuals, and devices) for CUI within the system and between interconnected systems are identified."
+        },
+        {
+          "id": "3.1.3[d]",
+          "criterion": "authorizations for controlling the flow of CUI are defined."
+        },
+        {
+          "id": "3.1.3[e]",
+          "criterion": "approved authorizations for controlling the flow of CUI are enforced."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.4",
+      "cmmc_id": "AC.L2-3.1.4",
+      "family": "Access Control",
+      "requirement": "Separate the duties of individuals to reduce the risk of malevolent activity without collusion.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.4[a]",
+          "criterion": "the duties of individuals requiring separation are defined."
+        },
+        {
+          "id": "3.1.4[b]",
+          "criterion": "responsibilities for duties that require separation are assigned to separate individuals."
+        },
+        {
+          "id": "3.1.4[c]",
+          "criterion": "access privileges that enable individuals to exercise the duties that require separation are granted to separate individuals."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.5",
+      "cmmc_id": "AC.L2-3.1.5",
+      "family": "Access Control",
+      "requirement": "Employ the principle of least privilege, including for specific security functions and privileged accounts.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.5[a]",
+          "criterion": "privileged accounts are identified."
+        },
+        {
+          "id": "3.1.5[b]",
+          "criterion": "access to privileged accounts is authorized in accordance with the principle of least privilege."
+        },
+        {
+          "id": "3.1.5[c]",
+          "criterion": "security functions are identified."
+        },
+        {
+          "id": "3.1.5[d]",
+          "criterion": "access to security functions is authorized in accordance with the principle of least privilege."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.6",
+      "cmmc_id": "AC.L2-3.1.6",
+      "family": "Access Control",
+      "requirement": "Use non-privileged accounts or roles when accessing non-security functions.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.6[a]",
+          "criterion": "nonsecurity functions are identified."
+        },
+        {
+          "id": "3.1.6[b]",
+          "criterion": "users are required to use non-privileged accounts or roles when accessing nonsecurity functions."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.7",
+      "cmmc_id": "AC.L2-3.1.7",
+      "family": "Access Control",
+      "requirement": "Prevent non-privileged users from executing privileged functions and capture the execution of such functions in audit logs.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.7[a]",
+          "criterion": "privileged functions are defined."
+        },
+        {
+          "id": "3.1.7[b]",
+          "criterion": "non-privileged users are defined."
+        },
+        {
+          "id": "3.1.7[c]",
+          "criterion": "non-privileged users are prevented from executing privileged functions."
+        },
+        {
+          "id": "3.1.7[d]",
+          "criterion": "the execution of privileged functions is captured in audit logs."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.8",
+      "cmmc_id": "AC.L2-3.1.8",
+      "family": "Access Control",
+      "requirement": "Limit unsuccessful logon attempts.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.8[a]",
+          "criterion": "the means of limiting unsuccessful logon attempts is defined."
+        },
+        {
+          "id": "3.1.8[b]",
+          "criterion": "the defined means of limiting unsuccessful logon attempts is implemented."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.9",
+      "cmmc_id": "AC.L2-3.1.9",
+      "family": "Access Control",
+      "requirement": "Provide privacy and security notices consistent with applicable CUI rules.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.9[a]",
+          "criterion": "privacy and security notices required by CUI-specified rules are identified, consistent, and associated with the specific CUI category."
+        },
+        {
+          "id": "3.1.9[b]",
+          "criterion": "privacy and security notices are displayed."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.10",
+      "cmmc_id": "AC.L2-3.1.10",
+      "family": "Access Control",
+      "requirement": "Use session lock with pattern-hiding displays to prevent access and viewing of data after a period of inactivity.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.10[a]",
+          "criterion": "the period of inactivity after which the system initiates a session lock is defined."
+        },
+        {
+          "id": "3.1.10[b]",
+          "criterion": "access to the system and viewing of data is prevented by initiating a session lock after the defined period of inactivity."
+        },
+        {
+          "id": "3.1.10[c]",
+          "criterion": "previously visible information is concealed via a pattern-hiding display after the defined period of inactivity."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.11",
+      "cmmc_id": "AC.L2-3.1.11",
+      "family": "Access Control",
+      "requirement": "Terminate (automatically) a user session after a defined condition.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.11[a]",
+          "criterion": "conditions requiring a user session to terminate are defined."
+        },
+        {
+          "id": "3.1.11[b]",
+          "criterion": "a user session is automatically terminated after any of the defined conditions occur."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.12",
+      "cmmc_id": "AC.L2-3.1.12",
+      "family": "Access Control",
+      "requirement": "Monitor and control remote access sessions.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.12[a]",
+          "criterion": "remote access sessions are permitted."
+        },
+        {
+          "id": "3.1.12[b]",
+          "criterion": "the types of permitted remote access are identified."
+        },
+        {
+          "id": "3.1.12[c]",
+          "criterion": "remote access sessions are controlled."
+        },
+        {
+          "id": "3.1.12[d]",
+          "criterion": "remote access sessions are monitored."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.13",
+      "cmmc_id": "AC.L2-3.1.13",
+      "family": "Access Control",
+      "requirement": "Employ cryptographic mechanisms to protect the confidentiality of remote access sessions.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.13[a]",
+          "criterion": "cryptographic mechanisms to protect the confidentiality of remote access sessions are identified."
+        },
+        {
+          "id": "3.1.13[b]",
+          "criterion": "cryptographic mechanisms to protect the confidentiality of remote access sessions are implemented."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.14",
+      "cmmc_id": "AC.L2-3.1.14",
+      "family": "Access Control",
+      "requirement": "Route remote access via managed access control points.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.14[a]",
+          "criterion": "managed access control points are identified and implemented."
+        },
+        {
+          "id": "3.1.14[b]",
+          "criterion": "remote access is routed through managed network access control points."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.15",
+      "cmmc_id": "AC.L2-3.1.15",
+      "family": "Access Control",
+      "requirement": "Authorize remote execution of privileged commands and remote access to security- relevant information.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.15[a]",
+          "criterion": "privileged commands authorized for remote execution are identified."
+        },
+        {
+          "id": "3.1.15[b]",
+          "criterion": "security-relevant information authorized to be accessed remotely is identified."
+        },
+        {
+          "id": "3.1.15[c]",
+          "criterion": "the execution of the identified privileged commands via remote access is authorized."
+        },
+        {
+          "id": "3.1.15[d]",
+          "criterion": "access to the identified security-relevant information via remote access is authorized."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.16",
+      "cmmc_id": "AC.L2-3.1.16",
+      "family": "Access Control",
+      "requirement": "Authorize wireless access prior to allowing such connections.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.16[a]",
+          "criterion": "wireless access points are identified."
+        },
+        {
+          "id": "3.1.16[b]",
+          "criterion": "wireless access is authorized prior to allowing such connections."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.17",
+      "cmmc_id": "AC.L2-3.1.17",
+      "family": "Access Control",
+      "requirement": "Protect wireless access using authentication and encryption.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.17[a]",
+          "criterion": "wireless access to the system is protected using authentication."
+        },
+        {
+          "id": "3.1.17[b]",
+          "criterion": "wireless access to the system is protected using encryption."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.18",
+      "cmmc_id": "AC.L2-3.1.18",
+      "family": "Access Control",
+      "requirement": "Control connection of mobile devices.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.18[a]",
+          "criterion": "mobile devices that process, store, or transmit CUI are identified."
+        },
+        {
+          "id": "3.1.18[b]",
+          "criterion": "mobile device connections are authorized."
+        },
+        {
+          "id": "3.1.18[c]",
+          "criterion": "mobile device connections are monitored and logged."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.19",
+      "cmmc_id": "AC.L2-3.1.19",
+      "family": "Access Control",
+      "requirement": "Encrypt CUI on mobile devices and mobile computing platforms",
+      "assessment_objectives": [
+        {
+          "id": "3.1.19[a]",
+          "criterion": "mobile devices and mobile computing platforms that process, store, or transmit CUI are identified."
+        },
+        {
+          "id": "3.1.19[b]",
+          "criterion": "encryption is employed to protect CUI on identified mobile devices and mobile computing platforms."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.20",
+      "cmmc_id": "AC.L2-3.1.20",
+      "family": "Access Control",
+      "requirement": "Verify and control/limit connections to and use of external systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.20[a]",
+          "criterion": "connections to external systems are identified."
+        },
+        {
+          "id": "3.1.20[b]",
+          "criterion": "the use of external systems is identified."
+        },
+        {
+          "id": "3.1.20[c]",
+          "criterion": "connections to external systems are verified."
+        },
+        {
+          "id": "3.1.20[d]",
+          "criterion": "the use of external systems is verified."
+        },
+        {
+          "id": "3.1.20[e]",
+          "criterion": "connections to external systems are controlled/limited."
+        },
+        {
+          "id": "3.1.20[f]",
+          "criterion": "the use of external systems is controlled/limited."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.21",
+      "cmmc_id": "AC.L2-3.1.21",
+      "family": "Access Control",
+      "requirement": "Limit use of portable storage devices on external systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.21[a]",
+          "criterion": "the use of portable storage devices containing CUI on external systems is identified and documented."
+        },
+        {
+          "id": "3.1.21[b]",
+          "criterion": "limits on the use of portable storage devices containing CUI on external systems are defined."
+        },
+        {
+          "id": "3.1.21[c]",
+          "criterion": "the use of portable storage devices containing CUI on external systems is limited as defined."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.1.22",
+      "cmmc_id": "AC.L2-3.1.22",
+      "family": "Access Control",
+      "requirement": "Control CUI posted or processed on publicly accessible systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.1.22[a]",
+          "criterion": "individuals authorized to post or process information on publicly accessible systems are identified."
+        },
+        {
+          "id": "3.1.22[b]",
+          "criterion": "procedures to ensure CUI is not posted or processed on publicly accessible systems are identified."
+        },
+        {
+          "id": "3.1.22[c]",
+          "criterion": "a review process is in place prior to posting of any content to publicly accessible systems."
+        },
+        {
+          "id": "3.1.22[d]",
+          "criterion": "content on publicly accessible systems is reviewed to ensure that it does not include CUI."
+        },
+        {
+          "id": "3.1.22[e]",
+          "criterion": "mechanisms are in place to remove and address improper posting of CUI."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.2.1",
+      "cmmc_id": "AT.L2-3.2.1",
+      "family": "Awareness and Training",
+      "requirement": "Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activities and of the applicable policies, standards, and procedures related to the security of those systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.2.1 [.]",
+          "criterion": "1[a] security risks associated with organizational activities involving CUI are identified."
+        },
+        {
+          "id": "3.2.1 [.]",
+          "criterion": "1[b] policies, standards, and procedures related to the security of the system are identified."
+        },
+        {
+          "id": "3.2.1 [.]",
+          "criterion": "1[c] managers, systems administrators, and users of the system are made aware of the security risks associated with their activities."
+        },
+        {
+          "id": "3.2.1 [.]",
+          "criterion": "1[d] managers, systems administrators, and users of the system are made aware of the applicable policies, standards, and procedures related to the security of the system."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.2.2",
+      "cmmc_id": "AT.L2-3.2.2",
+      "family": "Awareness and Training",
+      "requirement": "Ensure that personnel are trained to carry out their assigned information security- related duties and responsibilities.",
+      "assessment_objectives": [
+        {
+          "id": "3.2.2[a]",
+          "criterion": "information security-related duties, roles, and responsibilities are defined."
+        },
+        {
+          "id": "3.2.2[b]",
+          "criterion": "information security-related duties, roles, and responsibilities are assigned to designated personnel."
+        },
+        {
+          "id": "3.2.2[c]",
+          "criterion": "personnel are adequately trained to carry out their assigned information security-related duties, roles, and responsibilities."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.2.3",
+      "cmmc_id": "AT.L2-3.2.3",
+      "family": "Awareness and Training",
+      "requirement": "Provide security awareness training on recognizing and reporting potential indicators of insider threat.",
+      "assessment_objectives": [
+        {
+          "id": "3.2.3[a]",
+          "criterion": "potential indicators associated with insider threats are identified."
+        },
+        {
+          "id": "3.2.3[b]",
+          "criterion": "security awareness training on recognizing and reporting potential indicators of insider threat is provided to managers and employees."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.1",
+      "cmmc_id": "AU.L2-3.3.1",
+      "family": "Audit and Accountability",
+      "requirement": "Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.1[a]",
+          "criterion": "audit logs needed (i.e., event types to be logged) to enable the monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity are specified."
+        },
+        {
+          "id": "3.3.1[b]",
+          "criterion": "the content of audit records needed to support monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity is defined."
+        },
+        {
+          "id": "3.3.1[c]",
+          "criterion": "audit records are created (generated)."
+        },
+        {
+          "id": "3.3.1[d]",
+          "criterion": "audit records, once created, contain the defined content."
+        },
+        {
+          "id": "3.3.1[e]",
+          "criterion": "retention requirements for audit records are defined."
+        },
+        {
+          "id": "3.3.1[f]",
+          "criterion": "audit records are retained as defined."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.2",
+      "cmmc_id": "AU.L2-3.3.2",
+      "family": "Audit and Accountability",
+      "requirement": "Ensure that the actions of individual system users can be uniquely traced to those users so they can be held accountable for their actions.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.2[a]",
+          "criterion": "the content of the audit records needed to support the ability to uniquely trace users to their actions is defined."
+        },
+        {
+          "id": "3.3.2[b]",
+          "criterion": "audit records, once created, contain the defined content."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.3",
+      "cmmc_id": "AU.L2-3.3.3",
+      "family": "Audit and Accountability",
+      "requirement": "Review and update logged events.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.3[a]",
+          "criterion": "a process for determining when to review logged events is defined."
+        },
+        {
+          "id": "3.3.3[b]",
+          "criterion": "event types being logged are reviewed in accordance with the defined review process."
+        },
+        {
+          "id": "3.3.3[c]",
+          "criterion": "event types being logged are updated based on the review."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.4",
+      "cmmc_id": "AU.L2-3.3.4",
+      "family": "Audit and Accountability",
+      "requirement": "Alert in the event of an audit logging process failure.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.4[a]",
+          "criterion": "personnel or roles to be alerted in the event of an audit logging process failure are identified."
+        },
+        {
+          "id": "3.3.4[b]",
+          "criterion": "types of audit logging process failures for which alert will be generated are defined."
+        },
+        {
+          "id": "3.3.4[c]",
+          "criterion": "identified personnel or roles are alerted in the event of an audit logging process failure."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.5",
+      "cmmc_id": "AU.L2-3.3.5",
+      "family": "Audit and Accountability",
+      "requirement": "Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.5[a]",
+          "criterion": "audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity are defined."
+        },
+        {
+          "id": "3.3.5[b]",
+          "criterion": "defined audit record review, analysis, and reporting processes are correlated."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.6",
+      "cmmc_id": "AU.L2-3.3.6",
+      "family": "Audit and Accountability",
+      "requirement": "Provide audit record reduction and report generation to support on-demand analysis and reporting.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.6[a]",
+          "criterion": "an audit record reduction capability that supports on-demand analysis is provided."
+        },
+        {
+          "id": "3.3.6[b]",
+          "criterion": "a report generation capability that supports on-demand reporting is provided."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.7",
+      "cmmc_id": "AU.L2-3.3.7",
+      "family": "Audit and Accountability",
+      "requirement": "Provide a system capability that compares and synchronizes internal system clocks with an authoritative source to generate time stamps for audit records.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.7[a]",
+          "criterion": "internal system clocks are used to generate time stamps for audit records."
+        },
+        {
+          "id": "3.3.7[b]",
+          "criterion": "an authoritative source with which to compare and synchronize internal system clocks is specified."
+        },
+        {
+          "id": "3.3.7[c]",
+          "criterion": "internal system clocks used to generate time stamps for audit records are compared to and synchronized with the specified authoritative time source."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.8",
+      "cmmc_id": "AU.L2-3.3.8",
+      "family": "Audit and Accountability",
+      "requirement": "Protect audit information and audit logging tools from unauthorized access, modification, and deletion.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.8[a]",
+          "criterion": "audit information is protected from unauthorized access."
+        },
+        {
+          "id": "3.3.8[b]",
+          "criterion": "audit information is protected from unauthorized modification."
+        },
+        {
+          "id": "3.3.8[c]",
+          "criterion": "audit information is protected from unauthorized deletion."
+        },
+        {
+          "id": "3.3.8[d]",
+          "criterion": "audit logging tools are protected from unauthorized access."
+        },
+        {
+          "id": "3.3.8[e]",
+          "criterion": "audit logging tools are protected from unauthorized modification."
+        },
+        {
+          "id": "3.3.8[f]",
+          "criterion": "audit logging tools are protected from unauthorized deletion."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.3.9",
+      "cmmc_id": "AU.L2-3.3.9",
+      "family": "Audit and Accountability",
+      "requirement": "Limit management of audit logging functionality to a subset of privileged users.",
+      "assessment_objectives": [
+        {
+          "id": "3.3.9[a]",
+          "criterion": "a subset of privileged users granted access to manage audit logging functionality is defined."
+        },
+        {
+          "id": "3.3.9[b]",
+          "criterion": "management of audit logging functionality is limited to the defined subset of privileged users."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.1",
+      "cmmc_id": "CM.L2-3.4.1",
+      "family": "Configuration Management",
+      "requirement": "Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation) throughout the respective system development life cycles.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.1[a]",
+          "criterion": "a baseline configuration is established."
+        },
+        {
+          "id": "3.4.1[b]",
+          "criterion": "the baseline configuration includes hardware, software, firmware, and documentation."
+        },
+        {
+          "id": "3.4.1[c]",
+          "criterion": "the baseline configuration is maintained (reviewed and updated) throughout the system development life cycle."
+        },
+        {
+          "id": "3.4.1[d]",
+          "criterion": "a system inventory is established."
+        },
+        {
+          "id": "3.4.1[e]",
+          "criterion": "the system inventory includes hardware, software, firmware, and documentation."
+        },
+        {
+          "id": "3.4.1[f]",
+          "criterion": "the inventory is maintained (reviewed and updated) throughout the system development life cycle."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.2",
+      "cmmc_id": "CM.L2-3.4.2",
+      "family": "Configuration Management",
+      "requirement": "Establish and enforce security configuration settings for information technology products employed in organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.2[a]",
+          "criterion": "security configuration settings for information technology products employed in the system are established and included in the baseline configuration."
+        },
+        {
+          "id": "3.4.2[b]",
+          "criterion": "security configuration settings for information technology products employed in the system are enforced."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.3",
+      "cmmc_id": "CM.L2-3.4.3",
+      "family": "Configuration Management",
+      "requirement": "Track, review, approve or disapprove, and log changes to organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.3[a]",
+          "criterion": "changes to the system are tracked."
+        },
+        {
+          "id": "3.4.3[b]",
+          "criterion": "changes to the system are reviewed."
+        },
+        {
+          "id": "3.4.3[c]",
+          "criterion": "changes to the system are approved or disapproved."
+        },
+        {
+          "id": "3.4.3[d]",
+          "criterion": "changes to the system are logged."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.4",
+      "cmmc_id": "CM.L2-3.4.4",
+      "family": "Configuration Management",
+      "requirement": "Analyze the security impact of changes prior to implementation.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.4[D]",
+          "criterion": "ermine if the security impact of changes to the system is analyzed prior to implementation."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.5",
+      "cmmc_id": "CM.L2-3.4.5",
+      "family": "Configuration Management",
+      "requirement": "Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.5[a]",
+          "criterion": "physical access restrictions associated with changes to the system are defined."
+        },
+        {
+          "id": "3.4.5[b]",
+          "criterion": "physical access restrictions associated with changes to the system are documented."
+        },
+        {
+          "id": "3.4.5[c]",
+          "criterion": "physical access restrictions associated with changes to the system are approved."
+        },
+        {
+          "id": "3.4.5[d]",
+          "criterion": "physical access restrictions associated with changes to the system are enforced."
+        },
+        {
+          "id": "3.4.5[e]",
+          "criterion": "logical access restrictions associated with changes to the system are defined."
+        },
+        {
+          "id": "3.4.5[f]",
+          "criterion": "logical access restrictions associated with changes to the system are documented."
+        },
+        {
+          "id": "3.4.5[g]",
+          "criterion": "logical access restrictions associated with changes to the system are approved."
+        },
+        {
+          "id": "3.4.5[h]",
+          "criterion": "logical access restrictions associated with changes to the system are enforced."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.6",
+      "cmmc_id": "CM.L2-3.4.6",
+      "family": "Configuration Management",
+      "requirement": "Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.6[a]",
+          "criterion": "essential system capabilities are defined based on the principle of least functionality."
+        },
+        {
+          "id": "3.4.6[b]",
+          "criterion": "the system is configured to provide only the defined essential capabilities."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.7",
+      "cmmc_id": "CM.L2-3.4.7",
+      "family": "Configuration Management",
+      "requirement": "Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.7[a]",
+          "criterion": "essential programs are defined."
+        },
+        {
+          "id": "3.4.7[b]",
+          "criterion": "the use of nonessential programs is defined."
+        },
+        {
+          "id": "3.4.7[c]",
+          "criterion": "the use of nonessential programs is restricted, disabled, or prevented as defined."
+        },
+        {
+          "id": "3.4.7[d]",
+          "criterion": "essential functions are defined."
+        },
+        {
+          "id": "3.4.7[e]",
+          "criterion": "the use of nonessential functions is defined."
+        },
+        {
+          "id": "3.4.7[f]",
+          "criterion": "the use of nonessential functions is restricted, disabled, or prevented as defined."
+        },
+        {
+          "id": "3.4.7[g]",
+          "criterion": "essential ports are defined."
+        },
+        {
+          "id": "3.4.7[h]",
+          "criterion": "the use of nonessential ports is defined."
+        },
+        {
+          "id": "3.4.7[i]",
+          "criterion": "the use of nonessential ports is restricted, disabled, or prevented as defined."
+        },
+        {
+          "id": "3.4.7[j]",
+          "criterion": "essential protocols are defined."
+        },
+        {
+          "id": "3.4.7[k]",
+          "criterion": "the use of nonessential protocols is defined."
+        },
+        {
+          "id": "3.4.7[l]",
+          "criterion": "the use of nonessential protocols is restricted, disabled, or prevented as defined."
+        },
+        {
+          "id": "3.4.7[m]",
+          "criterion": "essential services are defined."
+        },
+        {
+          "id": "3.4.7[n]",
+          "criterion": "the use of nonessential services is defined."
+        },
+        {
+          "id": "3.4.7[o]",
+          "criterion": "the use of nonessential services is restricted, disabled, or prevented as defined."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.8",
+      "cmmc_id": "CM.L2-3.4.8",
+      "family": "Configuration Management",
+      "requirement": "Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized software.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.8[a]",
+          "criterion": "a policy specifying whether whitelisting or blacklisting is to be implemented is specified."
+        },
+        {
+          "id": "3.4.8[b]",
+          "criterion": "the software allowed to execute under whitelisting or denied use under blacklisting is specified."
+        },
+        {
+          "id": "3.4.8[c]",
+          "criterion": "whitelisting to allow the execution of authorized software or blacklisting to prevent the use of unauthorized software is implemented as specified."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.4.9",
+      "cmmc_id": "CM.L2-3.4.9",
+      "family": "Configuration Management",
+      "requirement": "Control and monitor user-installed software.",
+      "assessment_objectives": [
+        {
+          "id": "3.4.9[a]",
+          "criterion": "a policy for controlling the installation of software by users is established."
+        },
+        {
+          "id": "3.4.9[b]",
+          "criterion": "installation of software by users is controlled based on the established policy."
+        },
+        {
+          "id": "3.4.9[c]",
+          "criterion": "installation of software by users is monitored."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.1",
+      "cmmc_id": "IA.L2-3.5.1",
+      "family": "Identification and Authentication",
+      "requirement": "Identify system users, processes acting on behalf of users, and devices.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.1[a]",
+          "criterion": "system users are identified."
+        },
+        {
+          "id": "3.5.1[b]",
+          "criterion": "processes acting on behalf of users are identified."
+        },
+        {
+          "id": "3.5.1[c]",
+          "criterion": "devices accessing the system are identified."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.2",
+      "cmmc_id": "IA.L2-3.5.2",
+      "family": "Identification and Authentication",
+      "requirement": "Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite to allowing access to organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.2[a]",
+          "criterion": "the identity of each user is authenticated or verified as a prerequisite to system access."
+        },
+        {
+          "id": "3.5.2[b]",
+          "criterion": "the identity of each process acting on behalf of a user is authenticated or verified as a prerequisite to system access."
+        },
+        {
+          "id": "3.5.2[c]",
+          "criterion": "the identity of each device accessing or connecting to the system is authenticated or verified as a prerequisite to system access."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.3",
+      "cmmc_id": "IA.L2-3.5.3",
+      "family": "Identification and Authentication",
+      "requirement": "Use multifactor authentication (MFA) for local and network access to privileged accounts and for network access to non- privileged accounts.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.3[a]",
+          "criterion": "privileged accounts are identified."
+        },
+        {
+          "id": "3.5.3[b]",
+          "criterion": "multifactor authentication is implemented for local access to privileged accounts."
+        },
+        {
+          "id": "3.5.3[c]",
+          "criterion": "multifactor authentication is implemented for network access to privileged accounts."
+        },
+        {
+          "id": "3.5.3[d]",
+          "criterion": "multifactor authentication is implemented for network access to non-privileged accounts."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": 3
+    },
+    {
+      "id": "3.5.4",
+      "cmmc_id": "IA.L2-3.5.4",
+      "family": "Identification and Authentication",
+      "requirement": "Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.4[D]",
+          "criterion": "ermine if replay-resistant authentication mechanisms are implemented for network account access to privileged and non-privileged accounts."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.5",
+      "cmmc_id": "IA.L2-3.5.5",
+      "family": "Identification and Authentication",
+      "requirement": "Prevent reuse of identifiers for a defined period.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.5[a]",
+          "criterion": "a period within which identifiers cannot be reused is defined."
+        },
+        {
+          "id": "3.5.5[b]",
+          "criterion": "reuse of identifiers is prevented within the defined period."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.6",
+      "cmmc_id": "IA.L2-3.5.6",
+      "family": "Identification and Authentication",
+      "requirement": "Disable identifiers after a defined period of inactivity.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.6[a]",
+          "criterion": "a period of inactivity after which an identifier is disabled is defined."
+        },
+        {
+          "id": "3.5.6[b]",
+          "criterion": "identifiers are disabled after the defined period of inactivity."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.7",
+      "cmmc_id": "IA.L2-3.5.7",
+      "family": "Identification and Authentication",
+      "requirement": "Enforce a minimum password complexity and change of characters when new passwords are created.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.7[a]",
+          "criterion": "password complexity requirements are defined."
+        },
+        {
+          "id": "3.5.7[b]",
+          "criterion": "password change of character requirements are defined."
+        },
+        {
+          "id": "3.5.7[c]",
+          "criterion": "minimum password complexity requirements as defined are enforced when new passwords are created."
+        },
+        {
+          "id": "3.5.7[d]",
+          "criterion": "minimum password change of character requirements as defined are enforced when new passwords are created."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.8",
+      "cmmc_id": "IA.L2-3.5.8",
+      "family": "Identification and Authentication",
+      "requirement": "Prohibit password reuse for a specified number of generations.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.8[a]",
+          "criterion": "the number of generations during which a password cannot be reused is specified."
+        },
+        {
+          "id": "3.5.8[b]",
+          "criterion": "reuse of passwords is prohibited during the specified number of generations."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.9",
+      "cmmc_id": "IA.L2-3.5.9",
+      "family": "Identification and Authentication",
+      "requirement": "Allow temporary password use for system logons with an immediate change to a permanent password.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.9[D]",
+          "criterion": "ermine if an immediate change to a permanent password is required when a temporary password is used for system logon."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.10",
+      "cmmc_id": "IA.L2-3.5.10",
+      "family": "Identification and Authentication",
+      "requirement": "Store and transmit only cryptographically- protected passwords.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.10[a]",
+          "criterion": "passwords are cryptographically protected in storage."
+        },
+        {
+          "id": "3.5.10[b]",
+          "criterion": "passwords are cryptographically protected in transit."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.5.11",
+      "cmmc_id": "IA.L2-3.5.11",
+      "family": "Identification and Authentication",
+      "requirement": "Obscure feedback of authentication information.",
+      "assessment_objectives": [
+        {
+          "id": "3.5.11[D]",
+          "criterion": "ermine if authentication information is obscured during the authentication process."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.6.1",
+      "cmmc_id": "IR.L2-3.6.1",
+      "family": "Incident Response",
+      "requirement": "Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recovery, and user response activities.",
+      "assessment_objectives": [
+        {
+          "id": "3.6.1[a]",
+          "criterion": "an operational incident-handling capability is established."
+        },
+        {
+          "id": "3.6.1[b]",
+          "criterion": "the operational incident-handling capability includes preparation."
+        },
+        {
+          "id": "3.6.1[c]",
+          "criterion": "the operational incident-handling capability includes detection."
+        },
+        {
+          "id": "3.6.1[d]",
+          "criterion": "the operational incident-handling capability includes analysis."
+        },
+        {
+          "id": "3.6.1[e]",
+          "criterion": "the operational incident-handling capability includes containment."
+        },
+        {
+          "id": "3.6.1[f]",
+          "criterion": "the operational incident-handling capability includes recovery."
+        },
+        {
+          "id": "3.6.1[g]",
+          "criterion": "the operational incident-handling capability includes user response activities."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.6.2",
+      "cmmc_id": "IR.L2-3.6.2",
+      "family": "Incident Response",
+      "requirement": "Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization.",
+      "assessment_objectives": [
+        {
+          "id": "3.6.2[a]",
+          "criterion": "incidents are tracked."
+        },
+        {
+          "id": "3.6.2[b]",
+          "criterion": "incidents are documented."
+        },
+        {
+          "id": "3.6.2[c]",
+          "criterion": "authorities to whom incidents are to be reported are identified."
+        },
+        {
+          "id": "3.6.2[d]",
+          "criterion": "organizational officials to whom incidents are to be reported are identified."
+        },
+        {
+          "id": "3.6.2[e]",
+          "criterion": "identified authorities are notified of incidents."
+        },
+        {
+          "id": "3.6.2[f]",
+          "criterion": "identified organizational officials are notified of incidents."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.6.3",
+      "cmmc_id": "IR.L2-3.6.3",
+      "family": "Incident Response",
+      "requirement": "Test the organizational incident response capability.",
+      "assessment_objectives": [
+        {
+          "id": "3.6.3[D]",
+          "criterion": "ermine if the incident response capability is tested."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.1",
+      "cmmc_id": "MA.L2-3.7.1",
+      "family": "Maintenance",
+      "requirement": "Perform maintenance on organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.1[D]",
+          "criterion": "ermine if system maintenance is performed."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.2",
+      "cmmc_id": "MA.L2-3.7.2",
+      "family": "Maintenance",
+      "requirement": "Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system maintenance.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.2[a]",
+          "criterion": "tools used to conduct system maintenance are controlled."
+        },
+        {
+          "id": "3.7.2[b]",
+          "criterion": "techniques used to conduct system maintenance are controlled."
+        },
+        {
+          "id": "3.7.2[c]",
+          "criterion": "mechanisms used to conduct system maintenance are controlled."
+        },
+        {
+          "id": "3.7.2[d]",
+          "criterion": "personnel used to conduct system maintenance are controlled."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.3",
+      "cmmc_id": "MA.L2-3.7.3",
+      "family": "Maintenance",
+      "requirement": "Ensure equipment removed for off-site maintenance is sanitized of any CUI.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.3[D]",
+          "criterion": "ermine if equipment to be removed from organizational spaces for off-site maintenance is sanitized of any CUI."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.4",
+      "cmmc_id": "MA.L2-3.7.4",
+      "family": "Maintenance",
+      "requirement": "Check media containing diagnostic and test programs for malicious code before the media are used in organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.4[D]",
+          "criterion": "ermine if media containing diagnostic and test programs are checked for malicious code before being used in organizational systems that process, store, or transmit CUI."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.5",
+      "cmmc_id": "MA.L2-3.7.5",
+      "family": "Maintenance",
+      "requirement": "Require multifactor authentication to establish nonlocal maintenance sessions via external network connections and terminate such connections when nonlocal maintenance is complete.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.5[a]",
+          "criterion": "multifactor authentication is used to establish nonlocal maintenance sessions via external network connections."
+        },
+        {
+          "id": "3.7.5[b]",
+          "criterion": "nonlocal maintenance sessions established via external network connections are terminated when nonlocal maintenance is complete."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.7.6",
+      "cmmc_id": "MA.L2-3.7.6",
+      "family": "Maintenance",
+      "requirement": "Supervise the maintenance activities of maintenance personnel without required access authorization.",
+      "assessment_objectives": [
+        {
+          "id": "3.7.6[D]",
+          "criterion": "ermine if maintenance personnel without required access authorization are supervised during maintenance activities."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.1",
+      "cmmc_id": "MP.L2-3.8.1",
+      "family": "Media Protection",
+      "requirement": "Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.1[a]",
+          "criterion": "paper media containing CUI is physically controlled."
+        },
+        {
+          "id": "3.8.1[b]",
+          "criterion": "digital media containing CUI is physically controlled."
+        },
+        {
+          "id": "3.8.1[c]",
+          "criterion": "paper media containing CUI is securely stored."
+        },
+        {
+          "id": "3.8.1[d]",
+          "criterion": "digital media containing CUI is securely stored."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.2",
+      "cmmc_id": "MP.L2-3.8.2",
+      "family": "Media Protection",
+      "requirement": "Limit access to CUI on system media to authorized users.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.2[D]",
+          "criterion": "ermine if access to CUI on system media is limited to authorized users."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.3",
+      "cmmc_id": "MP.L2-3.8.3",
+      "family": "Media Protection",
+      "requirement": "Sanitize or destroy system media containing CUI before disposal or release for reuse.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.3[a]",
+          "criterion": "system media containing CUI is sanitized or destroyed before disposal."
+        },
+        {
+          "id": "3.8.3[b]",
+          "criterion": "system media containing CUI is sanitized before it is released for reuse."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.4",
+      "cmmc_id": "MP.L2-3.8.4",
+      "family": "Media Protection",
+      "requirement": "Mark media with necessary CUI markings and distribution limitations.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.4[a]",
+          "criterion": "media containing CUI is marked with applicable CUI markings."
+        },
+        {
+          "id": "3.8.4[b]",
+          "criterion": "media containing CUI is marked with distribution limitations."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.5",
+      "cmmc_id": "MP.L2-3.8.5",
+      "family": "Media Protection",
+      "requirement": "Control access to media containing CUI and maintain accountability for media during transport outside of controlled areas.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.5[a]",
+          "criterion": "access to media containing CUI is controlled."
+        },
+        {
+          "id": "3.8.5[b]",
+          "criterion": "accountability for media containing CUI is maintained during transport outside of controlled areas."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.6",
+      "cmmc_id": "MP.L2-3.8.6",
+      "family": "Media Protection",
+      "requirement": "Implement cryptographic mechanisms to protect the confidentiality of CUI stored on digital media during transport unless otherwise protected by alternative physical safeguards.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.6[D]",
+          "criterion": "ermine if the confidentiality of CUI stored on digital media is protected during transport using cryptographic mechanisms or alternative physical safeguards."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.7",
+      "cmmc_id": "MP.L2-3.8.7",
+      "family": "Media Protection",
+      "requirement": "Control the use of removable media on system components.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.7[D]",
+          "criterion": "ermine if the use of removable media on system components is controlled."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.8",
+      "cmmc_id": "MP.L2-3.8.8",
+      "family": "Media Protection",
+      "requirement": "Prohibit the use of portable storage devices when such devices have no identifiable owner.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.8[D]",
+          "criterion": "ermine if the use of portable storage devices is prohibited when such devices have no identifiable owner."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.8.9",
+      "cmmc_id": "MP.L2-3.8.9",
+      "family": "Media Protection",
+      "requirement": "Protect the confidentiality of backup CUI at storage locations.",
+      "assessment_objectives": [
+        {
+          "id": "3.8.9[D]",
+          "criterion": "ermine if the confidentiality of backup CUI is protected at storage locations."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.9.1",
+      "cmmc_id": "PS.L2-3.9.1",
+      "family": "Personnel Security",
+      "requirement": "Screen individuals prior to authorizing access to organizational systems containing CUI.",
+      "assessment_objectives": [
+        {
+          "id": "3.9.1[D]",
+          "criterion": "ermine if individuals are screened prior to authorizing access to organizational systems containing CUI."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.9.2",
+      "cmmc_id": "PS.L2-3.9.2",
+      "family": "Personnel Security",
+      "requirement": "Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers.",
+      "assessment_objectives": [
+        {
+          "id": "3.9.2[a]",
+          "criterion": "a policy and/or process for terminating system access and any credentials coincident with personnel actions is established."
+        },
+        {
+          "id": "3.9.2[b]",
+          "criterion": "system access and credentials are terminated consistent with personnel actions such as termination or transfer."
+        },
+        {
+          "id": "3.9.2[c]",
+          "criterion": "the system is protected during and after personnel transfer actions."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.1",
+      "cmmc_id": "PE.L2-3.10.1",
+      "family": "Physical Protection",
+      "requirement": "Limit physical access to organizational systems, equipment, and the respective operating environments to authorized individuals.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.1[a]",
+          "criterion": "authorized individuals allowed physical access are identified."
+        },
+        {
+          "id": "3.10.1[b]",
+          "criterion": "physical access to organizational systems is limited to authorized individuals."
+        },
+        {
+          "id": "3.10.1[c]",
+          "criterion": "physical access to equipment is limited to authorized individuals."
+        },
+        {
+          "id": "3.10.1[d]",
+          "criterion": "physical access to operating environments is limited to authorized individuals."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.2",
+      "cmmc_id": "PE.L2-3.10.2",
+      "family": "Physical Protection",
+      "requirement": "Protect and monitor the physical facility and support infrastructure for organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.2[a]",
+          "criterion": "the physical facility where organizational systems reside is protected."
+        },
+        {
+          "id": "3.10.2[b]",
+          "criterion": "the support infrastructure for organizational systems is protected."
+        },
+        {
+          "id": "3.10.2[c]",
+          "criterion": "the physical facility where organizational systems reside is monitored."
+        },
+        {
+          "id": "3.10.2[d]",
+          "criterion": "the support infrastructure for organizational systems is monitored."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.3",
+      "cmmc_id": "PE.L2-3.10.3",
+      "family": "Physical Protection",
+      "requirement": "Escort visitors and monitor visitor activity.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.3[a]",
+          "criterion": "visitors are escorted."
+        },
+        {
+          "id": "3.10.3[b]",
+          "criterion": "visitor activity is monitored."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.4",
+      "cmmc_id": "PE.L2-3.10.4",
+      "family": "Physical Protection",
+      "requirement": "Maintain audit logs of physical access.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.4[D]",
+          "criterion": "ermine if audit logs of physical access are maintained."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.5",
+      "cmmc_id": "PE.L2-3.10.5",
+      "family": "Physical Protection",
+      "requirement": "Control and manage physical access devices.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.5[a]",
+          "criterion": "physical access devices are identified."
+        },
+        {
+          "id": "3.10.5[b]",
+          "criterion": "physical access devices are controlled."
+        },
+        {
+          "id": "3.10.5[c]",
+          "criterion": "physical access devices are managed."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.10.6",
+      "cmmc_id": "PE.L2-3.10.6",
+      "family": "Physical Protection",
+      "requirement": "Enforce safeguarding measures for CUI at alternate work sites.",
+      "assessment_objectives": [
+        {
+          "id": "3.10.6[a]",
+          "criterion": "safeguarding measures for CUI are defined for alternate work sites."
+        },
+        {
+          "id": "3.10.6[b]",
+          "criterion": "safeguarding measures for CUI are enforced for alternate work sites."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.11.1",
+      "cmmc_id": "RA.L2-3.11.1",
+      "family": "Risk Assessment",
+      "requirement": "Periodically assess the risk to organizational operations (including mission, functions, image, or reputation), organizational assets, and individuals, resulting from the operation of organizational systems and the associated processing, storage, or transmission of CUI.",
+      "assessment_objectives": [
+        {
+          "id": "3.11.1[a]",
+          "criterion": "the frequency to assess risk to organizational operations, organizational assets, and individuals is defined."
+        },
+        {
+          "id": "3.11.1[b]",
+          "criterion": "risk to organizational operations, organizational assets, and individuals resulting from the operation of an organizational system that processes, stores, or transmits CUI is assessed with the defined frequency."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.11.2",
+      "cmmc_id": "RA.L2-3.11.2",
+      "family": "Risk Assessment",
+      "requirement": "Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applications are identified.",
+      "assessment_objectives": [
+        {
+          "id": "3.11.2[a]",
+          "criterion": "the frequency to scan for vulnerabilities in organizational systems and applications is defined."
+        },
+        {
+          "id": "3.11.2[b]",
+          "criterion": "vulnerability scans are performed on organizational systems with the defined frequency."
+        },
+        {
+          "id": "3.11.2[c]",
+          "criterion": "vulnerability scans are performed on applications with the defined frequency."
+        },
+        {
+          "id": "3.11.2[d]",
+          "criterion": "vulnerability scans are performed on organizational systems when new vulnerabilities are identified."
+        },
+        {
+          "id": "3.11.2[e]",
+          "criterion": "vulnerability scans are performed on applications when new vulnerabilities are identified."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.11.3",
+      "cmmc_id": "RA.L2-3.11.3",
+      "family": "Risk Assessment",
+      "requirement": "Remediate vulnerabilities in accordance with risk assessments.",
+      "assessment_objectives": [
+        {
+          "id": "3.11.3[a]",
+          "criterion": "vulnerabilities are identified."
+        },
+        {
+          "id": "3.11.3[b]",
+          "criterion": "vulnerabilities are remediated in accordance with risk assessments."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.12.1",
+      "cmmc_id": "CA.L2-3.12.1",
+      "family": "Security Assessment",
+      "requirement": "Periodically assess the security controls in organizational systems to determine if the controls are effective in their application.",
+      "assessment_objectives": [
+        {
+          "id": "3.12.1[a]",
+          "criterion": "the frequency of security control assessments is defined."
+        },
+        {
+          "id": "3.12.1[b]",
+          "criterion": "security controls are assessed with the defined frequency to determine if the controls are effective in their application."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.12.2",
+      "cmmc_id": "CA.L2-3.12.2",
+      "family": "Security Assessment",
+      "requirement": "Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.12.2[a]",
+          "criterion": "deficiencies and vulnerabilities to be addressed by the plan of action are identified."
+        },
+        {
+          "id": "3.12.2[b]",
+          "criterion": "a plan of action is developed to correct identified deficiencies and reduce or eliminate identified vulnerabilities."
+        },
+        {
+          "id": "3.12.2[c]",
+          "criterion": "the plan of action is implemented to correct identified deficiencies and reduce or eliminate identified vulnerabilities."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.12.3",
+      "cmmc_id": "CA.L2-3.12.3",
+      "family": "Security Assessment",
+      "requirement": "Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls.",
+      "assessment_objectives": [
+        {
+          "id": "3.12.3[D]",
+          "criterion": "ermine if security controls are monitored on an ongoing basis to ensure the continued effectiveness of those controls."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.12.4",
+      "cmmc_id": "CA.L2-3.12.4",
+      "family": "Security Assessment",
+      "requirement": "Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security requirements are implemented, and the relationships with or connections to other systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.12.4[a]",
+          "criterion": "a system security plan is developed."
+        },
+        {
+          "id": "3.12.4[b]",
+          "criterion": "the system boundary is described and documented in the system security plan."
+        },
+        {
+          "id": "3.12.4[c]",
+          "criterion": "the system environment of operation is described and documented in the system security plan."
+        },
+        {
+          "id": "3.12.4[d]",
+          "criterion": "the security requirements identified and approved by the designated authority as non-applicable are identified."
+        },
+        {
+          "id": "3.12.4[e]",
+          "criterion": "the method of security requirement implementation is described and documented in the system security plan."
+        },
+        {
+          "id": "3.12.4[f]",
+          "criterion": "the relationship with or connection to other systems is described and documented in the system security plan."
+        },
+        {
+          "id": "3.12.4[g]",
+          "criterion": "the frequency to update the system security plan is defined."
+        },
+        {
+          "id": "3.12.4[h]",
+          "criterion": "system security plan is updated with the defined frequency."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.1",
+      "cmmc_id": "SC.L2-3.13.1",
+      "family": "System and Communications Protection",
+      "requirement": "Monitor, control, and protect communications (i.e., information transmitted or received by organizational systems) at the external boundaries and key internal boundaries of organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.1[a]",
+          "criterion": "the external system boundary is defined."
+        },
+        {
+          "id": "3.13.1[b]",
+          "criterion": "key internal system boundaries are defined."
+        },
+        {
+          "id": "3.13.1[c]",
+          "criterion": "communications are monitored at the external system boundary."
+        },
+        {
+          "id": "3.13.1[d]",
+          "criterion": "communications are monitored at key internal boundaries."
+        },
+        {
+          "id": "3.13.1[e]",
+          "criterion": "communications are controlled at the external system boundary."
+        },
+        {
+          "id": "3.13.1[f]",
+          "criterion": "communications are controlled at key internal boundaries."
+        },
+        {
+          "id": "3.13.1[g]",
+          "criterion": "communications are protected at the external system boundary."
+        },
+        {
+          "id": "3.13.1[h]",
+          "criterion": "communications are protected at key internal boundaries."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.2",
+      "cmmc_id": "SC.L2-3.13.2",
+      "family": "System and Communications Protection",
+      "requirement": "Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security within organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.2[a]",
+          "criterion": "architectural designs that promote effective information security are identified."
+        },
+        {
+          "id": "3.13.2[b]",
+          "criterion": "software development techniques that promote effective information security are identified."
+        },
+        {
+          "id": "3.13.2[c]",
+          "criterion": "systems engineering principles that promote effective information security are identified."
+        },
+        {
+          "id": "3.13.2[d]",
+          "criterion": "identified architectural designs that promote effective information security are employed."
+        },
+        {
+          "id": "3.13.2[e]",
+          "criterion": "identified software development techniques that promote effective information security are employed."
+        },
+        {
+          "id": "3.13.2[f]",
+          "criterion": "identified systems engineering principles that promote effective information security are employed."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.3",
+      "cmmc_id": "SC.L2-3.13.3",
+      "family": "System and Communications Protection",
+      "requirement": "Separate user functionality from system management functionality.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.3[a]",
+          "criterion": "user functionality is identified."
+        },
+        {
+          "id": "3.13.3[b]",
+          "criterion": "system management functionality is identified."
+        },
+        {
+          "id": "3.13.3[c]",
+          "criterion": "user functionality is separated from system management functionality."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.4",
+      "cmmc_id": "SC.L2-3.13.4",
+      "family": "System and Communications Protection",
+      "requirement": "Prevent unauthorized and unintended information transfer via shared system resources.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.4[D]",
+          "criterion": "ermine if unauthorized and unintended information transfer via shared system resources is prevented."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.5",
+      "cmmc_id": "SC.L2-3.13.5",
+      "family": "System and Communications Protection",
+      "requirement": "Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.5[a]",
+          "criterion": "publicly accessible system components are identified."
+        },
+        {
+          "id": "3.13.5[b]",
+          "criterion": "subnetworks for publicly accessible system components are physically or logically separated from internal networks."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.6",
+      "cmmc_id": "SC.L2-3.13.6",
+      "family": "System and Communications Protection",
+      "requirement": "Deny network communications traffic by default and allow network communications traffic by exception (i.e., deny all, permit by exception).",
+      "assessment_objectives": [
+        {
+          "id": "3.13.6[a]",
+          "criterion": "network communications traffic is denied by default."
+        },
+        {
+          "id": "3.13.6[b]",
+          "criterion": "network communications traffic is allowed by exception."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.7",
+      "cmmc_id": "SC.L2-3.13.7",
+      "family": "System and Communications Protection",
+      "requirement": "Prevent remote devices from simultaneously establishing non-remote connections with organizational systems and communicating via some other connection to resources in external networks (i.e., split tunneling).",
+      "assessment_objectives": [
+        {
+          "id": "3.13.7[D]",
+          "criterion": "ermine if remote devices are prevented from simultaneously establishing non-remote connections with the system and communicating via some other connection to resources in external networks (i.e., split tunneling)."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.8",
+      "cmmc_id": "SC.L2-3.13.8",
+      "family": "System and Communications Protection",
+      "requirement": "Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission unless otherwise protected by alternative physical safeguards.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.8[a]",
+          "criterion": "cryptographic mechanisms intended to prevent unauthorized disclosure of CUI are identified."
+        },
+        {
+          "id": "3.13.8[b]",
+          "criterion": "alternative physical safeguards intended to prevent unauthorized disclosure of CUI are identified."
+        },
+        {
+          "id": "3.13.8[c]",
+          "criterion": "either cryptographic mechanisms or alternative physical safeguards are implemented to prevent unauthorized disclosure of CUI during transmission."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.9",
+      "cmmc_id": "SC.L2-3.13.9",
+      "family": "System and Communications Protection",
+      "requirement": "Terminate network connections associated with communications sessions at the end of the sessions or after a defined period of inactivity.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.9[a]",
+          "criterion": "a period of inactivity to terminate network connections associated with communications sessions is defined."
+        },
+        {
+          "id": "3.13.9[b]",
+          "criterion": "network connections associated with communications sessions are terminated at the end of the sessions."
+        },
+        {
+          "id": "3.13.9[c]",
+          "criterion": "network connections associated with communications sessions are terminated after the defined period of inactivity."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.10",
+      "cmmc_id": "SC.L2-3.13.10",
+      "family": "System and Communications Protection",
+      "requirement": "Establish and manage cryptographic keys for cryptography employed in organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.10[a]",
+          "criterion": "cryptographic keys are established whenever cryptography is employed."
+        },
+        {
+          "id": "3.13.10[b]",
+          "criterion": "cryptographic keys are managed whenever cryptography is employed."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.11",
+      "cmmc_id": "SC.L2-3.13.11",
+      "family": "System and Communications Protection",
+      "requirement": "Employ FIPS-validated cryptography when used to protect the confidentiality of CUI.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.11[D]",
+          "criterion": "ermine if FIPS-validated cryptography is employed to protect the confidentiality of CUI."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": 3
+    },
+    {
+      "id": "3.13.12",
+      "cmmc_id": "SC.L2-3.13.12",
+      "family": "System and Communications Protection",
+      "requirement": "Prohibit remote activation of collaborative computing devices and provide indication of devices in use to users present at the device.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.12[a]",
+          "criterion": "collaborative computing devices are identified."
+        },
+        {
+          "id": "3.13.12[b]",
+          "criterion": "collaborative computing devices provide indication to users of devices in use."
+        },
+        {
+          "id": "3.13.12[c]",
+          "criterion": "remote activation of collaborative computing devices is prohibited."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.13",
+      "cmmc_id": "SC.L2-3.13.13",
+      "family": "System and Communications Protection",
+      "requirement": "Control and monitor the use of mobile code.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.13[a]",
+          "criterion": "use of mobile code is controlled."
+        },
+        {
+          "id": "3.13.13[b]",
+          "criterion": "use of mobile code is monitored."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.14",
+      "cmmc_id": "SC.L2-3.13.14",
+      "family": "System and Communications Protection",
+      "requirement": "Control and monitor the use of Voice over Internet Protocol (VoIP) technologies.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.14[a]",
+          "criterion": "use of Voice over Internet Protocol (VoIP) technologies is controlled."
+        },
+        {
+          "id": "3.13.14[b]",
+          "criterion": "use of Voice over Internet Protocol (VoIP) technologies is monitored."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.15",
+      "cmmc_id": "SC.L2-3.13.15",
+      "family": "System and Communications Protection",
+      "requirement": "Protect the authenticity of communications sessions.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.15[D]",
+          "criterion": "ermine if the authenticity of communications sessions is protected."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.13.16",
+      "cmmc_id": "SC.L2-3.13.16",
+      "family": "System and Communications Protection",
+      "requirement": "Protect the confidentiality of CUI at rest.",
+      "assessment_objectives": [
+        {
+          "id": "3.13.16[D]",
+          "criterion": "ermine if the confidentiality of CUI at rest is protected."
+        }
+      ],
+      "default_deduction": 1,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.1",
+      "cmmc_id": "SI.L2-3.14.1",
+      "family": "System and Information Integrity",
+      "requirement": "Identify, report, and correct system flaws in a timely manner.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.1[a]",
+          "criterion": "the time within which to identify system flaws is specified."
+        },
+        {
+          "id": "3.14.1[b]",
+          "criterion": "system flaws are identified within the specified time frame."
+        },
+        {
+          "id": "3.14.1[c]",
+          "criterion": "the time within which to report system flaws is specified."
+        },
+        {
+          "id": "3.14.1[d]",
+          "criterion": "system flaws are reported within the specified time frame."
+        },
+        {
+          "id": "3.14.1[e]",
+          "criterion": "the time within which to correct system flaws is specified."
+        },
+        {
+          "id": "3.14.1[f]",
+          "criterion": "system flaws are corrected within the specified time frame."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.2",
+      "cmmc_id": "SI.L2-3.14.2",
+      "family": "System and Information Integrity",
+      "requirement": "Provide protection from malicious code at designated locations within organizational systems.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.2[a]",
+          "criterion": "designated locations for malicious code protection are identified."
+        },
+        {
+          "id": "3.14.2[b]",
+          "criterion": "protection from malicious code at designated locations is provided."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.3",
+      "cmmc_id": "SI.L2-3.14.3",
+      "family": "System and Information Integrity",
+      "requirement": "Monitor system security alerts and advisories and take action in response.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.3[a]",
+          "criterion": "response actions to system security alerts and advisories are identified."
+        },
+        {
+          "id": "3.14.3[b]",
+          "criterion": "system security alerts and advisories are monitored."
+        },
+        {
+          "id": "3.14.3[c]",
+          "criterion": "actions in response to system security alerts and advisories are taken."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.4",
+      "cmmc_id": "SI.L2-3.14.4",
+      "family": "System and Information Integrity",
+      "requirement": "Update malicious code protection mechanisms when new releases are available.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.4[D]",
+          "criterion": "ermine if malicious code protection mechanisms are updated when new releases are available."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.5",
+      "cmmc_id": "SI.L2-3.14.5",
+      "family": "System and Information Integrity",
+      "requirement": "Perform periodic scans of organizational systems and real-time scans of files from external sources as files are downloaded, opened, or executed.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.5[a]",
+          "criterion": "the frequency for malicious code scans is defined."
+        },
+        {
+          "id": "3.14.5[b]",
+          "criterion": "malicious code scans are performed with the defined frequency."
+        },
+        {
+          "id": "3.14.5[c]",
+          "criterion": "real-time malicious code scans of files from external sources as files are downloaded, opened, or executed are performed."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.6",
+      "cmmc_id": "SI.L2-3.14.6",
+      "family": "System and Information Integrity",
+      "requirement": "Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks.",
+      "assessment_objectives": [
+        {
+          "id": "3.14.6[a]",
+          "criterion": "the system is monitored to detect attacks and indicators of potential attacks."
+        },
+        {
+          "id": "3.14.6[b]",
+          "criterion": "inbound communications traffic is monitored to detect attacks and indicators of potential attacks."
+        },
+        {
+          "id": "3.14.6[c]",
+          "criterion": "outbound communications traffic is monitored to detect attacks and indicators of potential attacks."
+        }
+      ],
+      "default_deduction": 5,
+      "partial_deduction": null
+    },
+    {
+      "id": "3.14.7",
+      "cmmc_id": "SI.L2-3.14.7",
+      "family": "System and Information Integrity",
+      "requirement": "Identify unauthorized use of organizational systems",
+      "assessment_objectives": [
+        {
+          "id": "3.14.7[a]",
+          "criterion": "authorized use of the system is defined."
+        },
+        {
+          "id": "3.14.7[b]",
+          "criterion": "unauthorized use of the system is identified."
+        }
+      ],
+      "default_deduction": 3,
+      "partial_deduction": null
+    }
+  ]
+}
