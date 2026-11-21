@@ -36,7 +36,7 @@ and whether controls outside Annex A are needed.
 | --- | --- | --- |
 | A.5.15 Access control | Included to limit evidence by role and workspace (R-01) | Implemented for lab paths. Role and workspace tests in `tests/test_tracker.py`. |
 | A.5.18 Access rights | Included because lab credentials should be assigned and revoked appropriately (R-01) | Partially implemented. Credential roles tested. Access review and revocation evidence pending. |
-| A.5.33 Protection of records | Included to preserve reliable evidence for review (R-03) | Technical integrity check and retained historical sample implemented in this PR. Retention ownership and independent review pending. |
+| A.5.33 Protection of records | Included to preserve reliable evidence for review (R-03) | Technical integrity check and retained historical sample implemented in this PR. Retention owner assigned. Recurring evidence and independent review pending. |
 | A.8.16 Monitoring activities | Included to identify unhealthy tracker changes (R-04) | Implemented in CI for health and smoke checks. Ongoing alerting remains open. |
 | A.8.32 Change management | Included because code and runtime changes can affect evidence availability (R-02) | Technical rehearsal verified. Approval and promotion have not been observed. |
 | A.7.4 Physical security monitoring | Excluded from this software lab exercise because the lab does not operate a facility and physical monitoring is outside scope | Reassess if a hosted or facility-managed system enters scope. |
@@ -69,7 +69,7 @@ until they are supplied.
 - **Corrective action.** The release coordinator now has a documented procedure, three byte-identical [retained artifacts](tracker-audit-review-packet.md#sample-trace) and a [verifier](../../tracker/audit_bundle.py) that checks the ZIP digest, embedded receipt inputs, source revision, and historical decision.
 - **Retest.** All three retained archives matched the corresponding captured GitHub digest and reproduced the baseline, blocked candidate, and recovery decisions for each run. A modified copy of the original archive was rejected before any receipt was relied on. The retest record is [Agent security tests run 44343910025](https://github.com/SushiBear21/agentic-security-workflow/actions/runs/44343910025) on fix commit `c4aee81`. The digests reconcile to a [GitHub API snapshot](audit-evidence/github-api-snapshot.json) captured before the December 18, 2026 expiry. See the [retest procedure and review record](tracker-audit-review-packet.md#reviewer-disposition).
 - **Retention.** The release coordinator role, held by the lab owner, follows the [retention procedure](tracker-audit-review-packet.md#retention-procedure-iso-f01).
-- **Disposition.** Technical retest passed for the three selected rehearsals. Retention responsibility is assigned. Operating evidence of the periodic check and independent closure remain pending.
+- **Disposition.** Technical retest passed for the three selected rehearsals. Retention responsibility is assigned. The first preparer source comparison is recorded. Recurring operating evidence, independent source custody and closure remain pending.
 
 Reproduce using the [SOC 2 workpaper commands](soc2-tracker-readiness.md#evidence-and-reproduction).
 Run `python -m unittest discover -s tests -p test_tracker_audit_bundle.py -v`

@@ -54,9 +54,9 @@ FINDINGS = {
         "retest": "Passed in the lab. Original archives reperform and a deliberately altered copy is rejected.",
         "retest_record": "Agent security tests runs 44343910025 (fix commit c4aee81) and 44773783571 (packet artifact).",
         "retention": "Release coordinator role, held by the lab owner. Snapshot GitHub metadata before each artifact expiry "
-                     "and rerun the packet monthly. Operating evidence of the periodic check is pending.",
-        "residual_risk": "The snapshot is stored in the same repository as the archives. The independent reviewer's "
-                         "PR #14 comment records the GitHub digests outside the repository contents.",
+                     "and rerun the packet monthly. The first source check is recorded; periodic evidence is pending.",
+        "residual_risk": "The lab owner controls the snapshot, archives and editable simulated PR #14 "
+                         "comment. Independent custody of the source metadata is pending.",
     },
 }
 
@@ -139,7 +139,7 @@ def build_packet(evidence=EVIDENCE):
         "PRs": [f"https://github.com/{REPOSITORY}/pull/{pr}"
                 for pr in sorted({sample['observation']['source']['pull_request'] for sample in samples})],
         "inventory": [population[key] for key in ("release_inventory_url", "deployment_inventory_url", "tag_inventory_url")],
-        "retention": ["ISO-F01 retest", "github-api-snapshot.json"],
+        "retention": ["ISO-F01 retest", "github-api-snapshot.json", "iso-f01-first-source-check.json"],
         "unit tests": ["tests/test_tracker.py"],
     }
     requests = [

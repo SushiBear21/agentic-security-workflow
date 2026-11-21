@@ -39,10 +39,21 @@ jobs:
       - name: Reperform tracker audit evidence
         run: python -m tracker.audit_workpapers --output tracker-audit-packet.json
 
+      - name: Evaluate simulated SaaS audit period
+        run: python -m tracker.saas_audit --output saas-audit-packet.json
+
       - name: Retain tracker audit packet
         uses: actions/upload-artifact@v4
         with:
           name: tracker-audit-packet
           path: tracker-audit-packet.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Retain simulated SaaS audit packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: saas-audit-packet
+          path: saas-audit-packet.json
           if-no-files-found: error
           retention-days: 14

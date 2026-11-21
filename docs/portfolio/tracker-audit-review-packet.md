@@ -8,6 +8,8 @@ are pending.
 - [SOC 2 readiness scope, observation period, and workpapers](soc2-tracker-readiness.md)
 - [ISO/IEC 27001:2022 scope, risks, sample Statement of Applicability and workpapers](iso27001-tracker-internal-audit.md)
 
+The [two-product SaaS evidence packet](saas-audit-review-packet.md) exercises the separate simulated AWS boundary and period.
+
 ## Evidence requests
 
 The evidence period is [the tracker observation window](soc2-tracker-readiness.md#system-and-evidence-period) for every row. **November 27, 2026** is an exercise due date for each request. Owner labels refer to proposed lab roles.
@@ -19,7 +21,7 @@ The evidence period is [the tracker observation window](soc2-tracker-readiness.m
 | ER-03 · Change review and promotion | S2-02, ISO-02 | Release coordinator | CI-01–03 and PRs #13 and #14. Technical evidence and traceability present. Insufficient for independent approval and promotion. | E-02 |
 | ER-04 · Failed candidate and recovery | S2-03, ISO-04 | Service operator | CI-01–03. Fulfilled for CI failure detection and recovery. | — |
 | ER-05 · Ongoing monitoring response | S2-03, ISO-04 | Service operator | Alert delivery, acknowledgement and resolution records missing. | E-03 |
-| ER-06 · Retention and reproducibility | ISO-03 | Release coordinator | CI-01–03, a modified copy of CI-01, and the [GitHub API snapshot](audit-evidence/github-api-snapshot.json). Fulfilled for the integrity and decision retests. Retention operation pending. | ISO-F01 |
+| ER-06 · Retention and reproducibility | ISO-03 | Release coordinator | CI-01–03, a modified copy of CI-01, and the [GitHub API snapshot](audit-evidence/github-api-snapshot.json). Fulfilled for the integrity and decision retests. First source metadata check recorded. Recurring retention evidence pending. | ISO-F01 |
 
 ## Sample trace
 
@@ -58,16 +60,30 @@ explains how the original test checked the baseline record during CI recovery.
 
 ## Retention procedure (ISO-F01)
 
-1. Before any sampled artifact expires, the release coordinator captures GitHub
-   artifact and run metadata into `audit-evidence/github-api-snapshot.json`.
-2. Monthly, and after any change to the evidence files, the coordinator runs
-   `python -m tracker.audit_workpapers` and keeps the CI `tracker-audit-packet` artifact.
-3. The coordinator records each check in the PR or an issue with the date and result.
+1. Before expiry, preserve the artifact and run metadata and verify the retained
+   ZIPs. On November 21, the preparer queried GitHub and reconciled all three
+   source artifacts to the recorded IDs, digests, head SHAs and expiry dates.
+   See the [first source check](audit-evidence/iso-f01-first-source-check.json).
+2. [Tracker audit retention](../../.github/workflows/tracker-audit-retention.yml)
+   runs on evidence changes in the PR and at 15:23 UTC on the first day of each
+   month once present on the default branch. It reruns the full packet, checks
+   live metadata while each source remains within its retention window, and
+   labels checks after source expiry as using the captured snapshot. It uploads
+   a dated report with the checkout revision, source status and archive results.
+3. The release coordinator records the run link and findings at each cadence,
+   investigates a missed or failed run, and arranges reviewer-controlled custody
+   of the source digest and run metadata before the earliest expiry on December
+   18, 2026 at 06:14:07 UTC. CI reports have a 90-day retention setting and
+   require separate preservation for longer review periods.
 
-Residual risk: the snapshot sits in the same repository as the archives. The
-independent reviewer's PR #14 comment records the GitHub digests outside the
-repository contents. Inner-file tampering is covered by synthetic unit-test fixtures,
-and the packet's own negative retest covers an altered outer archive.
+The lab owner controls the snapshot, the retained archives and the editable
+[simulated Greg GRC comment](https://github.com/SushiBear21/agentic-security-workflow/pull/14#issuecomment-7056332096).
+A separate human reviewer must capture or hold the source record under their
+own custody. ZIP verification tests address accidental or detectable changes.
+A coordinated rewrite of same-repository inputs remains a residual risk.
+The outer archive retest uses an altered historical copy. Inner-file tampering
+is covered by synthetic unit-test fixtures. ISO-F01 remains open for periodic
+operating evidence, independent custody and closure.
 
 ## Reviewer disposition
 
