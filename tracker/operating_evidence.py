@@ -143,7 +143,7 @@ def run_lab(directory, revision):
     events.append({"kind": "incident_injected", "at": utc_now(), "action": "stop loopback listener"})
     try:
         get(port, "/health")
-    except ConnectionRefusedError as error:
+    except (ConnectionRefusedError, TimeoutError) as error:
         events.append({"kind": "detected", "at": utc_now(), "probe": "GET /health",
                        "error": type(error).__name__})
     else:
@@ -151,7 +151,7 @@ def run_lab(directory, revision):
 
     notifications = Queue()
     owner = "Simulated Tracker Service Operator"
-    message = {"incident": "INC-01", "destination": owner, "reason": "health probe connection refused"}
+    message = {"incident": "INC-01", "destination": owner, "reason": "health probe could not connect"}
     notifications.put(message)
     events.append({"kind": "routed", "at": utc_now(), **message})
     received = notifications.get_nowait()
@@ -202,6 +202,8 @@ def main():
     print("E-02 missing, wrong-revision and same-actor approvals blocked; "
           "matching fixture approval allowed localhost promotion; smoke and preservation passed")
     print(f"E-02 localhost slot started at {report['promotion']['started_at']}")
+    detected = next(row for row in report["monitoring"]["events"] if row["kind"] == "detected")
+    print(f"Health probe failure: {detected['error']}")
     print(f"E-03 {', '.join(events)}; recovery smoke and preservation passed")
     print(f"Checkout {report['revision']}; report SHA-256 {sha256(payload).hexdigest()}")
 
