@@ -2,18 +2,19 @@
 
 Security engineering with explicit boundaries, measurable evaluation, and operational handoff.
 
-These four repositories connect AI-assisted analysis to controlled execution and
-program oversight. Start with the question that matches your review; each project
-links its implementation, evidence, and limitations.
+These five projects cover AI security, cloud response, program delivery, and
+fraud detection. Each project links directly to its README section with the
+objective, success criteria, and evidence.
 
 ## Project summaries
 
-| Project | Problem addressed | Engineering evidence | Boundary |
-| --- | --- | --- | --- |
-| [Secure Enterprise RAG](https://github.com/SushiBear21/secure-enterprise-rag) | Answer document questions without exposing restricted evidence | Identity-derived retrieval filters, pre-model access checks, Terraform, recorded employee/SOC evaluations | Synthetic documents; focused sandbox evaluations |
-| [AI Cyber Threat Intelligence](https://github.com/SushiBear21/ai-cyber-threat-intel) | Turn vulnerability intelligence into explainable analyst priorities | Deterministic KEV/EPSS scoring, provenance, scheduled AWS processing, reviewed report | Synthetic asset rules; AI commentary needs human review |
-| [AWS Security Response](https://github.com/SushiBear21/aws-security-response-lab) | Convert detections into investigated, approved response proposals | Event routing, evidence hashes, payload-bound approval, recorded rollback exercises | Unattached ENI simulation; deployed lab torn down |
-| [Agentic Security & Control Tower](README.md) | Bound agent authority and connect findings to decisions, delivery, and executive reporting | Tool restrictions, exact-payload approvals, dashboards, verified live ECS rollback, and an approved Bedrock holdout release | Synthetic program and AWS sandbox |
+| Project | Problem addressed | Engineering evidence | Boundary  README evidence |
+| --- | --- | --- | --- | --- |
+| [Secure Enterprise RAG](https://github.com/SushiBear21/secure-enterprise-rag) | Answer document questions without exposing restricted evidence | Identity-derived retrieval filters, pre-model access checks, Terraform, recorded employee/SOC evaluations | Synthetic documents; focused sandbox evaluations | [Objective, success criteria, and evidence](https://github.com/SushiBear21/secure-enterprise-rag/blob/main/README.md#objective-success-criteria-and-evidence) |
+| [AI Cyber Threat Intelligence](https://github.com/SushiBear21/ai-cyber-threat-intel) | Turn vulnerability intelligence into explainable analyst priorities | Deterministic KEV/EPSS scoring, provenance, scheduled AWS processing, reviewed report | Synthetic asset rules; AI commentary needs human review | [Objective, success criteria, and evidence](https://github.com/SushiBear21/ai-cyber-threat-intel/blob/main/README.md#objective-success-criteria-and-evidence) |
+| [AWS Security Response](https://github.com/SushiBear21/aws-security-response-lab) | Convert detections into investigated, approved response proposals | Event routing, evidence hashes, payload-bound approval, recorded rollback exercises | Unattached ENI simulation; deployed lab torn down | [Objective, success criteria, and evidence](https://github.com/SushiBear21/aws-security-response-lab/blob/main/README.md#objective-success-criteria-and-evidence) |
+| [Agentic Security & Control Tower](README.md) | Bound agent authority and connect findings to decisions, delivery, and executive reporting | Tool restrictions, exact-payload approvals, dashboards, verified live ECS rollback, and an approved Bedrock holdout release | Synthetic program and AWS sandbox | [Objective, success criteria, and evidence](https://github.com/SushiBear21/agentic-security-workflow/blob/main/README.md#objective-success-criteria-and-evidence) |
+| [Loyalty Fraud Detection Lab](https://github.com/SushiBear21/loyalty-fraud-detection-lab) | Detect simulated account takeover and miles fraud while limiting customer friction | Explainable review queue, time-based evaluation, and measured fraud capture, friction, and analyst precision | Synthetic events and illustrative loss estimates | [Objective, success criteria, and evidence](https://github.com/SushiBear21/loyalty-fraud-detection-lab/blob/main/README.md#objective-success-criteria-and-evidence) |
 
 **Latest result.** The prospective Bedrock holdout passed all six automated checks. All four drafts passed independent human review, and a human approved the exact release manifest after all five gates passed. [Lab release summary](docs/portfolio/customer-deployment.md#approved-bedrock-holdout-lab-release).
 
