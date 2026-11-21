@@ -1,0 +1,38 @@
+name: CMMC Level 2 synthetic lab validation
+on:
+  pull_request:
+    paths:
+      - 'labs/cmmc_level2/**'
+      - 'tests/test_cmmc_level2.py'
+      - '.github/workflows/cmmc-level2-validation.yml'
+  push:
+    branches:
+      - 'feature/cmmc-level2-synthetic-readiness-20261121'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests
+        run: python -m unittest discover -s tests -p 'test_cmmc_level2.py' -v
+      - name: Generate synthetic artifacts
+        run: python -m labs.cmmc_level2.assessment
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+          p = Path('labs/cmmc_level2/generated')
+          for name, expected in [('evidence_tracker.csv',110),('assessment_interviews.csv',110),('asset_inventory.csv',7)]:
+              with (p/name).open() as f:
+                  assert len(list(csv.DictReader(f))) == expected, name
+          assert 'NOT A CMMC ASSESSMENT' in (p/'management_report.md').read_text()
+          assert 'SYNTHETIC TRAINING LAB' in (p/'synthetic_ssp.md').read_text()
+          print('Generated artifact checks passed')
+          PY
