@@ -93,6 +93,20 @@ class MCPIdentityTests(unittest.TestCase):
         self.assertTrue(self.s.handle_jsonrpc(request,now=101)["result"]["isError"])
 
 
+    def test_mcp_jsonrpc_high_impact_paths(self):
+        def call(now, approval=None, args=None):
+            return self.s.handle_jsonrpc({"jsonrpc":"2.0","id":7,"method":"tools/call",
+                "params":{"name":"ticket.create","arguments":args or self.args,
+                          "_meta":{"lab_credential":self.writer,"lab_approval_id":approval}}},now=now)
+        self.assertTrue(call(101)["result"]["isError"])
+        aid=self.s.approve(self.approver,"lab-executor","ticket.create",self.args,now=102)
+        self.assertTrue(call(103,aid,dict(self.args,summary="mutated"))["result"]["isError"])
+        self.assertFalse(call(104,aid)["result"]["isError"])
+        self.assertTrue(call(105,aid)["result"]["isError"])
+        self.assertTrue(call(160,aid)["result"]["isError"])
+        self.assertEqual(len(self.s.tickets()),1)
+
+
 class GovernanceEvidenceTests(unittest.TestCase):
     def test_all_rmf_functions_and_fictional_owners(self):
         self.assertEqual({row["function"] for row in MAPPING},{"GOVERN","MAP","MEASURE","MANAGE"})
