@@ -34,6 +34,7 @@ not clear the blocked AI-quality decision or establish production readiness.
 
 - [AI program-delivery case study](docs/portfolio/ai-program-delivery-case-study.md)
 - [Selected-control FedRAMP readiness exercise](docs/portfolio/fedramp-readiness-lab.md)
+- [Synthetic AWS continuous monitoring](docs/portfolio/aws-conmon-synthetic.md)
 - [Privileged-access simulation](docs/privileged-access-demo.md)
 
 These additions preserve the existing blocked AI-quality decision. They do not
