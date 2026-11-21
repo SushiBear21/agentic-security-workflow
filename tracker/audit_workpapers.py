@@ -12,7 +12,7 @@ from tracker.audit_bundle import REPOSITORY, require, verify_bundle
 EVIDENCE = Path(__file__).resolve().parents[1] / "docs" / "portfolio" / "audit-evidence"
 REQUESTS = (
     ("ER-01", "S2-01 / ISO-02", "Access owner", "Workspace access and review tests",
-     "fulfilled", ("CI",), None),
+     "fulfilled", ("CI", "unit tests"), None),
     ("ER-02", "S2-01 / ISO-02", "Access owner", "Grant, revocation, and periodic access review records",
      "missing", (), "E-01"),
     ("ER-03", "S2-02 / ISO-02", "Release coordinator", "PR traceability, review, and promotion evidence",
@@ -30,21 +30,21 @@ FINDINGS = {
         "root_cause": "Probable design limitation. Demo credentials lack a documented lifecycle.",
         "owner": "Access owner",
         "corrective_action": "Document issuance, revocation, and periodic review and collect the resulting records.",
-        "retest": "Pending. Verify an approved grant, a denied revoked credential, and a dated access review.",
+        "retest": "Passed for LC-01. Approved lab grant, revoked credential denial and dated inventory review.",
     },
     "E-02": {
         "impact": "A technical green gate alone cannot establish independent authorization to promote.",
         "root_cause": "Observed lab scope stops at technical eligibility. A formal promotion record was absent.",
         "owner": "Release coordinator",
         "corrective_action": "Retain the approval and promotion receipt tied to the reviewed revision.",
-        "retest": "Pending. Reconcile an actual lab promotion to its review and approved revision.",
+        "retest": "Passed for PRM-01. Matching fixture approval allowed localhost promotion and preserved the staged record. The release rehearsal has no promotion gate.",
     },
     "E-03": {
         "impact": "A tracker failure outside CI may go unnoticed.",
         "root_cause": "Probable design limitation. The observed monitoring path is tied to CI startup and smoke tests.",
         "owner": "Service operator",
         "corrective_action": "Exercise an alert route with an owner, acknowledgement, and recovery record.",
-        "retest": "Pending. Follow a timestamped lab alert through acknowledgement and resolution.",
+        "retest": "Passed for INC-01. A stopped listener triggered a local alert, simulated acknowledgement and verified same-endpoint recovery.",
     },
     "ISO-F01": {
         "impact": "A reviewer could rely on altered or unreproducible release evidence.",
@@ -52,6 +52,11 @@ FINDINGS = {
         "owner": "Release coordinator",
         "corrective_action": "Retain the original archive and reperform the decisions with the digest-bound verifier.",
         "retest": "Passed in the lab. Original archives reperform and a deliberately altered copy is rejected.",
+        "retest_record": "Agent security tests runs 44343910025 (fix commit c4aee81) and 44773783571 (packet artifact).",
+        "retention": "Release coordinator role, held by the lab owner. Snapshot GitHub metadata before each artifact expiry "
+                     "and rerun the packet monthly. The first source check is recorded; periodic evidence is pending.",
+        "residual_risk": "The lab owner controls the snapshot, archives and editable simulated PR #14 "
+                         "comment. Independent custody of the source metadata is pending.",
     },
 }
 
@@ -90,12 +95,32 @@ def verify_samples(evidence, population):
     return observations
 
 
+def verify_snapshot(population, snapshot):
+    """Reconcile the sample population with GitHub API metadata captured before artifact expiry."""
+    retrieved = datetime.fromisoformat(snapshot["retrieved_at"])
+    require(retrieved.utcoffset() is not None, "Snapshot timestamp requires a timezone")
+    require(snapshot["retrieved_from"] == f"https://api.github.com/repos/{REPOSITORY}", "Unexpected snapshot source")
+    captured = {item["sample_id"]: item for item in snapshot["artifacts"]}
+    require(set(captured) == {sample["sample_id"] for sample in population["samples"]},
+            "Snapshot does not cover the sample population")
+    for sample in population["samples"]:
+        source, item = sample["source"], captured[sample["sample_id"]]
+        require((item["artifact_id"], item["digest"], item["run_id"], item["head_sha"]) ==
+                (source["artifact_id"], source["artifact_sha256"], source["run_id"], source["head_sha"]),
+                "Population differs from captured GitHub metadata")
+        require(retrieved < datetime.fromisoformat(item["expires_at"]), "Snapshot captured after artifact expiry")
+    require(all(run["conclusion"] == "success" for run in snapshot["runs"]), "Captured run did not succeed")
+    return {"retrieved_at": snapshot["retrieved_at"], "artifacts_reconciled": sorted(captured),
+            "retest_runs": [run["id"] for run in snapshot["runs"] if run["name"] == "Agent security tests"]}
+
+
 def build_packet(evidence=EVIDENCE):
     population = json.loads((evidence / "tracker-audit-population.json").read_bytes())
     require(not any(population[key] for key in ("observed_release_ids", "observed_deployment_ids", "observed_git_tags"))
             and not any(population["observed_pr_reviews"].values()),
             "Promotion or review history changed and needs new workpaper conclusions")
     samples = verify_samples(evidence, population)
+    snapshot = verify_snapshot(population, json.loads((evidence / "github-api-snapshot.json").read_bytes()))
 
     # Reuse the same verifier in the ISO negative retest, keeping the historical files intact.
     first = samples[0]
@@ -114,7 +139,8 @@ def build_packet(evidence=EVIDENCE):
         "PRs": [f"https://github.com/{REPOSITORY}/pull/{pr}"
                 for pr in sorted({sample['observation']['source']['pull_request'] for sample in samples})],
         "inventory": [population[key] for key in ("release_inventory_url", "deployment_inventory_url", "tag_inventory_url")],
-        "retention": ["ISO-F01 retest"],
+        "retention": ["ISO-F01 retest", "github-api-snapshot.json", "iso-f01-first-source-check.json"],
+        "unit tests": ["tests/test_tracker.py"],
     }
     requests = [
         {"id": key, "workpaper": reference, "requested_evidence": description, "status": status,
@@ -136,7 +162,12 @@ def build_packet(evidence=EVIDENCE):
         "period": population["period"],
         "population": {"ci_rehearsals": len(samples), "tagged_releases": 0, "deployments": 0,
                        "formal_reviews_on_sampled_prs": 0},
-        "samples": samples, "evidence_requests": requests, "sample_workpapers": workpapers,
+        "samples": samples, "github_snapshot": snapshot, "evidence_requests": requests, "sample_workpapers": workpapers,
+        "supplemental_retest": {"scope": "Later loopback lab outside the historical sample window",
+                                "findings": ["E-01", "E-02", "E-03"],
+                                "procedure": "tracker.operating_evidence",
+                                "ci_artifact": "tracker-operating-evidence",
+                                "initial_run": 44918588292, "initial_artifact": 14712951358},
         "findings": {key: {**value, "closure": "pending"} for key, value in FINDINGS.items()},
         "reviewer_disposition": {"reviewer": None, "independence_confirmed": None, "date": None,
                                  "decision": "pending", "owner_acceptance": "pending"},

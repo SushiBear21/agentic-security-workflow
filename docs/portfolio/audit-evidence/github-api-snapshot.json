@@ -1,0 +1,106 @@
+{
+  "retrieved_at": "2026-11-21T03:06:56Z",
+  "retrieved_from": "https://api.github.com/repos/SushiBear21/agentic-security-workflow",
+  "purpose": "ISO-F01 retention anchor: GitHub-reported artifact digests and run metadata captured before the source artifacts expire.",
+  "artifacts": [
+    {
+      "sample_id": "CI-01",
+      "artifact_id": 14403252146,
+      "name": "tracker-release-and-assessment",
+      "digest": "sha256:766158c8d0b740190c3db1b172c8a70ec90e70ecdab212f8cae723e8ac9c9adf",
+      "size_in_bytes": 22805,
+      "created_at": "2026-11-18T06:14:08Z",
+      "expires_at": "2026-12-18T06:14:07Z",
+      "run_id": 44249673451,
+      "head_sha": "9eeacafdf39bad4c72b4a486062a146f95d74126"
+    },
+    {
+      "sample_id": "CI-02",
+      "artifact_id": 14443699457,
+      "name": "tracker-release-and-assessment",
+      "digest": "sha256:dcb684c19d98264261e596c680c2b49215579e17df2e455315fb2b0e3362cf63",
+      "size_in_bytes": 23669,
+      "created_at": "2026-11-18T16:10:42Z",
+      "expires_at": "2026-12-18T16:10:41Z",
+      "run_id": 44343819472,
+      "head_sha": "0f3bfce1311700255a5f58da53addea258bdd90c"
+    },
+    {
+      "sample_id": "CI-03",
+      "artifact_id": 14445152102,
+      "name": "tracker-release-and-assessment",
+      "digest": "sha256:066dc95658ba35db1920a11e5d3fdfc2afe30f9a16ed54ac75641ea8dff08c25",
+      "size_in_bytes": 22823,
+      "created_at": "2026-11-18T16:11:45Z",
+      "expires_at": "2026-12-18T16:11:44Z",
+      "run_id": 44343909793,
+      "head_sha": "c4aee81bf89cff63a1048a4c6db990fc1ef454b8"
+    }
+  ],
+  "runs": [
+    {
+      "id": 44249673451,
+      "name": "Evidence tracker release rehearsal",
+      "path": ".github/workflows/evidence-tracker.yml",
+      "event": "pull_request",
+      "head_branch": "portfolio/evidence-tracker-devsecops-cmmc",
+      "head_sha": "9eeacafdf39bad4c72b4a486062a146f95d74126",
+      "conclusion": "success",
+      "created_at": "2026-11-18T06:12:46Z",
+      "run_attempt": 1
+    },
+    {
+      "id": 44343819472,
+      "name": "Evidence tracker release rehearsal",
+      "path": ".github/workflows/evidence-tracker.yml",
+      "event": "pull_request",
+      "head_branch": "portfolio/tracker-soc2-iso27001",
+      "head_sha": "0f3bfce1311700255a5f58da53addea258bdd90c",
+      "conclusion": "success",
+      "created_at": "2026-11-18T16:08:59Z",
+      "run_attempt": 1
+    },
+    {
+      "id": 44343909793,
+      "name": "Evidence tracker release rehearsal",
+      "path": ".github/workflows/evidence-tracker.yml",
+      "event": "pull_request",
+      "head_branch": "portfolio/tracker-soc2-iso27001",
+      "head_sha": "c4aee81bf89cff63a1048a4c6db990fc1ef454b8",
+      "conclusion": "success",
+      "created_at": "2026-11-18T16:09:29Z",
+      "run_attempt": 1
+    },
+    {
+      "id": 44343910025,
+      "name": "Agent security tests",
+      "path": ".github/workflows/tests.yml",
+      "event": "pull_request",
+      "head_branch": "portfolio/tracker-soc2-iso27001",
+      "head_sha": "c4aee81bf89cff63a1048a4c6db990fc1ef454b8",
+      "conclusion": "success",
+      "created_at": "2026-11-18T16:09:29Z",
+      "run_attempt": 1
+    },
+    {
+      "id": 44773783571,
+      "name": "Agent security tests",
+      "path": ".github/workflows/tests.yml",
+      "event": "pull_request",
+      "head_branch": "portfolio/tracker-soc2-iso27001",
+      "head_sha": "0a8f09fb7a255ef925b47c4c8d1aa0ccbeca0320",
+      "conclusion": "success",
+      "created_at": "2026-11-20T16:28:44Z",
+      "run_attempt": 1
+    }
+  ],
+  "retest_packet_artifacts": [
+    {
+      "id": 14647559820,
+      "name": "tracker-audit-packet",
+      "digest": "sha256:791544dcec900acd2b2b01293478937a625e28ccb5f237268862ab0a0694a684",
+      "created_at": "2026-11-20T16:28:58Z",
+      "expires_at": "2026-12-04T16:28:57Z"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import json
 from copy import deepcopy
 from unittest import TestCase
 
-from tracker.audit_workpapers import EVIDENCE, build_packet, verify_samples
+from tracker.audit_workpapers import EVIDENCE, build_packet, verify_samples, verify_snapshot
 
 
 class TrackerAuditWorkpapersTests(TestCase):
@@ -22,7 +22,7 @@ class TrackerAuditWorkpapersTests(TestCase):
     def test_evidence_request_paths_and_closure_are_explicit(self):
         packet = build_packet()
         requests = {item["id"]: item for item in packet["evidence_requests"]}
-        self.assertEqual(("fulfilled", ["CI-01", "CI-02", "CI-03"]), (
+        self.assertEqual(("fulfilled", ["CI-01", "CI-02", "CI-03", "tests/test_tracker.py"]), (
             requests["ER-01"]["status"], requests["ER-01"]["sources"],
         ))
         self.assertEqual(("missing", "E-01"), (requests["ER-02"]["status"], requests["ER-02"]["finding"]))
@@ -42,3 +42,18 @@ class TrackerAuditWorkpapersTests(TestCase):
         population["samples"][0]["run_created_at"] = "2026-11-17T15:00:00Z"
         with self.assertRaisesRegex(ValueError, "outside observation window"):
             verify_samples(EVIDENCE, population)
+
+    def test_github_snapshot_anchors_population_before_expiry(self):
+        packet = build_packet()
+        self.assertEqual(["CI-01", "CI-02", "CI-03"], packet["github_snapshot"]["artifacts_reconciled"])
+        self.assertIn(44343910025, packet["github_snapshot"]["retest_runs"])
+        population = json.loads((EVIDENCE / "tracker-audit-population.json").read_bytes())
+        snapshot = json.loads((EVIDENCE / "github-api-snapshot.json").read_bytes())
+        altered = deepcopy(population)
+        altered["samples"][0]["source"]["artifact_sha256"] = "sha256:" + "0" * 64
+        with self.assertRaisesRegex(ValueError, "captured GitHub metadata"):
+            verify_snapshot(altered, snapshot)
+        late = deepcopy(snapshot)
+        late["retrieved_at"] = "2026-12-19T00:00:00Z"
+        with self.assertRaisesRegex(ValueError, "after artifact expiry"):
+            verify_snapshot(population, late)

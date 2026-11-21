@@ -36,8 +36,14 @@ jobs:
       - name: Run security tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
+      - name: Exercise tracker operating controls
+        run: python -m tracker.operating_evidence --output tracker-operating-evidence.json
+
       - name: Reperform tracker audit evidence
         run: python -m tracker.audit_workpapers --output tracker-audit-packet.json
+
+      - name: Evaluate simulated SaaS audit period
+        run: python -m tracker.saas_audit --output saas-audit-packet.json
 
       - name: Retain tracker audit packet
         uses: actions/upload-artifact@v4
@@ -46,3 +52,35 @@ jobs:
           path: tracker-audit-packet.json
           if-no-files-found: error
           retention-days: 14
+
+      - name: Retain simulated SaaS audit packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: saas-audit-packet
+          path: saas-audit-packet.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Retain tracker operating evidence
+        id: operating-evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tracker-operating-evidence
+          path: tracker-operating-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Download the uploaded receipt for verification
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ steps.operating-evidence.outputs.artifact-id }}
+          path: downloaded-operating-evidence
+          merge-multiple: true
+
+      - name: Verify downloaded bytes and publish a text copy
+        run: |
+          cmp tracker-operating-evidence.json downloaded-operating-evidence/tracker-operating-evidence.json
+          sha256sum downloaded-operating-evidence/tracker-operating-evidence.json
+          echo 'TRACKER_RECEIPT_BASE64_BEGIN'
+          base64 -w 120 downloaded-operating-evidence/tracker-operating-evidence.json
+          echo 'TRACKER_RECEIPT_BASE64_END'

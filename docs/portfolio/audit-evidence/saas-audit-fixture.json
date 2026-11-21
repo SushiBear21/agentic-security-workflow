@@ -1,0 +1,80 @@
+{
+  "classification": "simulated commercial AWS readiness exercise",
+  "period": {
+    "start": "2026-11-01",
+    "end": "2026-11-20"
+  },
+  "monitoring_source": {
+    "revision": "3a5e276bfe064f14ae0e4b32b2173d1a4f00d850",
+    "path": "tests/fixtures/conmon-aws-v1.json",
+    "blob_sha": "42316d79c382027e52af1f9abbee3f2caa14dde8"
+  },
+  "product_a_role_changes": [
+    {
+      "id": "A-01",
+      "date": "2026-11-10",
+      "action": "grant",
+      "approved": true,
+      "expected_access": true,
+      "observed_access": true
+    },
+    {
+      "id": "A-02",
+      "date": "2026-11-12",
+      "action": "revoke",
+      "approved": true,
+      "expected_access": false,
+      "observed_access": false
+    }
+  ],
+  "conmon_asset_observations": [
+    {
+      "id": "SYN-S3",
+      "component": "S3 evidence bucket",
+      "owner": "Evidence Operations",
+      "last_observed": "2026-11-18",
+      "provider": "AWS"
+    },
+    {
+      "id": "SYN-DDB",
+      "component": "DynamoDB inventory table",
+      "owner": "Platform Operations",
+      "last_observed": "2026-10-15",
+      "provider": "AWS"
+    },
+    {
+      "id": "SYN-ECR",
+      "component": "ECR demonstration image",
+      "owner": "Image Operations",
+      "last_observed": null,
+      "provider": "AWS"
+    }
+  ],
+  "conmon_logging_observation": "unverified",
+  "conmon_remediation": {
+    "id": "SYN-003",
+    "asset_id": "SYN-DDB",
+    "control": "SI-2",
+    "severity": "moderate",
+    "status": "closed",
+    "discovered": "2026-10-03",
+    "summary": "Mock remediation confirmation was absent before correction",
+    "remediation": "Record the simulated remediation confirmation and repeat the same check.",
+    "owner": "Platform Operations",
+    "source": "synthetic demonstration fixture",
+    "closed_at": "2026-11-06",
+    "closure_reference": "SYN-003-RETEST",
+    "retest": {
+      "before": {
+        "id": "SYN-003-BEFORE",
+        "observed_at": "2026-10-03T14:00:00Z",
+        "remediation_confirmed": false
+      },
+      "after": {
+        "id": "SYN-003-RETEST",
+        "observed_at": "2026-11-06T14:00:00Z",
+        "remediation_confirmed": true
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "checked_at_utc": "2026-11-21T15:04Z",
+  "method": "GitHub Actions run-artifacts API, compared with the committed tracker population. Preparer execution.",
+  "scope": "Live source metadata comparison only. The retention workflow separately re-hashes and reperforms the retained ZIPs.",
+  "samples": [
+    {
+      "sample_id": "CI-01",
+      "api_url": "https://api.github.com/repos/SushiBear21/agentic-security-workflow/actions/artifacts/14403252146",
+      "artifact_id": 14403252146,
+      "run_id": 44249673451,
+      "head_sha": "9eeacafdf39bad4c72b4a486062a146f95d74126",
+      "digest": "sha256:766158c8d0b740190c3db1b172c8a70ec90e70ecdab212f8cae723e8ac9c9adf",
+      "expires_at": "2026-12-18T06:14:07Z",
+      "expired": false,
+      "result": "matches captured population"
+    },
+    {
+      "sample_id": "CI-02",
+      "api_url": "https://api.github.com/repos/SushiBear21/agentic-security-workflow/actions/artifacts/14443699457",
+      "artifact_id": 14443699457,
+      "run_id": 44343819472,
+      "head_sha": "0f3bfce1311700255a5f58da53addea258bdd90c",
+      "digest": "sha256:dcb684c19d98264261e596c680c2b49215579e17df2e455315fb2b0e3362cf63",
+      "expires_at": "2026-12-18T16:10:41Z",
+      "expired": false,
+      "result": "matches captured population"
+    },
+    {
+      "sample_id": "CI-03",
+      "api_url": "https://api.github.com/repos/SushiBear21/agentic-security-workflow/actions/artifacts/14445152102",
+      "artifact_id": 14445152102,
+      "run_id": 44343909793,
+      "head_sha": "c4aee81bf89cff63a1048a4c6db990fc1ef454b8",
+      "digest": "sha256:066dc95658ba35db1920a11e5d3fdfc2afe30f9a16ed54ac75641ea8dff08c25",
+      "expires_at": "2026-12-18T16:11:44Z",
+      "expired": false,
+      "result": "matches captured population"
+    }
+  ],
+  "periodic_operation": "pending",
+  "independent_custody": "pending"
+}
