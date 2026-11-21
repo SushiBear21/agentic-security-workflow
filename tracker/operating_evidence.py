@@ -77,7 +77,7 @@ def run_lab(directory, revision):
     credentials = directory / "credentials.json"
     contributor = {"workspace": "Trackerauditlab", "name": "LabContributor",
                    "role": "contributor", "token": token_hex(32)}
-    reviewer = {"workspace": "tracker-audit-lab", "name": "LabEvidenceReviewer",
+    reviewer = {"workspace": contributor["workspace"], "name": "LabEvidenceReviewer",
                 "role": "reviewer", "token": token_hex(32)}
     access = {"request": "ER-02", "finding": "E-01", "sample_population": 1,
               "grant": {"actor": "Simulated Access Owner", "at": utc_now(),
