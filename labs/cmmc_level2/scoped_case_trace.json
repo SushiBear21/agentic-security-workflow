@@ -1,0 +1,13 @@
+{
+  "objective_id": "3.4.3[c]",
+  "finding_id": "F-001",
+  "source_pr": "https://github.com/SushiBear21/agentic-security-workflow/pull/13",
+  "source_commit": "9eeacafdf39bad4c72b4a486062a146f95d74126",
+  "source_file": "https://github.com/SushiBear21/agentic-security-workflow/blob/9eeacafdf39bad4c72b4a486062a146f95d74126/tracker/assessment.py",
+  "source_ci_run": "https://github.com/SushiBear21/agentic-security-workflow/actions/runs/44249673451",
+  "synthetic_observation": "Fictional change had missing approver; candidate-bound reviewer fixture retest passed; altered candidate was blocked.",
+  "evidence_category": "cross-project-fixture-example-not-contractor-control",
+  "assessment_outcome": "NOT_EVALUATED",
+  "assessor_review": "none",
+  "caveat": "Only requirement 3.4.3 objective [c] is illustrated; this is not tested within PR #26 and does not satisfy 3.4.3 [a], [b], [d], any other requirement, or CMMC assessment."
+}

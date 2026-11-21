@@ -36,3 +36,10 @@ jobs:
           assert 'SYNTHETIC TRAINING LAB' in (p/'synthetic_ssp.md').read_text()
           print('Generated artifact checks passed')
           PY
+      - name: Retain training-only assessment evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-cmmc-level2-objective-audit
+          path: labs/cmmc_level2/generated/
+          if-no-files-found: error
+          retention-days: 14
