@@ -12,6 +12,7 @@ import hashlib
 import hmac
 import json
 import math
+import re
 import secrets
 import sys
 import time
@@ -101,11 +102,13 @@ class MCPIdentityLab:
         except (TypeError, ValueError, KeyError, UnicodeError, OverflowError, binascii.Error) as exc:
             raise AccessError("invalid credential") from None
 
-    def _log(self, actor, tool, decision, approval_id=None, result=None, request_hash=None):
+    def _log(self, actor, tool, decision, approval_id=None, result=None, request_hash=None, at=None):
         self._sequence += 1
-        self._audit.append({"seq": self._sequence, "synthetic": True, "actor": actor, "tool": tool,
-                            "authorization_decision": decision, "approval_id": approval_id,
-                            "request_sha256": request_hash, "result": result})
+        safe_approval = approval_id if isinstance(approval_id,str) and re.fullmatch(r"APP-[a-f0-9]{12}", approval_id) else None
+        safe_tool = tool if tool in TOOL_PERMISSIONS else "UNKNOWN_TOOL"
+        self._audit.append({"seq": self._sequence, "synthetic": True, "actor": actor, "tool": safe_tool,
+                            "authorization_decision": decision, "approval_id": safe_approval,
+                            "request_sha256": request_hash, "result": result, "at": at})
 
     @staticmethod
     def _validate(tool, args):
@@ -145,7 +148,7 @@ class MCPIdentityLab:
             ident = "APP-" + secrets.token_hex(6)
             self._approvals[ident] = {"actor": actor, "approver": who, "tool": tool,
                                       "request_sha256": h, "expires": now + ttl_seconds, "used": False}
-            self._log(who, tool, "APPROVED_OUT_OF_BAND", ident, "recorded", h)
+            self._log(who, tool, "APPROVED_OUT_OF_BAND", ident, "recorded", h, at=now)
             return ident
 
     def call_tool(self, tool, args, credential, approval_id=None, now=None):
@@ -174,11 +177,11 @@ class MCPIdentityLab:
                     result = deepcopy(self._tickets[rid])
                 else:
                     result = deepcopy(FIXTURES[args["evidence_id"]])
-                self._log(actor, tool, "ALLOW", approval_id if policy["approval"] else None, "SUCCESS", h)
+                self._log(actor, tool, "ALLOW", approval_id if policy["approval"] else None, "SUCCESS", h, at=now)
                 return result
             except AccessError as exc:
                 self._log(actor, str(tool)[:80], "DENY", approval_id if isinstance(approval_id,str) else None,
-                          str(exc), h)
+                          str(exc), h, at=now)
                 raise
 
     def audit(self):
