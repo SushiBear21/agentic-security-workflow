@@ -1,0 +1,86 @@
+{
+  "synthetic": true,
+  "name": "Alder Defense Systems — FICTIONAL",
+  "boundary": "Fictional AWS enclave holding dummy technical drawings; no actual CUI or deployed systems",
+  "assets": [
+    {
+      "id": "A1",
+      "name": "Fictional engineering workstation",
+      "category": "CUI Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A2",
+      "name": "Fictional S3 document store",
+      "category": "CUI Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A3",
+      "name": "Fictional security monitoring",
+      "category": "Security Protection Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A4",
+      "name": "Fictional KMS",
+      "category": "Security Protection Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A5",
+      "name": "Fictional developer laptop",
+      "category": "Contractor Risk Managed Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A6",
+      "name": "Fictional lab equipment",
+      "category": "Specialized Asset",
+      "in_scope": true
+    },
+    {
+      "id": "A7",
+      "name": "Fictional public marketing site",
+      "category": "Out-of-Scope Asset",
+      "in_scope": false
+    }
+  ],
+  "observations": [
+    {
+      "id": "3.1.4",
+      "result": "NOT_MET",
+      "reason": "Role separation absent"
+    },
+    {
+      "id": "3.4.1",
+      "result": "NOT_MET",
+      "reason": "Missing baseline"
+    },
+    {
+      "id": "3.5.3",
+      "result": "NOT_MET",
+      "reason": "Incomplete MFA"
+    },
+    {
+      "id": "3.8.3",
+      "result": "NOT_MET",
+      "reason": "No media sanitization records"
+    },
+    {
+      "id": "3.13.11",
+      "result": "NOT_MET",
+      "reason": "FIPS validation unverified"
+    },
+    {
+      "id": "3.14.1",
+      "result": "NOT_MET",
+      "reason": "Unremediated simulated vulnerability"
+    },
+    {
+      "id": "3.13.5",
+      "result": "N/A",
+      "reason": "No public-facing asset within enclave; requires assessor verification"
+    }
+  ]
+}
