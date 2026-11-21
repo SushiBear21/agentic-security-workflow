@@ -16,7 +16,7 @@ MAPPING = [
     {"function": "GOVERN", "subcategory": "GOVERN 1.1", "artifact": "system_card.json", "control": "Document obligations and scope"},
     {"function": "GOVERN", "subcategory": "GOVERN 1.3", "artifact": "evaluation_criteria.json", "control": "Declare release thresholds"},
     {"function": "GOVERN", "subcategory": "GOVERN 1.4", "artifact": "risk_register.json", "control": "Assign risks and mitigations"},
-    {"function": "GOVERN", "subcategory": "GOVERN 2.2", "artifact": "approval_decision.json", "control": "Separate reviewer and approver"},
+    {"function": "GOVERN", "subcategory": "GOVERN 2.1", "artifact": "approval_decision.json", "control": "Separate reviewer and approver"},
     {"function": "MAP", "subcategory": "MAP 1.1", "artifact": "system_card.json", "control": "Intended use and boundaries"},
     {"function": "MAP", "subcategory": "MAP 2.1", "artifact": "risk_register.json", "control": "Threat inventory"},
     {"function": "MAP", "subcategory": "MAP 5.1", "artifact": "system_card.json", "control": "Stakeholders and limitations"},
