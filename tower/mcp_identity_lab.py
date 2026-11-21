@@ -105,7 +105,7 @@ class MCPIdentityLab:
     def _log(self, actor, tool, decision, approval_id=None, result=None, request_hash=None, at=None):
         self._sequence += 1
         safe_approval = approval_id if isinstance(approval_id,str) and re.fullmatch(r"APP-[a-f0-9]{12}", approval_id) else None
-        safe_tool = tool if tool in TOOL_PERMISSIONS else "UNKNOWN_TOOL"
+        safe_tool = tool if isinstance(tool,str) and tool in TOOL_PERMISSIONS else "UNKNOWN_TOOL"
         self._audit.append({"seq": self._sequence, "synthetic": True, "actor": actor, "tool": safe_tool,
                             "authorization_decision": decision, "approval_id": safe_approval,
                             "request_sha256": request_hash, "result": result, "at": at})
@@ -115,14 +115,14 @@ class MCPIdentityLab:
         if not isinstance(args, dict):
             raise AccessError("tool arguments must be an object")
         if tool == "evidence.read":
-            if set(args) != {"evidence_id"} or args["evidence_id"] not in FIXTURES:
+            if set(args) != {"evidence_id"} or not isinstance(args["evidence_id"],str) or args["evidence_id"] not in FIXTURES:
                 raise AccessError("evidence access outside allowlist")
         elif tool == "ticket.create":
             if set(args) != {"request_id", "finding_id", "summary"}:
                 raise AccessError("exact ticket schema required")
             if (not isinstance(args["request_id"], str) or
                 not args["request_id"].startswith("REQ-") or len(args["request_id"]) > 50 or
-                args["finding_id"] not in FIXTURES or
+                not isinstance(args["finding_id"],str) or args["finding_id"] not in FIXTURES or
                 not isinstance(args["summary"], str) or
                 not 1 <= len(args["summary"]) <= 120):
                 raise AccessError("ticket content outside fixture policy")
@@ -158,7 +158,7 @@ class MCPIdentityLab:
             h = None
             try:
                 actor, scopes = self._identity(credential, now)
-                policy = TOOL_PERMISSIONS.get(tool)
+                policy = TOOL_PERMISSIONS.get(tool) if isinstance(tool,str) else None
                 if policy is None or PRINCIPALS[actor] not in policy["roles"] or policy["scope"] not in scopes:
                     raise AccessError("server-side tool permission denied")
                 self._validate(tool, args)
