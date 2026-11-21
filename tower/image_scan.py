@@ -7,7 +7,7 @@ DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 MAX_AGE = timedelta(hours=24)
 
 
-def evaluate(raw, image_id, now):
+def evaluate(raw, image_id, now, *, require_language=True):
     try:
         report = json.loads(raw)
         scanned_at = datetime.fromisoformat(report["CreatedAt"])
@@ -21,7 +21,7 @@ def evaluate(raw, image_id, now):
             raise ValueError("Scan timestamp is outside the accepted window")
         if not isinstance(results, list) or not any(row["Class"] == "os-pkgs" for row in results):
             raise ValueError("OS package coverage is required")
-        if not any(row["Class"] == "lang-pkgs" for row in results):
+        if require_language and not any(row["Class"] == "lang-pkgs" for row in results):
             raise ValueError("Language package coverage is required")
         findings = [
             item for row in results for item in row.get("Vulnerabilities", [])

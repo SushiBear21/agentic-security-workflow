@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evidence Tracker</title>
+  <link rel="stylesheet" href="/tracker.css">
+  <script src="/tracker.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div><h1>Evidence Tracker</h1><p>Submit, review, and export synthetic security evidence.</p></div>
+      <button type="button" id="sign-out" hidden>Sign out</button>
+    </header>
+    <form id="sign-in" class="panel">
+      <label for="token">Workspace token</label>
+      <div class="actions"><input id="token" type="password" required autocomplete="off"><button>Open workspace</button></div>
+    </form>
+    <p id="status" role="status"></p>
+    <section id="workspace" hidden>
+      <div class="workspace-heading"><h2 id="workspace-name"></h2><button type="button" id="export" hidden>Export audit history</button></div>
+      <form id="submission" class="panel" hidden>
+        <h3>Submit evidence</h3>
+        <label for="title">Title</label><input id="title" required maxlength="100">
+        <label for="note">Evidence note</label><textarea id="note" required maxlength="2000" rows="4"></textarea>
+        <button>Submit for review</button>
+      </form>
+      <h3>Evidence records</h3>
+      <div id="records"></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,111 @@
+name: Evidence tracker release rehearsal
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      IMAGE: portfolio-evidence-tracker
+      GH_PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run tracker controls
+        run: |
+          python -m unittest discover -s tests -p test_tracker.py -v
+          node --check tracker/tracker.js
+          mkdir -p evidence
+      - name: Prepare Chromium acceptance checks
+        run: |
+          npm install --prefix "$RUNNER_TEMP/tracker-browser" --no-save playwright@1.62.1
+          "$RUNNER_TEMP/tracker-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Build the exact source revision
+        run: docker build -f Dockerfile.tracker -t "$IMAGE:$GITHUB_SHA" .
+      - name: Build CycloneDX SBOM
+        uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: portfolio-evidence-tracker:${{ github.sha }}
+          format: cyclonedx
+          output: evidence/tracker-sbom.json
+          scanners: vuln
+      - name: Scan container and retain findings
+        env:
+          TRIVY_LIST_ALL_PKGS: "true"
+        uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec
+        with:
+          version: v0.76.2
+          image-ref: portfolio-evidence-tracker:${{ github.sha }}
+          format: json
+          output: evidence/tracker-scan.json
+          scanners: vuln
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: "false"
+          exit-code: "0"
+      - name: Verify accepted, blocked, and restored runtime
+        shell: bash
+        run: |
+          work=$(mktemp -d)
+          cleanup() { docker rm -f tracker-smoke >/dev/null 2>&1 || true; rm -rf "$work"; }
+          trap cleanup EXIT
+          python -m tracker.server --db "$work/local.sqlite" --credentials "$work/credentials.json" --init-demo-credentials
+          chmod 644 "$work/credentials.json"
+          mkdir "$work/state"
+          chmod 777 "$work/state"
+          image="$IMAGE:$GITHUB_SHA"
+          smoke() {
+            for attempt in $(seq 1 20); do
+              if curl --silent --fail http://127.0.0.1:8090/health >/dev/null; then break; fi
+              sleep 1
+            done
+            stage="$1"
+            shift
+            python -m tracker.smoke --credentials "$work/credentials.json" --output "evidence/$stage.json" "$@"
+          }
+          start() {
+            docker run -d --name tracker-smoke --read-only --cap-drop ALL --security-opt no-new-privileges \
+              --mount "type=bind,src=$work/state,dst=/state" \
+              --mount "type=bind,src=$work/credentials.json,dst=/credentials.json,readonly" \
+              -p 127.0.0.1:8090:8090 "$image" --db /state/tracker.db --credentials "$1"
+          }
+          start /credentials.json
+          smoke baseline
+          TRACKER_PLAYWRIGHT="$RUNNER_TEMP/tracker-browser/node_modules/playwright" node tests/tracker-browser.cjs "$work/credentials.json" evidence/browser.json
+          docker rm -f tracker-smoke
+          start /missing-credentials.json
+          test "$(timeout 30s docker wait tracker-smoke)" = 1
+          docker logs tracker-smoke 2>&1 | grep -F 'FileNotFoundError'
+          status=0
+          python -m tracker.smoke --credentials "$work/credentials.json" --output evidence/candidate.json || status=$?
+          test "$status" = 1
+          docker rm tracker-smoke
+          start /credentials.json
+          smoke recovery --baseline evidence/baseline.json
+          image_id=$(docker image inspect --format '{{.Id}}' "$image")
+          pr=()
+          if [[ -n "$GH_PR" ]]; then pr=(--pull-request "$GH_PR"); fi
+          python -m tracker.release --revision "$GITHUB_SHA" --image-id "$image_id" "${pr[@]}" \
+            --scan evidence/tracker-scan.json --sbom evidence/tracker-sbom.json --browser evidence/browser.json \
+            --baseline evidence/baseline.json --candidate evidence/candidate.json --recovery evidence/recovery.json \
+            --output evidence/tracker-release.json
+      - name: Generate the CMMC exercise
+        if: ${{ !cancelled() }}
+        run: python -m tracker.assessment --output evidence/cmmc-exercise.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: tracker-release-and-assessment
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
