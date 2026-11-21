@@ -89,10 +89,16 @@ jobs:
         run: |
           mkdir -p build
           python -m pip_audit -r requirements.txt -f json -o build/pip-audit.json
+      - name: Static scan new Python modules with Bandit
+        run: |
+          python -m pip install --disable-pip-version-check bandit
+          bandit -r tower/ai_governance_evidence.py tower/mcp_identity_lab.py -f json -o build/bandit.json
       - name: Retain unmodified vulnerability scanner results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: synthetic-ai-governance-dependency-audit
-          path: build/pip-audit.json
+          path: |
+            build/pip-audit.json
+            build/bandit.json
           if-no-files-found: warn
