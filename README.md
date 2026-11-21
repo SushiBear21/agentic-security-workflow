@@ -9,6 +9,7 @@ Start with the [portfolio overview](PORTFOLIO.md) for all five projects or the
 
 | Explore | Evidence |
 | --- | --- |
+| Synthetic AI governance + defensive MCP identity | [NIST AI RMF evidence and release NO_GO](docs/portfolio/ai-governance-evidence-package.md) · [local MCP authorization and approval lab](docs/portfolio/mcp-identity-authorization-exercise.md) |
 | Security program delivery | [Control Tower](docs/control-tower.md) and [delivery case study](docs/portfolio/ai-program-delivery-case-study.md) |
 | Deployment engineering | [Container, approval and rollback workflow](docs/portfolio/deployment-automation.md) |
 | Federal control evidence | [Synthetic SSP](docs/portfolio/synthetic-ssp.md), [POA&M](docs/portfolio/poam.json), [monitoring](docs/portfolio/continuous-monitoring.md) |

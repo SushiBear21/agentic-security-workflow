@@ -1,0 +1,104 @@
+name: Synthetic AI governance and defensive MCP identity tests
+
+on:
+  push:
+    branches:
+      - feature/synthetic-ai-governance-mcp-20261121
+    paths:
+      - 'tower/ai_governance_evidence.py'
+      - 'tower/mcp_identity_lab.py'
+      - 'tests/test_ai_governance_mcp_lab.py'
+      - 'docs/portfolio/ai-governance-evidence-package.md'
+      - 'docs/portfolio/mcp-identity-authorization-exercise.md'
+      - '.github/workflows/ai-governance-mcp.yml'
+  pull_request:
+    paths:
+      - 'tower/ai_governance_evidence.py'
+      - 'tower/mcp_identity_lab.py'
+      - 'tests/test_ai_governance_mcp_lab.py'
+      - 'docs/portfolio/ai-governance-evidence-package.md'
+      - 'docs/portfolio/mcp-identity-authorization-exercise.md'
+      - '.github/workflows/ai-governance-mcp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile new code
+        run: python -m compileall -q tower/ai_governance_evidence.py tower/mcp_identity_lab.py tests/test_ai_governance_mcp_lab.py
+      - name: Run dedicated defensive lab tests
+        run: python -m unittest discover -s tests -p 'test_ai_governance_mcp_lab.py' -v
+      - name: Generate new evidence folder and verify content
+        run: |
+          python -m tower.ai_governance_evidence --output build/ai-governance-evidence
+          python -m tower.mcp_identity_lab --output build/mcp-demo.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          folder=Path('build/ai-governance-evidence')
+          manifest=json.loads((folder/'evidence_manifest.json').read_text())
+          assert manifest['artifact_count']==10
+          for item in manifest['artifacts']:
+              assert hashlib.sha256((folder/item['file']).read_bytes()).hexdigest()==item['sha256']
+          result=json.loads((folder/'release_decision.json').read_text())
+          assert result['release_status']=='NO_GO'
+          assert result['production_authorized'] is False
+          assert json.loads((folder/'evaluation_results.json').read_text())['model_calls']==0
+          assert 'lab_credential' not in (folder/'mcp_identity_audit.json').read_text()
+          print('All governance evidence manifest, NO_GO, and audit checks passed')
+          PY
+      - name: MCP initialize handshake over stdio
+        run: |
+          printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}\n' | python -m tower.mcp_identity_lab --stdio > build/mcp-stdio-response.jsonl
+          python - <<'PY'
+          import json
+          with open('build/mcp-stdio-response.jsonl') as f:
+              result=json.loads(f.readline())
+          assert result['id']==1 and result['result']['serverInfo']['name']=='defensive-local-fixture'
+          print('MCP stdio handshake: pass')
+          PY
+      - name: Publish synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-ai-governance-and-mcp-evidence
+          path: |
+            build/ai-governance-evidence/
+            build/mcp-demo.json
+            build/mcp-stdio-response.jsonl
+          if-no-files-found: warn
+
+  dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install scanner
+        run: python -m pip install --disable-pip-version-check pip-audit
+      - name: Scan pinned dependencies and fail on vulnerabilities
+        run: |
+          mkdir -p build
+          python -m pip_audit -r requirements.txt -f json -o build/pip-audit.json
+      - name: Static scan new Python modules with Bandit
+        run: |
+          python -m pip install --disable-pip-version-check bandit
+          bandit -r tower/ai_governance_evidence.py tower/mcp_identity_lab.py -f json -o build/bandit.json
+      - name: Retain unmodified vulnerability scanner results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-ai-governance-dependency-audit
+          path: |
+            build/pip-audit.json
+            build/bandit.json
+          if-no-files-found: warn
