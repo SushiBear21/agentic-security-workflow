@@ -121,7 +121,7 @@
       "id": "SI-2",
       "title": "Flaw Remediation",
       "owner": "Platform Operations",
-      "limitation": "Fixture dates model remediation and closure. No patch or retest was performed.",
+      "limitation": "SYN-003 demonstrates a synthetic before/after remediation retest only. No resource was patched or assessed.",
       "observations": [],
       "evidence": [
         "tower/fedramp_conmon.py",
@@ -162,12 +162,24 @@
       "severity": "moderate",
       "status": "closed",
       "discovered": "2026-10-03",
-      "summary": "Mock remediation closure recorded after the target",
-      "remediation": "Record the simulated retest and closure evidence.",
+      "summary": "Mock remediation confirmation was absent before correction",
+      "remediation": "Record the simulated remediation confirmation and repeat the same check.",
       "owner": "Platform Operations",
       "source": "synthetic demonstration fixture",
       "closed_at": "2026-11-06",
-      "closure_reference": "tests/fixtures/conmon-aws-v1.json#SYN-003"
+      "closure_reference": "SYN-003-RETEST",
+      "retest": {
+        "before": {
+          "id": "SYN-003-BEFORE",
+          "observed_at": "2026-10-03T14:00:00Z",
+          "remediation_confirmed": false
+        },
+        "after": {
+          "id": "SYN-003-RETEST",
+          "observed_at": "2026-11-06T14:00:00Z",
+          "remediation_confirmed": true
+        }
+      }
     },
     {
       "id": "SYN-004",

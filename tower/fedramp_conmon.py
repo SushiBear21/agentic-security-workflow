@@ -8,7 +8,7 @@ import hashlib
 import html
 import json
 from collections import Counter
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from tower.aws_evidence import OBSERVATION_NAMES
@@ -69,6 +69,47 @@ def summarize_observations(fixture):
         "observations": observations,
         "counts": dict(sorted(Counter(observations.values()).items())),
     }
+
+
+def remediation_retest(finding, discovered, closed_at, evidence):
+    """Validate two synthetic observations; emit IDs, outcomes and digests."""
+    pair = finding.get("retest")
+    if not closed_at or not isinstance(pair, dict) or set(pair) != {"before", "after"}:
+        raise ValueError("SI-2 closure requires before/after fixture retest evidence")
+
+    observations = []
+    times = []
+    for stage, confirmed in (("before", False), ("after", True)):
+        sample = pair[stage]
+        if (not isinstance(sample, dict)
+                or set(sample) != {"id", "observed_at", "remediation_confirmed"}
+                or sample["remediation_confirmed"] is not confirmed):
+            raise ValueError("Fixture retest must show remediation confirmation fail then pass")
+        evidence_id = sample["id"]
+        if (not isinstance(evidence_id, str) or not evidence_id.strip()
+                or evidence_id in evidence or evidence_id == finding["id"]
+                or (observations and evidence_id == observations[0]["id"])):
+            raise ValueError("Distinct fixture retest evidence IDs required")
+        timestamp = sample["observed_at"]
+        if not isinstance(timestamp, str) or "T" not in timestamp or not timestamp.endswith("Z"):
+            raise ValueError("Fixture retest timestamps must be UTC")
+        try:
+            times.append(datetime.fromisoformat(timestamp))
+        except ValueError as exc:
+            raise ValueError("Invalid fixture retest timestamp") from exc
+        record = {
+            "id": evidence_id, "finding_id": finding["id"], "asset_id": finding["asset_id"],
+            "control": finding["control"], "stage": stage, "observed_at": timestamp,
+            "check": "fixture_remediation_confirmation", "expected": True, "observed": confirmed,
+            "outcome": "pass" if confirmed else "fail", "synthetic": True,
+        }
+        observations.append({**record, "sha256": hashlib.sha256(canonical(record).encode("utf-8")).hexdigest()})
+    if not discovered <= times[0].date() or not times[0] < times[1] or times[1].date() > closed_at:
+        raise ValueError("Fixture retest observations must be ordered between discovery and closure")
+    if finding["closure_reference"] != observations[1]["id"]:
+        raise ValueError("Closure must reference the passing fixture retest")
+    evidence.update((item["id"], item) for item in observations)
+    return {"before": observations[0]["id"], "after": observations[1]["id"]}
 
 
 def analyze(fixture, as_of, root=ROOT):
@@ -139,6 +180,7 @@ def analyze(fixture, as_of, root=ROOT):
     if len(finding_ids) != len(set(finding_ids)):
         raise ValueError("Duplicate finding ID")
     rows = []
+    retest_evidence = {}
     stats = Counter()
     period_start = as_of.replace(day=1)
     for f in findings:
@@ -167,6 +209,9 @@ def analyze(fixture, as_of, root=ROOT):
             raise ValueError("Open finding cannot claim closure")
         else:
             closed_at = None
+        retest_links = None
+        if (state == "closed" and f["control"] == "SI-2") or "retest" in f:
+            retest_links = remediation_retest(f, discovered, closed_at, retest_evidence)
         overdue = state != "closed" and as_of > due
         resolution_late = bool(closed_at and closed_at > due)
         stats["new_this_month"] += discovered >= period_start
@@ -189,6 +234,7 @@ def analyze(fixture, as_of, root=ROOT):
             "late_closure": resolution_late,
             "remediation": f["remediation"],
             "closure_reference": f.get("closure_reference"),
+            **({"retest_evidence_ids": retest_links} if retest_links else {}),
             "evidence_status": "synthetic_fixture_not_independently_verified",
             "no_official_fedramp_deadline_claim": True,
         })
@@ -241,7 +287,8 @@ def analyze(fixture, as_of, root=ROOT):
     return report, poam, {
         "synthetic": True, "standard": "NIST SP 800-53 Rev. 5",
         "statement": DISCLAIMER, "status": "partial_mappings_only", "controls": controls,
-    }, {"synthetic": True, "statement": DISCLAIMER, "files": source}
+    }, {"synthetic": True, "statement": DISCLAIMER, "files": source,
+        "remediation_retests": retest_evidence}
 
 
 def system_security_plan(fixture, report, mapping):

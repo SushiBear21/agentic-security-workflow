@@ -1,10 +1,12 @@
+import hashlib
 import json
 import tempfile
 import unittest
+from copy import deepcopy
 from datetime import date
 from pathlib import Path
 
-from tower.fedramp_conmon import FIXTURE, OUTPUTS, analyze, build, verify
+from tower.fedramp_conmon import FIXTURE, OUTPUTS, analyze, build, canonical, verify
 
 
 class ConMonTests(unittest.TestCase):
@@ -34,6 +36,53 @@ class ConMonTests(unittest.TestCase):
         audit = next(row for row in mapping["controls"] if row["control"] == "AU-2")
         self.assertEqual(audit["synthetic_aws_observations"], {"logging": "unverified"})
         self.assertTrue(evidence["synthetic"])
+
+    def test_si2_retest_links_distinct_observations_in_bundle(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "bundle"
+            build(output, self.as_of.isoformat())
+            self.assertTrue(verify(output))
+            poam = json.loads((output / "poam.json").read_bytes())
+            index = json.loads((output / "evidence-index.json").read_bytes())
+
+        finding = next(row for row in poam["items"] if row["id"] == "SYN-003")
+        links = finding["retest_evidence_ids"]
+        self.assertEqual(links, {"before": "SYN-003-BEFORE", "after": "SYN-003-RETEST"})
+        self.assertEqual(finding["closure_reference"], links["after"])
+        self.assertEqual(set(index["remediation_retests"]), set(links.values()))
+        for stage, wanted in (("before", "fail"), ("after", "pass")):
+            record = index["remediation_retests"][links[stage]]
+            self.assertEqual(record["id"], links[stage])
+            self.assertEqual(record["finding_id"], finding["id"])
+            self.assertEqual(record["asset_id"], finding["asset_id"])
+            self.assertEqual(record["control"], "SI-2")
+            self.assertEqual(record["stage"], stage)
+            self.assertEqual(record["outcome"], wanted)
+            self.assertTrue(record["synthetic"])
+            self.assertTrue(record["expected"])
+            self.assertIs(record["observed"], wanted == "pass")
+            digest = record.pop("sha256")
+            self.assertEqual(digest, hashlib.sha256(canonical(record).encode("utf-8")).hexdigest())
+        self.assertEqual(poam["approval_status"], "not_reviewed")
+
+    def test_si2_closure_rejects_invalid_retest(self):
+        cases = (
+            (lambda item: item.pop("retest"), "requires before/after"),
+            (lambda item: item.update(closure_reference="SYN-003-BEFORE"), "reference the passing"),
+            (lambda item: item["retest"]["after"].update(id="SYN-003-BEFORE"), "Distinct"),
+            (lambda item: item["retest"]["after"].update(remediation_confirmed=False), "fail then pass"),
+            (lambda item: item["retest"]["before"].update(remediation_confirmed=True), "fail then pass"),
+            (lambda item: item["retest"]["after"].update(observed_at="2026-10-03T13:00:00Z"), "ordered"),
+            (lambda item: item["retest"]["after"].update(observed_at="2026-11-07T14:00:00Z"), "ordered"),
+            (lambda item: item["retest"]["before"].update(observed_at="2026-10-02T14:00:00Z"), "ordered"),
+            (lambda item: item["retest"]["after"].update(observed_at="2026-11-06T14:00:00"), "UTC"),
+        )
+        for mutate, message in cases:
+            with self.subTest(message=message), self.assertRaisesRegex(ValueError, message):
+                fixture = deepcopy(self.fixture)
+                finding = next(row for row in fixture["findings"] if row["id"] == "SYN-003")
+                mutate(finding)
+                analyze(fixture, self.as_of)
 
     def test_scope_and_temporal_validation(self):
         cases = (

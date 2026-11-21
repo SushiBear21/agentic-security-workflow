@@ -23,7 +23,7 @@ Open `dashboard.html` locally. The same bundle contains:
 | `poam.json` | Mock finding, owner, planned action, target, overdue days and closure reference |
 | `ssp.json` | Fictional AWS boundary, asset inventory, responsibilities and outstanding work |
 | `control-mappings.json` | Selected controls with source paths, simulated observations and gaps |
-| `evidence-index.json` | Fixture SHA-256, reference file hashes and simulated AWS observation summary |
+| `evidence-index.json` | Fixture SHA-256, reference file hashes, simulated AWS observation summary and synthetic remediation retest records |
 | `manifest.json` | Output hashes for integrity verification |
 
 For a different month, use `--fixture` with a version 1 synthetic AWS fixture
@@ -73,3 +73,17 @@ missing assets and the unverified logging observation alongside those counts.
 ## Parking lot
 
 Azure remains deferred.
+
+### Review the SYN-003 remediation retest
+
+In `poam.json`, follow SYN-003's `retest_evidence_ids` into
+`evidence-index.json` → `remediation_retests`. `SYN-003-BEFORE` shows that the
+mock remediation confirmation was missing, so the check failed.
+`SYN-003-RETEST` repeats the same check on the same synthetic asset/control
+with the confirmation present, so it passes. The POA&M's closure reference
+points to this passing record. Each record has its own UTC timestamp and
+SHA-256 of the canonical record without the hash field.
+
+This is a fixture-only SI-2 example; no AWS resource was patched or
+retested, and it does not establish operational effectiveness or independent
+closure. SYN-004 remains a date-only exercise.
