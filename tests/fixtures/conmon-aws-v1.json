@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "cloud_provider": "AWS",
+  "period": "2026-11",
+  "aws_region": "us-east-1",
+  "boundary": {
+    "environment": "synthetic",
+    "system": "Portfolio AWS evidence and remediation lab",
+    "data": "Invented configuration observations, assets and findings",
+    "owner": "Monitoring Lead",
+    "scope": "Simulated S3, DynamoDB and ECR plus the offline reporting workflow"
+  },
+  "sla_days": {
+    "critical": 2,
+    "high": 7,
+    "moderate": 30,
+    "low": 90
+  },
+  "scan_freshness_days": 30,
+  "aws_observations": {
+    "public_access_block": "collected",
+    "encryption": "collected",
+    "versioning": "collected",
+    "logging": "unverified",
+    "location": "collected",
+    "table_encryption": "collected"
+  },
+  "assets": [
+    {
+      "id": "SYN-S3",
+      "component": "S3 evidence bucket",
+      "owner": "Evidence Operations",
+      "last_observed": "2026-11-18",
+      "provider": "AWS"
+    },
+    {
+      "id": "SYN-DDB",
+      "component": "DynamoDB inventory table",
+      "owner": "Platform Operations",
+      "last_observed": "2026-10-15",
+      "provider": "AWS"
+    },
+    {
+      "id": "SYN-ECR",
+      "component": "ECR demonstration image",
+      "owner": "Image Operations",
+      "last_observed": null,
+      "provider": "AWS"
+    }
+  ],
+  "control_mappings": [
+    {
+      "id": "AC-3",
+      "title": "Access Enforcement",
+      "owner": "Evidence Operations",
+      "limitation": "S3 public-access block flag only. IAM, bucket policies and actual access decisions remain outside the exercise.",
+      "observations": [
+        "public_access_block"
+      ],
+      "evidence": [
+        "tower/aws_evidence.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    },
+    {
+      "id": "AU-2",
+      "title": "Event Logging",
+      "owner": "Evidence Operations",
+      "limitation": "Simulated configuration lookup was unverified. Event selection and retention are outside the exercise.",
+      "observations": [
+        "logging"
+      ],
+      "evidence": [
+        "tower/aws_evidence.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    },
+    {
+      "id": "CA-7",
+      "title": "Continuous Monitoring",
+      "owner": "Monitoring Lead",
+      "limitation": "One simulated month. Monitoring cadence and escalation effectiveness remain untested.",
+      "observations": [],
+      "evidence": [
+        "tower/fedramp_conmon.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    },
+    {
+      "id": "RA-5",
+      "title": "Vulnerability Monitoring and Scanning",
+      "owner": "Image Operations",
+      "limitation": "The fixture contains mock observations and gaps. No scanner ran and asset coverage is intentionally incomplete.",
+      "observations": [],
+      "evidence": [
+        "tower/fedramp_conmon.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    },
+    {
+      "id": "SC-28",
+      "title": "Protection of Information at Rest",
+      "owner": "Platform Operations",
+      "limitation": "Simulated configuration metadata covers storage settings. Key management and effectiveness remain untested.",
+      "observations": [
+        "encryption",
+        "table_encryption"
+      ],
+      "evidence": [
+        "tower/aws_evidence.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    },
+    {
+      "id": "SI-2",
+      "title": "Flaw Remediation",
+      "owner": "Platform Operations",
+      "limitation": "SYN-003 demonstrates a synthetic before/after remediation retest only. No resource was patched or assessed.",
+      "observations": [],
+      "evidence": [
+        "tower/fedramp_conmon.py",
+        "tests/fixtures/conmon-aws-v1.json"
+      ],
+      "status": "partial_lab_mapping"
+    }
+  ],
+  "findings": [
+    {
+      "id": "SYN-001",
+      "asset_id": "SYN-ECR",
+      "control": "RA-5",
+      "severity": "critical",
+      "status": "open",
+      "discovered": "2026-11-14",
+      "summary": "Synthetic critical image dependency finding",
+      "remediation": "Review the mock image inventory and schedule a simulated rebuild.",
+      "owner": "Image Operations",
+      "source": "synthetic demonstration fixture"
+    },
+    {
+      "id": "SYN-002",
+      "asset_id": "SYN-S3",
+      "control": "AU-2",
+      "severity": "high",
+      "status": "in_progress",
+      "discovered": "2026-11-13",
+      "summary": "Mock S3 logging configuration could not be verified",
+      "remediation": "Review the synthetic logging configuration and record the expected event coverage.",
+      "owner": "Evidence Operations",
+      "source": "synthetic demonstration fixture"
+    },
+    {
+      "id": "SYN-003",
+      "asset_id": "SYN-DDB",
+      "control": "SI-2",
+      "severity": "moderate",
+      "status": "closed",
+      "discovered": "2026-10-03",
+      "summary": "Mock remediation confirmation was absent before correction",
+      "remediation": "Record the simulated remediation confirmation and repeat the same check.",
+      "owner": "Platform Operations",
+      "source": "synthetic demonstration fixture",
+      "closed_at": "2026-11-06",
+      "closure_reference": "SYN-003-RETEST",
+      "retest": {
+        "before": {
+          "id": "SYN-003-BEFORE",
+          "observed_at": "2026-10-03T14:00:00Z",
+          "remediation_confirmed": false
+        },
+        "after": {
+          "id": "SYN-003-RETEST",
+          "observed_at": "2026-11-06T14:00:00Z",
+          "remediation_confirmed": true
+        }
+      }
+    },
+    {
+      "id": "SYN-004",
+      "asset_id": "SYN-S3",
+      "control": "AC-3",
+      "severity": "low",
+      "status": "closed",
+      "discovered": "2026-11-02",
+      "summary": "Mock access-review follow-up completed",
+      "remediation": "Record the synthetic access-review result.",
+      "owner": "Evidence Operations",
+      "source": "synthetic demonstration fixture",
+      "closed_at": "2026-11-10",
+      "closure_reference": "tests/fixtures/conmon-aws-v1.json#SYN-004"
+    },
+    {
+      "id": "SYN-005",
+      "asset_id": "SYN-DDB",
+      "control": "SC-28",
+      "severity": "high",
+      "status": "open",
+      "discovered": "2026-11-16",
+      "summary": "Mock evidence gap for key ownership",
+      "remediation": "Record mock responsibility and key review evidence.",
+      "owner": "Platform Operations",
+      "source": "synthetic demonstration fixture"
+    }
+  ]
+}
