@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import hashlib
 import hmac
 import json
@@ -97,7 +98,7 @@ class MCPIdentityLab:
                 any(s not in {"evidence:read", "ticket:create", "approval:grant"} for s in claims["scope"])):
                 raise AccessError("credential expired or invalid audience/claims")
             return actor, set(claims["scope"])
-        except (TypeError, ValueError, KeyError, UnicodeError, OverflowError) as exc:
+        except (TypeError, ValueError, KeyError, UnicodeError, OverflowError, binascii.Error) as exc:
             raise AccessError("invalid credential") from None
 
     def _log(self, actor, tool, decision, approval_id=None, result=None, request_hash=None):
