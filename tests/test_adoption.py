@@ -16,7 +16,7 @@ class AdoptionTests(unittest.TestCase):
         self.assertEqual(r["mean_seconds_saved"], 10)
         self.assertTrue(r["synthetic"])
     def test_no_data_is_unknown(self):
-        self.data.update(eligible_users=[], prior_active_users=[], events=[], timing_pairs=[])
+        self.data.update(eligible_users=[], prior_active_users=[], events=[], timing_pairs=[], api_usage=[])
         r = measure(self.data)
         for k in ("activation_rate", "retention_rate", "completion_rate", "draft_acceptance_rate", "mean_seconds_saved"):
             self.assertIsNone(r[k])
@@ -30,3 +30,21 @@ class AdoptionTests(unittest.TestCase):
         self.data["events"].pop()
         self.data["timing_pairs"][0]["manual_seconds"] = float("nan")
         with self.assertRaises(ValueError): measure(self.data)
+
+    def test_api_usage_includes_failed_workflow_cost(self):
+        result = measure(self.data)["api_usage"]
+        self.assertEqual(result, {
+            "requests": 3, "input_tokens": 300, "output_tokens": 60,
+            "cost_microusd": 1600, "cost_per_completed_workflow_usd": 0.0008,
+        })
+
+    def test_missing_duplicate_and_unlinked_usage(self):
+        data = copy.deepcopy(self.data)
+        data.pop("api_usage")
+        self.assertIsNone(measure(data)["api_usage"])
+        data["api_usage"] = [dict(self.data["api_usage"][0])] * 2
+        with self.assertRaisesRegex(ValueError, "Unique API request"):
+            measure(data)
+        data["api_usage"] = [dict(self.data["api_usage"][0], workflow_id="e4")]
+        with self.assertRaisesRegex(ValueError, "workflow outcome"):
+            measure(data)
