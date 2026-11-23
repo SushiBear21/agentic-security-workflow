@@ -35,3 +35,13 @@ jobs:
 
       - name: Run security tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Exercise deterministic execution-integrity lab
+        run: python -m tower.integrity_benchmark --output integrity-benchmark.json
+
+      - name: Retain synthetic execution audit and effect evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-execution-integrity-lab
+          path: integrity-benchmark.json
+          retention-days: 14
