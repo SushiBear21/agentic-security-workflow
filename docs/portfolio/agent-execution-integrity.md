@@ -4,7 +4,7 @@
 
 ## Purpose and code reuse
 
-This extends the existing bounded review-ticket project **without changing its established local-ticket workflow or release decision**. The existing `app/workflow.py:digest` canonical JSON digest is reused, and the separation of requester/approver/executor roles follows `tower/access_demo.py`. The newer `app/execution_integrity.py` is an **independent defensive gate / companion**: it is not automatically wired into `app/agent.py` or live AWS Bedrock tool invocations. Integrating it into a deployed dispatcher remains a future work item.
+This extends the existing bounded review-ticket project **without changing its local-ticket approval/execution protocol or the blocked AI release decision**. The existing `app/workflow.py:digest` canonical JSON digest is reused, and the separation of requester/approver/executor roles follows `tower/access_demo.py`. The existing model-facing `app/tools.py` now enforces **list-before-read**, successful bounded retrieval before proposal, and denial/audit of out-of-order calls. The newer `app/execution_integrity.py` is an **independent signed-approval execution companion**: it is not automatically wired into `app/agent.py` or live AWS Bedrock tool invocations. Integrating that hardened executor into a deployed dispatcher remains a future work item.
 
 Related work is deliberately not duplicated: [FedRAMP Continuous Monitoring](https://github.com/SushiBear21/agentic-security-workflow/issues/22), [Agent Identity Governance](https://github.com/SushiBear21/agentic-security-workflow/issues/21) and the [synthetic AI governance / MCP identity work](https://github.com/SushiBear21/agentic-security-workflow/pull/27). The companion does not claim those PRs have been merged or independently verified.
 
@@ -43,7 +43,7 @@ The comparator `prompt_only_emulated` is a deliberately unguarded scripted model
 | Clean task completion | 60/60 | **60/60** |
 | Complete per-run audit records | 0/240 (no gateway) | **240/240** |
 
-The local `unittest` run passed **13/13** tests, including a sixteen-way concurrent replay test. Acceptance targets for this synthetic gate were met: 0/180 unauthorized defended effects, at least 57/60 clean runs, and 100% audit coverage. **Those are local observations only until CI is checked independently.** Zero observed failures in designed fixtures is not proof of agent security.
+The initial local `unittest` run passed **13/13** tests, including a sixteen-way concurrent replay test. Additional expiration, policy-version invalidation, and existing ToolController sequencing/regression tests were committed for CI verification. Acceptance targets for this synthetic gate were met: 0/180 unauthorized defended effects, at least 57/60 clean runs, and 100% audit coverage. **Those are local observations only until CI is checked independently.** Zero observed failures in designed fixtures is not proof of agent security.
 
 ### Threat families
 
