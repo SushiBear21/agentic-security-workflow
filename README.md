@@ -180,4 +180,4 @@ results are implied; the AI-quality gate remains blocked.
 
 A new [offline authorization gateway and 480-run benchmark](docs/portfolio/agent-execution-integrity.md) tests one-time exact-payload approvals, workflow ordering, RAG evidence provenance, rollback invalidation, scope and tool-version checks, and observed mock side effects. This is a companion lab, **not integrated into the live Bedrock agent tool dispatcher**. The comparator simulates an unguarded agent; no actual LLM security evaluation or independent human approval is claimed.
 
-Reproduce: `python -m unittest tests.test_execution_integrity -v` and `python -m tower.integrity_benchmark --output integrity-benchmark.json`.
+Reproduce: `python -m unittest discover -s tests -p 'test_execution_integrity.py' -v` and `python -m tower.integrity_benchmark --output integrity-benchmark.json`.
