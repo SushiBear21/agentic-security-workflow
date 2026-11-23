@@ -116,6 +116,19 @@ class AgentSecurityTests(unittest.TestCase):
         self.assertEqual([row["decision"] for row in controller.trace],
                          ["denied", "allowed", "allowed"])
 
+    def test_oversized_rejected_read_does_not_unlock_proposal(self):
+        changed = copy.deepcopy(self.snapshot)
+        changed["candidates"][0]["finding"]["description"] = "A" * 25000
+        changed["candidates_sha256"] = workflow.digest(changed["candidates"])
+        controller = ToolController(changed)
+        controller.dispatch("list_candidates", {})
+        with self.assertRaisesRegex(ValueError, "size limit"):
+            controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        with self.assertRaisesRegex(ValueError, "Read candidate"):
+            controller.dispatch("propose_ticket", {
+                "candidate_id": self.identifier, "justification": "Review needed."
+            })
+
     def test_evidence_must_be_read_before_proposal(self):
         controller = ToolController(self.snapshot)
 
