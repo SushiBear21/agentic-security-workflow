@@ -86,13 +86,14 @@ class ToolController:
             if name == "get_candidate":
                 if not self.listed_candidates:
                     raise ValueError("List candidates before reading evidence.")
-                self.read_candidates.add(identifier)
                 result = self.candidates[identifier]
 
-                # Bound tool-result size before returning it to the model.
+                # Mark evidence as read only AFTER the bounded result passes validation.
+                # A rejected/oversize retrieval must never unlock proposal privileges.
                 import json
                 if len(json.dumps(result)) > 20000:
                     raise ValueError("Candidate evidence exceeds size limit.")
+                self.read_candidates.add(identifier)
 
             else:
                 if identifier not in self.read_candidates:
