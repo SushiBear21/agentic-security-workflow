@@ -107,6 +107,15 @@ class AgentSecurityTests(unittest.TestCase):
                 },
             )
 
+    def test_model_must_list_candidates_before_reading(self):
+        controller = ToolController(self.snapshot)
+        with self.assertRaisesRegex(ValueError, "List candidates"):
+            controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        controller.dispatch("list_candidates", {})
+        controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        self.assertEqual([row["decision"] for row in controller.trace],
+                         ["denied", "allowed", "allowed"])
+
     def test_evidence_must_be_read_before_proposal(self):
         controller = ToolController(self.snapshot)
 
@@ -244,10 +253,11 @@ class AgentSecurityTests(unittest.TestCase):
     def test_agent_proposal_does_not_create_ticket(self):
         client = Mock()
         client.converse.side_effect = [
+            model_tool("list_candidates", {}, "tool-1"),
             model_tool(
                 "get_candidate",
                 {"candidate_id": self.identifier},
-                "tool-1",
+                "tool-2",
             ),
             model_tool(
                 "propose_ticket",
@@ -255,7 +265,7 @@ class AgentSecurityTests(unittest.TestCase):
                     "candidate_id": self.identifier,
                     "justification": "Review needed.",
                 },
-                "tool-2",
+                "tool-3",
             ),
         ]
 
