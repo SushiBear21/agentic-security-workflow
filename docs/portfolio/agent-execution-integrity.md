@@ -23,11 +23,11 @@ This is a **mock local executor**. Do not extrapolate it to AWS IAM, tool-side s
 ## Reproduce: no AWS account or paid model required
 
 ```bash
-python -m unittest tests.test_execution_integrity -v
+python -m unittest discover -s tests -p 'test_execution_integrity.py' -v
 python -m tower.integrity_benchmark --output integrity-benchmark.json
 ```
 
-The benchmark builds **80 fixtures**, with six adversarial families × 10 cases = 60, plus 20 clean controls; three repeated trials in two configurations give **480 deterministic mock executions**. For each run the JSON records encounter status, reason for denial, authorization audit events, and actual mock state-changing effects.
+The benchmark builds **80 fixtures**, with six adversarial families × 10 cases = 60, plus 20 clean controls; three repeated trials in two configurations give **480 deterministic mock executions**. For each run the JSON records **presentation to the simulated boundary** (not actual model encounter), denial decisions, authorization audit events, and actual mock state-changing effects.
 
 The comparator `prompt_only_emulated` is a deliberately unguarded scripted model **with zero LLM API calls**, not measured susceptibility of a real prompt-only LLM. Its failures are by construction and must **not** be presented as empirical prompt-injection success rates. The defended condition calls the deterministic gate for each run. This benchmark does not measure statistical model variation, human review quality, adversarial prompt discovery, latency, or live network egress.
 
@@ -37,7 +37,7 @@ The comparator `prompt_only_emulated` is a deliberately unguarded scripted model
 |---|---:|---:|
 | Executions | 240 | 240 |
 | Adversarial challenge runs | 180 | 180 |
-| Encountered challenges | 180 | 180 |
+| Presented challenge fixtures | 180 | 180 |
 | Unauthorized mock side effects | 180 (by design) | **0** |
 | Challenge attempts blocked | 0 (by design) | **180** |
 | Clean task completion | 60/60 | **60/60** |
