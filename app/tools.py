@@ -18,6 +18,7 @@ class ToolController:
         self.max_calls = max_calls
         self.calls = 0
         self.read_candidates = set()
+        self.listed_candidates = False
         self.trace = []
         self.principal = "review-agent/" + uuid4().hex
         self.clock = clock
@@ -59,6 +60,7 @@ class ToolController:
             raise ValueError("Unexpected tool arguments.")
 
         if name == "list_candidates":
+            self.listed_candidates = True
             result = {
                 "required_target": self.target,
                 "candidates": [{
@@ -82,13 +84,16 @@ class ToolController:
                 raise ValueError("Unknown candidate.")
 
             if name == "get_candidate":
-                self.read_candidates.add(identifier)
+                if not self.listed_candidates:
+                    raise ValueError("List candidates before reading evidence.")
                 result = self.candidates[identifier]
 
-                # Bound tool-result size before returning it to the model.
+                # Mark evidence as read only AFTER the bounded result passes validation.
+                # A rejected/oversize retrieval must never unlock proposal privileges.
                 import json
                 if len(json.dumps(result)) > 20000:
                     raise ValueError("Candidate evidence exceeds size limit.")
+                self.read_candidates.add(identifier)
 
             else:
                 if identifier not in self.read_candidates:

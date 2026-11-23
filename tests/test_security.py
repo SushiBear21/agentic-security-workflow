@@ -107,6 +107,28 @@ class AgentSecurityTests(unittest.TestCase):
                 },
             )
 
+    def test_model_must_list_candidates_before_reading(self):
+        controller = ToolController(self.snapshot)
+        with self.assertRaisesRegex(ValueError, "List candidates"):
+            controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        controller.dispatch("list_candidates", {})
+        controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        self.assertEqual([row["decision"] for row in controller.trace],
+                         ["denied", "allowed", "allowed"])
+
+    def test_oversized_rejected_read_does_not_unlock_proposal(self):
+        changed = copy.deepcopy(self.snapshot)
+        changed["candidates"][0]["finding"]["description"] = "A" * 25000
+        changed["candidates_sha256"] = workflow.digest(changed["candidates"])
+        controller = ToolController(changed)
+        controller.dispatch("list_candidates", {})
+        with self.assertRaisesRegex(ValueError, "size limit"):
+            controller.dispatch("get_candidate", {"candidate_id": self.identifier})
+        with self.assertRaisesRegex(ValueError, "Read candidate"):
+            controller.dispatch("propose_ticket", {
+                "candidate_id": self.identifier, "justification": "Review needed."
+            })
+
     def test_evidence_must_be_read_before_proposal(self):
         controller = ToolController(self.snapshot)
 
@@ -244,10 +266,11 @@ class AgentSecurityTests(unittest.TestCase):
     def test_agent_proposal_does_not_create_ticket(self):
         client = Mock()
         client.converse.side_effect = [
+            model_tool("list_candidates", {}, "tool-1"),
             model_tool(
                 "get_candidate",
                 {"candidate_id": self.identifier},
-                "tool-1",
+                "tool-2",
             ),
             model_tool(
                 "propose_ticket",
@@ -255,7 +278,7 @@ class AgentSecurityTests(unittest.TestCase):
                     "candidate_id": self.identifier,
                     "justification": "Review needed.",
                 },
-                "tool-2",
+                "tool-3",
             ),
         ]
 
