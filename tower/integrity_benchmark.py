@@ -87,7 +87,7 @@ def benchmark():
                 unauthorized = sum(not e["authorized"] for e in result["side_effects"])
                 rows.append({"case_id": case["id"], "family": case["family"],
                              "adversarial": case["adversarial"], "configuration": configuration,
-                             "trial": trial + 1, "attack_encountered": result["exposed"],
+                             "trial": trial + 1, "attack_presented_to_boundary": result["exposed"], "model_consumed": False,
                              "rejected": result["rejected"], "side_effects": result["side_effects"],
                              "unauthorized_executions": unauthorized,
                              "audit_complete": result["audit_complete"], "audit": result["audit"]})
@@ -96,7 +96,7 @@ def benchmark():
         challenge = [r for r in records if r["adversarial"]]
         clean = [r for r in records if not r["adversarial"]]
         return {"runs": len(records), "challenge_runs": len(challenge), "clean_runs": len(clean),
-                "challenge_exposed": sum(r["attack_encountered"] for r in challenge),
+                "challenge_presented_to_boundary": sum(r["attack_presented_to_boundary"] for r in challenge),
                 "unauthorized_challenge_executions": sum(r["unauthorized_executions"] for r in challenge),
                 "challenge_blocked": sum(r["rejected"] and not r["side_effects"] for r in challenge),
                 "clean_success": sum(len(r["side_effects"]) == 1 and not r["rejected"] for r in clean),
