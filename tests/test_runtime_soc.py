@@ -1,5 +1,7 @@
 import json
+import os
 import unittest
+from unittest.mock import patch
 
 from tower.runtime_soc import (FIXTURES, MCP_PIN, collect, correlate, evaluate,
                                event, integrity_event, mcp_event, response)
@@ -64,6 +66,24 @@ class RuntimeSocTests(unittest.TestCase):
         self.assertEqual(approved["mock_effect_count"], 1)
         self.assertIn("replay_denied", [r["stage"] for r in approved["timeline"]])
         self.assertEqual(approved["detection_to_response_seconds"], 5)
+
+    def test_untrusted_extra_field_rejected(self):
+        rows = collect(1, "prompt", "LAB_OVERRIDE: test", REV)
+        with self.assertRaisesRegex(ValueError, "invalid normalized event"):
+            correlate([dict(rows[0], raw_payload="NEVER-EXPORT-synthetic-secret")])
+
+    def test_interactive_decline_has_no_effect(self):
+        with patch("builtins.input", return_value="DECLINE"):
+            receipt = response({"case_id": "LAB-0001"}, manual=True)
+        self.assertEqual(receipt["mock_effect_count"], 0)
+        self.assertEqual(receipt["state"], "pending_approval")
+
+    @unittest.skipUnless(os.environ.get("RUNTIME_INTEGRITY_CHECKOUT"), "pinned checkout not provided")
+    def test_pinned_upstream_execution(self):
+        report = evaluate(REV, os.environ["RUNTIME_INTEGRITY_CHECKOUT"])
+        self.assertEqual(report["integrity_source"], "pinned_upstream_executed")
+        self.assertEqual(report["metrics"]["tp"], 6)
+        self.assertEqual(report["metrics"]["fn"], 2)
 
     def test_missing_receipt_is_not_true_negative(self):
         report = evaluate(REV)

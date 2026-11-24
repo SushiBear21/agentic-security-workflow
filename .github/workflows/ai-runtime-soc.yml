@@ -8,9 +8,17 @@ jobs:
   runtime-soc:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      RUNTIME_INTEGRITY_CHECKOUT: ${{ github.workspace }}/_integrity_source
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
+      - name: Check out pinned execution-integrity fixtures
+        uses: actions/checkout@v6
+        with:
+          ref: 75cc1736e261008438b682f562f153c5217cafc1
+          path: _integrity_source
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
