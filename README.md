@@ -176,3 +176,5 @@ Container CI now scans OS and library vulnerabilities and generates image SBOMs.
 AWS publishing/deployment workflows are manual and require configured protected
 environments and existing infrastructure. No live deployment or real adoption
 results are implied; the AI-quality gate remains blocked.
+
+- [Synthetic AI runtime SOC integration exercise (#32)](docs/portfolio/ai-runtime-soc-exercise.md) — normalized event and local case routing, MCP-gated simulated response, fixture detection metrics and evidence export; no live SOC or independent approval claim.
