@@ -1,0 +1,32 @@
+name: AI runtime SOC lab
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime-soc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install lab dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Runtime SOC regression tests
+        run: python -m unittest discover -s tests -p 'test_runtime_soc.py' -v
+      - name: Generate and verify evidence
+        run: |
+          python -m tower.runtime_soc --output runtime-soc-evidence
+          cd runtime-soc-evidence
+          sha256sum -c SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-runtime-soc-evidence
+          path: runtime-soc-evidence/
+          if-no-files-found: error
+          retention-days: 30
