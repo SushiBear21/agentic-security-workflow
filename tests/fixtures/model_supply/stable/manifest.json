@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "release": "stable",
+  "origin": "urn:portfolio:synthetic:local",
+  "owner": "fictional-lab-owner",
+  "license": "synthetic test data; no third-party model weights",
+  "rag_revision": "6b45c18fa58b498b3b1714529cfded8b5bc5648b",
+  "rag_lock_sha256": "bc2cafc020aa9f94188e5e42990fb8bd726673bf4050ef2aa243fdaf86c4dc73",
+  "artifacts": [
+    {
+      "kind": "model",
+      "name": "model.txt",
+      "version": "1",
+      "sha256": "a6855bab0d78e5ea341a9004898d21947fc41306f6bc015865474d7cf4c4eb54"
+    },
+    {
+      "kind": "embedding",
+      "name": "embedding.txt",
+      "version": "1",
+      "sha256": "0c5262e5ce8f87cd6a701ee4772cc9f81b154c6af4d5fd4c064d5fc48e616e77"
+    }
+  ]
+}

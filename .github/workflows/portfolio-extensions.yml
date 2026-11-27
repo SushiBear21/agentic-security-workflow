@@ -22,6 +22,29 @@ jobs:
           python-version: "3.13"
       - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s tests -v
+      - name: Check out the reviewed public RAG revision
+        uses: actions/checkout@v4
+        with:
+          repository: SushiBear21/secure-enterprise-rag
+          ref: 6b45c18fa58b498b3b1714529cfded8b5bc5648b
+          path: _rag_supply_source
+          persist-credentials: false
+      - name: Verify synthetic model release preflight
+        run: |
+          python -m unittest discover -s tests -p test_model_supply.py -v
+          python -m tower.model_supply --rag-root _rag_supply_source --output model-supply-evidence
+      - name: Retain model supply evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-supply-evidence
+          path: model-supply-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Remove temporary RAG checkout and model output from build context
+        run: |
+          mv model-supply-evidence "$RUNNER_TEMP/model-supply-evidence"
+          rm -rf -- _rag_supply_source
       - run: python p4_regression.py --output regression.json
       - run: python -m pip install pip-audit
       - run: python -m tower.release --output release-evidence --audit
